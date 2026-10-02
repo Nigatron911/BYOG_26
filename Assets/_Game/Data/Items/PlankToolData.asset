@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42f237893df8c1d4f854ff34bedaa77f, type: 3}
+  m_Name: PlankToolData
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Data.Items.ToolDefinition
+  toolType: 1
+  displayName: Plank
+  icon: {fileID: 2890438909580299443, guid: 7c07ac91961f0ca47848baa04a526c2f, type: 3}
+  prefab: {fileID: 6440388878451132104, guid: f3324b031ce5a3740a36e4e30da1f399, type: 3}
+  maxCount: 2

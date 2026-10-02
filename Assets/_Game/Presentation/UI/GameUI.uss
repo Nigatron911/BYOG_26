@@ -1,0 +1,277 @@
+/* GameUI.uss - Styles for Game UI Toolkit */
+
+.screen-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* TOP HUD CONTAINER */
+.hud-top-container {
+    position: absolute;
+    top: 24px;
+    align-self: center;
+    align-items: center;
+    pointer-events: none;
+}
+
+.stuck-warning-card {
+    background-color: rgba(180, 30, 30, 0.92);
+    border-radius: 8px;
+    border-width: 2px;
+    border-color: rgba(255, 100, 100, 0.9);
+    padding: 10px 24px;
+    align-items: center;
+    justify-content: center;
+    min-width: 320px;
+    display: none;
+    pointer-events: auto;
+}
+
+.stuck-timer-label {
+    color: #ffffff;
+    font-size: 18px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-bottom: 6px;
+}
+
+.stuck-progress-track {
+    width: 260px;
+    height: 6px;
+    background-color: rgba(0, 0, 0, 0.4);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.stuck-progress-fill {
+    width: 0%;
+    height: 100%;
+    background-color: #ffd32a;
+    border-radius: 3px;
+}
+
+/* BOTTOM TOOLBAR CONTAINER */
+.toolbar-bottom-container {
+    position: absolute;
+    bottom: 24px;
+    align-self: center;
+    align-items: center;
+    pointer-events: none;
+}
+
+.toolbar-dock {
+    flex-direction: row;
+    background-color: rgba(14, 18, 26, 0.94);
+    border-radius: 14px;
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.18);
+    padding: 10px 16px;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+}
+
+/* TOOL CARDS */
+.tool-card {
+    width: 100px;
+    height: 80px;
+    margin-left: 6px;
+    margin-right: 6px;
+    border-radius: 10px;
+    border-width: 2px;
+    border-color: #d4a742;
+    background-color: rgba(45, 34, 22, 0.92);
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    transition: scale 0.1s, background-color 0.15s, border-color 0.15s;
+}
+
+.tool-card:hover {
+    background-color: rgba(65, 50, 30, 0.98);
+    border-color: #ffd700;
+    scale: 1.05 1.05;
+}
+
+.tool-card:active {
+    scale: 0.96 0.96;
+}
+
+.tool-card-disabled {
+    opacity: 0.4;
+}
+
+.tool-card-keybadge {
+    background-color: rgba(0, 0, 0, 0.45);
+    border-radius: 4px;
+    padding: 1px 6px;
+    margin-bottom: 4px;
+}
+
+.tool-card-keybadge-text {
+    color: #e5b95c;
+    font-size: 11px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.tool-card-title {
+    color: #ffffff;
+    font-size: 15px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.tool-card-count {
+    color: #ffd32a;
+    font-size: 13px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-top: 1px;
+}
+
+/* ACTION BUTTONS */
+.action-button {
+    height: 60px;
+    margin-left: 8px;
+    margin-right: 8px;
+    border-radius: 30px;
+    border-width: 0;
+    padding-left: 20px;
+    padding-right: 20px;
+    align-items: center;
+    justify-content: center;
+    transition: scale 0.1s, opacity 0.15s;
+}
+
+.action-button:hover {
+    scale: 1.04 1.04;
+}
+
+.action-button:active {
+    scale: 0.96 0.96;
+}
+
+.action-button-label {
+    color: #ffffff;
+    font-size: 16px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.btn-rotate {
+    min-width: 125px;
+    background-color: #c9881a;
+}
+.btn-rotate:hover {
+    background-color: #e09b24;
+}
+
+.btn-simulate {
+    min-width: 160px;
+    background-color: #27ae60;
+}
+.btn-simulate:hover {
+    background-color: #2ecc71;
+}
+
+.btn-simulate-active {
+    background-color: #d63031;
+}
+.btn-simulate-active:hover {
+    background-color: #e74c3c;
+}
+
+.btn-reset {
+    min-width: 115px;
+    background-color: #2980b9;
+}
+.btn-reset:hover {
+    background-color: #3498db;
+}
+
+/* GAME OVER OVERLAY */
+.gameover-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(10, 12, 18, 0.90);
+    align-items: center;
+    justify-content: center;
+    display: none;
+    pointer-events: auto;
+}
+
+.gameover-modal {
+    width: 480px;
+    background-color: rgba(22, 26, 36, 0.98);
+    border-radius: 16px;
+    border-width: 2px;
+    border-color: rgba(235, 60, 60, 0.7);
+    padding: 36px 30px;
+    align-items: center;
+}
+
+.gameover-title {
+    color: #ff4757;
+    font-size: 40px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-bottom: 14px;
+}
+
+.gameover-cause {
+    color: #dfe4ea;
+    font-size: 18px;
+    -unity-text-align: middle-center;
+    margin-bottom: 30px;
+}
+
+.btn-retry {
+    min-width: 260px;
+    height: 56px;
+    background-color: #2ed573;
+    border-radius: 28px;
+    border-width: 0;
+    align-items: center;
+    justify-content: center;
+    padding-left: 24px;
+    padding-right: 24px;
+    transition: scale 0.1s;
+}
+
+.btn-retry:hover {
+    scale: 1.05 1.05;
+    background-color: #26af5f;
+}
+
+.btn-retry:active {
+    scale: 0.96 0.96;
+}
+
+.btn-retry-label {
+    color: #ffffff;
+    font-size: 18px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+/* SCREEN FADER OVERLAY */
+.screen-fader {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #000000;
+    opacity: 0;
+    pointer-events: none;
+}

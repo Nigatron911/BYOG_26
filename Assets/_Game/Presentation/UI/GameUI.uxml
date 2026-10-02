@@ -1,0 +1,70 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/_Game/Presentation/UI/GameUI.uss?fileID=7433441132597870071&amp;guid=63d650896dad73341ba156facebcf177&amp;type=3#GameUI" />
+    
+    <ui:VisualElement name="ScreenContainer" class="screen-container" picking-mode="Ignore">
+        <!-- TOP HUD -->
+        <ui:VisualElement name="TopHUDContainer" class="hud-top-container" picking-mode="Ignore">
+            <ui:VisualElement name="StuckWarningPanel" class="stuck-warning-card">
+                <ui:Label name="StuckTimerText" class="stuck-timer-label" text="Stuck! Game Over in: 5.0s" />
+                <ui:VisualElement name="StuckProgressTrack" class="stuck-progress-track">
+                    <ui:VisualElement name="StuckProgressFill" class="stuck-progress-fill" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- BOTTOM TOOLBAR -->
+        <ui:VisualElement name="BottomToolbarContainer" class="toolbar-bottom-container" picking-mode="Ignore">
+            <ui:VisualElement name="ToolbarDock" class="toolbar-dock">
+                <ui:Button name="Btn_Plank" class="tool-card">
+                    <ui:VisualElement class="tool-card-keybadge">
+                        <ui:Label text="[ 1 ]" class="tool-card-keybadge-text" />
+                    </ui:VisualElement>
+                    <ui:Label text="Plank" class="tool-card-title" />
+                    <ui:Label name="Count_Plank" text="x2" class="tool-card-count" />
+                </ui:Button>
+
+                <ui:Button name="Btn_Ladder" class="tool-card">
+                    <ui:VisualElement class="tool-card-keybadge">
+                        <ui:Label text="[ 2 ]" class="tool-card-keybadge-text" />
+                    </ui:VisualElement>
+                    <ui:Label text="Ladder" class="tool-card-title" />
+                    <ui:Label name="Count_Ladder" text="x2" class="tool-card-count" />
+                </ui:Button>
+
+                <ui:Button name="Btn_Platform" class="tool-card">
+                    <ui:VisualElement class="tool-card-keybadge">
+                        <ui:Label text="[ 3 ]" class="tool-card-keybadge-text" />
+                    </ui:VisualElement>
+                    <ui:Label text="Platform" class="tool-card-title" />
+                    <ui:Label name="Count_Platform" text="x2" class="tool-card-count" />
+                </ui:Button>
+
+                <ui:Button name="Btn_Rotate" class="action-button btn-rotate">
+                    <ui:Label name="Label_Rotate" class="action-button-label" text="⟳ ROTATE" />
+                </ui:Button>
+
+                <ui:Button name="Btn_Simulate" class="action-button btn-simulate">
+                    <ui:Label name="Label_Simulate" class="action-button-label" text="▶ SIMULATE" />
+                </ui:Button>
+
+                <ui:Button name="Btn_Reset" class="action-button btn-reset">
+                    <ui:Label name="Label_Reset" class="action-button-label" text="↺ RESET" />
+                </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- GAME OVER MODAL -->
+        <ui:VisualElement name="GameOverOverlay" class="gameover-overlay">
+            <ui:VisualElement name="GameOverModal" class="gameover-modal">
+                <ui:Label text="LEVEL FAILED" class="gameover-title" />
+                <ui:Label name="GameOverCauseText" class="gameover-cause" text="Fell into hazard" />
+                <ui:Button name="Btn_Retry" class="btn-retry">
+                    <ui:Label text="TRY AGAIN (KEEP TOOLS)" class="btn-retry-label" />
+                </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- SCREEN FADER (TOPMOST) -->
+        <ui:VisualElement name="ScreenFaderOverlay" class="screen-fader" picking-mode="Ignore" />
+    </ui:VisualElement>
+</ui:UXML>
