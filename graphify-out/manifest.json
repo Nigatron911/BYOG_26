@@ -1,0 +1,332 @@
+{
+  ".vscode/extensions.json": {
+    "mtime": 1790879838.8236969,
+    "seen": 1790912110.939759,
+    "ast_hash": "a9819ba4d76ccd81cf1f7b18e06c77d0",
+    "semantic_hash": "a9819ba4d76ccd81cf1f7b18e06c77d0"
+  },
+  ".vscode/launch.json": {
+    "mtime": 1790879838.8271918,
+    "seen": 1790912110.9397624,
+    "ast_hash": "b939dea735cf9d32842d6a2c44474427",
+    "semantic_hash": "b939dea735cf9d32842d6a2c44474427"
+  },
+  ".vscode/settings.json": {
+    "mtime": 1790879838.8271918,
+    "seen": 1790912110.9397643,
+    "ast_hash": "ec5c8d13557f9a8db230a62134e2f596",
+    "semantic_hash": "ec5c8d13557f9a8db230a62134e2f596"
+  },
+  "Assets/Plugins/vFolders Fixed 6.3.7f1 unity/VFolders.cs": {
+    "mtime": 1790883437.8488257,
+    "seen": 1790912110.9397647,
+    "ast_hash": "ecfd4737c7ff8e512f3fe2d44b80d179",
+    "semantic_hash": "ecfd4737c7ff8e512f3fe2d44b80d179"
+  },
+  "Assets/Plugins/vFolders Fixed 6.3.7f1 unity/VFoldersCache.cs": {
+    "mtime": 1788331220.881866,
+    "seen": 1790912110.9397655,
+    "ast_hash": "657220eb3fdc6d0748ea24063a8ee80a",
+    "semantic_hash": "657220eb3fdc6d0748ea24063a8ee80a"
+  },
+  "Assets/Plugins/vFolders Fixed 6.3.7f1 unity/VFoldersController.cs": {
+    "mtime": 1790883452.4301345,
+    "seen": 1790912110.939766,
+    "ast_hash": "a400160df56bc46422ce271c3166e74d",
+    "semantic_hash": "a400160df56bc46422ce271c3166e74d"
+  },
+  "Assets/Plugins/vFolders Fixed 6.3.7f1 unity/VFoldersData.cs": {
+    "mtime": 1788331220.8828826,
+    "seen": 1790912110.939767,
+    "ast_hash": "153f13edd993b7f48b70f0a95e5a99e3",
+    "semantic_hash": "153f13edd993b7f48b70f0a95e5a99e3"
+  },
+  "Assets/Plugins/vFolders Fixed 6.3.7f1 unity/VFoldersGUI.cs": {
+    "mtime": 1788331220.883394,
+    "seen": 1790912110.9397674,
+    "ast_hash": "c14fcd0213e4af1b55c2aed971e4e870",
+    "semantic_hash": "c14fcd0213e4af1b55c2aed971e4e870"
+  },
+  "Assets/Plugins/vFolders Fixed 6.3.7f1 unity/VFoldersHistory.cs": {
+    "mtime": 1788331220.8839042,
+    "seen": 1790912110.9397678,
+    "ast_hash": "973fa248786dc2df4b74d7ece2fee7bf",
+    "semantic_hash": "973fa248786dc2df4b74d7ece2fee7bf"
+  },
+  "Assets/Plugins/vFolders Fixed 6.3.7f1 unity/VFoldersIconEditor.cs": {
+    "mtime": 1788331220.8839042,
+    "seen": 1790912110.9397683,
+    "ast_hash": "46d9a11d1729d512e3bf3b6c542b0664",
+    "semantic_hash": "46d9a11d1729d512e3bf3b6c542b0664"
+  },
+  "Assets/Plugins/vFolders Fixed 6.3.7f1 unity/VFoldersLibs.cs": {
+    "mtime": 1788331220.8849077,
+    "seen": 1790912110.939769,
+    "ast_hash": "9fdd81d6b3d8668be0cfa960c61dd150",
+    "semantic_hash": "9fdd81d6b3d8668be0cfa960c61dd150"
+  },
+  "Assets/Plugins/vFolders Fixed 6.3.7f1 unity/VFoldersMenu.cs": {
+    "mtime": 1788331220.8849077,
+    "seen": 1790912110.9397697,
+    "ast_hash": "1b6c200ba311beb214b3c93c38156122",
+    "semantic_hash": "1b6c200ba311beb214b3c93c38156122"
+  },
+  "Assets/Plugins/vFolders Fixed 6.3.7f1 unity/VFoldersMenuItems.cs": {
+    "mtime": 1788331220.8849077,
+    "seen": 1790912110.9397705,
+    "ast_hash": "46d9a11d1729d512e3bf3b6c542b0664",
+    "semantic_hash": "46d9a11d1729d512e3bf3b6c542b0664"
+  },
+  "Assets/Plugins/vFolders Fixed 6.3.7f1 unity/VFoldersNavbar.cs": {
+    "mtime": 1788331220.8860867,
+    "seen": 1790912110.939771,
+    "ast_hash": "2490110885713652eebaf3d2522a5407",
+    "semantic_hash": "2490110885713652eebaf3d2522a5407"
+  },
+  "Assets/Plugins/vFolders Fixed 6.3.7f1 unity/VFoldersPalette.cs": {
+    "mtime": 1788331220.8866346,
+    "seen": 1790912110.9397717,
+    "ast_hash": "312bc56e22403b6822b826a71eeedd23",
+    "semantic_hash": "312bc56e22403b6822b826a71eeedd23"
+  },
+  "Assets/Plugins/vFolders Fixed 6.3.7f1 unity/VFoldersPaletteEditor.cs": {
+    "mtime": 1788331220.8871436,
+    "seen": 1790912110.9397721,
+    "ast_hash": "71850288e87931a54a83eaf288323084",
+    "semantic_hash": "71850288e87931a54a83eaf288323084"
+  },
+  "Assets/Plugins/vFolders Fixed 6.3.7f1 unity/VFoldersPaletteWindow.cs": {
+    "mtime": 1788331220.8876579,
+    "seen": 1790912110.9397726,
+    "ast_hash": "d067c68d014dd6ed021838433ac44d21",
+    "semantic_hash": "d067c68d014dd6ed021838433ac44d21"
+  },
+  "Assets/Plugins/vHierarchy/VHierarchy.cs": {
+    "mtime": 1788331220.9110746,
+    "seen": 1790912110.939773,
+    "ast_hash": "6b426e43ff365d5f48fa9f4a1952323f",
+    "semantic_hash": "6b426e43ff365d5f48fa9f4a1952323f"
+  },
+  "Assets/Plugins/vHierarchy/VHierarchyCache.cs": {
+    "mtime": 1788331220.9115958,
+    "seen": 1790912110.939774,
+    "ast_hash": "e774dd38730393c571ed699e1325f37e",
+    "semantic_hash": "e774dd38730393c571ed699e1325f37e"
+  },
+  "Assets/Plugins/vHierarchy/VHierarchyComponentEditor.cs": {
+    "mtime": 1788331220.9123688,
+    "seen": 1790912110.9397745,
+    "ast_hash": "9099d22c2a1d6d39dd9956ecb507f999",
+    "semantic_hash": "9099d22c2a1d6d39dd9956ecb507f999"
+  },
+  "Assets/Plugins/vHierarchy/VHierarchyComponentWindow.cs": {
+    "mtime": 1788331220.9134457,
+    "seen": 1790912110.939775,
+    "ast_hash": "83eda8335307f8c6c754df6b67e82739",
+    "semantic_hash": "83eda8335307f8c6c754df6b67e82739"
+  },
+  "Assets/Plugins/vHierarchy/VHierarchyController.cs": {
+    "mtime": 1788331220.9139574,
+    "seen": 1790912110.9397755,
+    "ast_hash": "06441c7cf64a7b62acd57f31e1c52e30",
+    "semantic_hash": "06441c7cf64a7b62acd57f31e1c52e30"
+  },
+  "Assets/Plugins/vHierarchy/VHierarchyData.cs": {
+    "mtime": 1788331220.9139574,
+    "seen": 1790912110.9397764,
+    "ast_hash": "3e0237b546de4bf9ffb19faad6457d6a",
+    "semantic_hash": "3e0237b546de4bf9ffb19faad6457d6a"
+  },
+  "Assets/Plugins/vHierarchy/VHierarchyDataComponent.cs": {
+    "mtime": 1788331220.9144878,
+    "seen": 1790912110.9397771,
+    "ast_hash": "2760f765f0adecf0a852d82c6dddfcd2",
+    "semantic_hash": "2760f765f0adecf0a852d82c6dddfcd2"
+  },
+  "Assets/Plugins/vHierarchy/VHierarchyGUI.cs": {
+    "mtime": 1788331220.9149978,
+    "seen": 1790912110.9397776,
+    "ast_hash": "007ef314b6a62b1465745a20a298f3f4",
+    "semantic_hash": "007ef314b6a62b1465745a20a298f3f4"
+  },
+  "Assets/Plugins/vHierarchy/VHierarchyIconEditor.cs": {
+    "mtime": 1788331220.9149978,
+    "seen": 1790912110.939778,
+    "ast_hash": "9099d22c2a1d6d39dd9956ecb507f999",
+    "semantic_hash": "9099d22c2a1d6d39dd9956ecb507f999"
+  },
+  "Assets/Plugins/vHierarchy/VHierarchyLibs.cs": {
+    "mtime": 1788331220.9149978,
+    "seen": 1790912110.9397788,
+    "ast_hash": "58775f4441e1f8ed777d979caf951717",
+    "semantic_hash": "58775f4441e1f8ed777d979caf951717"
+  },
+  "Assets/Plugins/vHierarchy/VHierarchyLightingWindow.cs": {
+    "mtime": 1788331220.9160779,
+    "seen": 1790912110.9397793,
+    "ast_hash": "9099d22c2a1d6d39dd9956ecb507f999",
+    "semantic_hash": "9099d22c2a1d6d39dd9956ecb507f999"
+  },
+  "Assets/Plugins/vHierarchy/VHierarchyMenu.cs": {
+    "mtime": 1788331220.9166174,
+    "seen": 1790912110.9397798,
+    "ast_hash": "28997a4081426a8dc09296d87c9bb486",
+    "semantic_hash": "28997a4081426a8dc09296d87c9bb486"
+  },
+  "Assets/Plugins/vHierarchy/VHierarchyMenuItems.cs": {
+    "mtime": 1788331220.9166174,
+    "seen": 1790912110.9397807,
+    "ast_hash": "9099d22c2a1d6d39dd9956ecb507f999",
+    "semantic_hash": "9099d22c2a1d6d39dd9956ecb507f999"
+  },
+  "Assets/Plugins/vHierarchy/VHierarchyNavbar.cs": {
+    "mtime": 1788331220.9171607,
+    "seen": 1790912110.9397812,
+    "ast_hash": "0fbcd3337f7d4eb9c01ba1aa52c3f470",
+    "semantic_hash": "0fbcd3337f7d4eb9c01ba1aa52c3f470"
+  },
+  "Assets/Plugins/vHierarchy/VHierarchyPalette.cs": {
+    "mtime": 1788331220.9171607,
+    "seen": 1790912110.9397817,
+    "ast_hash": "05d8c5b4064be7385f3b16bf7e8e76f8",
+    "semantic_hash": "05d8c5b4064be7385f3b16bf7e8e76f8"
+  },
+  "Assets/Plugins/vHierarchy/VHierarchyPaletteEditor.cs": {
+    "mtime": 1788331220.9176748,
+    "seen": 1790912110.9397821,
+    "ast_hash": "0259c0fc0afdef880e9143d64e5849a0",
+    "semantic_hash": "0259c0fc0afdef880e9143d64e5849a0"
+  },
+  "Assets/Plugins/vHierarchy/VHierarchyPaletteWindow.cs": {
+    "mtime": 1788331220.9181893,
+    "seen": 1790912110.9397829,
+    "ast_hash": "82bf44b3db3fdaa631ba5b974da192e0",
+    "semantic_hash": "82bf44b3db3fdaa631ba5b974da192e0"
+  },
+  "Assets/Plugins/vHierarchy/VHierarchySceneSelectorWindow.cs": {
+    "mtime": 1788331220.918697,
+    "seen": 1790912110.9397833,
+    "ast_hash": "36041dff7a211b48bf0874db21753795",
+    "semantic_hash": "36041dff7a211b48bf0874db21753795"
+  },
+  "Assets/Plugins/vInspector/VInspector.cs": {
+    "mtime": 1788331221.0200498,
+    "seen": 1790912110.939784,
+    "ast_hash": "8269dd07aa3f243ea99a37e3b01beb62",
+    "semantic_hash": "8269dd07aa3f243ea99a37e3b01beb62"
+  },
+  "Assets/Plugins/vInspector/VInspectorAttributes.cs": {
+    "mtime": 1788331221.0205696,
+    "seen": 1790912110.9397845,
+    "ast_hash": "178b12714d2133062f7249f7c798ab95",
+    "semantic_hash": "178b12714d2133062f7249f7c798ab95"
+  },
+  "Assets/Plugins/vInspector/VInspectorClipboard.cs": {
+    "mtime": 1788331221.0211074,
+    "seen": 1790912110.939785,
+    "ast_hash": "33e625f16ef5e9e7cfeeba440c069068",
+    "semantic_hash": "33e625f16ef5e9e7cfeeba440c069068"
+  },
+  "Assets/Plugins/vInspector/VInspectorComponentHeader.cs": {
+    "mtime": 1788331221.0216157,
+    "seen": 1790912110.9397855,
+    "ast_hash": "0c07f1ee6333f1df65b6eeb3575f92ac",
+    "semantic_hash": "0c07f1ee6333f1df65b6eeb3575f92ac"
+  },
+  "Assets/Plugins/vInspector/VInspectorComponentWindow.cs": {
+    "mtime": 1788331221.0216157,
+    "seen": 1790912110.939786,
+    "ast_hash": "c93343ab3b4adeeb8ed122bd932d582b",
+    "semantic_hash": "c93343ab3b4adeeb8ed122bd932d582b"
+  },
+  "Assets/Plugins/vInspector/VInspectorData.cs": {
+    "mtime": 1788331221.0221384,
+    "seen": 1790912110.9397864,
+    "ast_hash": "02e27fcc15c63bba2733fe8ea6acb8c7",
+    "semantic_hash": "02e27fcc15c63bba2733fe8ea6acb8c7"
+  },
+  "Assets/Plugins/vInspector/VInspectorDrawers.cs": {
+    "mtime": 1788331221.022647,
+    "seen": 1790912110.9397871,
+    "ast_hash": "ba160acad6e4661afccc489469670923",
+    "semantic_hash": "ba160acad6e4661afccc489469670923"
+  },
+  "Assets/Plugins/vInspector/VInspectorEditor.cs": {
+    "mtime": 1788331221.0231576,
+    "seen": 1790912110.9397879,
+    "ast_hash": "aa6fb75cd1b1d59483ccf36b1b9bb49f",
+    "semantic_hash": "aa6fb75cd1b1d59483ccf36b1b9bb49f"
+  },
+  "Assets/Plugins/vInspector/VInspectorLibs.cs": {
+    "mtime": 1788331221.0236697,
+    "seen": 1790912110.9397886,
+    "ast_hash": "6b9d47d50d01c78d417dfea5ca77be15",
+    "semantic_hash": "6b9d47d50d01c78d417dfea5ca77be15"
+  },
+  "Assets/Plugins/vInspector/VInspectorMenu.cs": {
+    "mtime": 1788331221.0236697,
+    "seen": 1790912110.9397893,
+    "ast_hash": "15d09b828952eb567303133583e48e84",
+    "semantic_hash": "15d09b828952eb567303133583e48e84"
+  },
+  "Assets/Plugins/vInspector/VInspectorNavbar.cs": {
+    "mtime": 1788331221.0241852,
+    "seen": 1790912110.9397898,
+    "ast_hash": "e0ee316f410871ae27b95f8cbb9e5631",
+    "semantic_hash": "e0ee316f410871ae27b95f8cbb9e5631"
+  },
+  "Assets/Plugins/vInspector/VInspectorResettableVariables.cs": {
+    "mtime": 1788331221.0246935,
+    "seen": 1790912110.9397905,
+    "ast_hash": "66dc4cea9061e165bbcf8cc9ab3f5f81",
+    "semantic_hash": "66dc4cea9061e165bbcf8cc9ab3f5f81"
+  },
+  "Assets/Plugins/vInspector/VInspectorSelectionHistory.cs": {
+    "mtime": 1788331221.0252392,
+    "seen": 1790912110.9397912,
+    "ast_hash": "192ca45d0e9405272db7d398f3462a1a",
+    "semantic_hash": "192ca45d0e9405272db7d398f3462a1a"
+  },
+  "Assets/Plugins/vInspector/VInspectorSerializedDictionary.cs": {
+    "mtime": 1788331221.0252392,
+    "seen": 1790912110.939792,
+    "ast_hash": "ea66cdf0b5b81bccb5076703bc175a27",
+    "semantic_hash": "ea66cdf0b5b81bccb5076703bc175a27"
+  },
+  "Assets/Plugins/vInspector/VInspectorState.cs": {
+    "mtime": 1788331221.0257475,
+    "seen": 1790912110.9397924,
+    "ast_hash": "35705c5c28654604c22870b68baa375d",
+    "semantic_hash": "35705c5c28654604c22870b68baa375d"
+  },
+  "Assets/_Project/Scripts/Editor/HierarchySetupTool.cs": {
+    "mtime": 1790883114.1543717,
+    "seen": 1790912110.939793,
+    "ast_hash": "21a4fb6c844bec2918e0f4b3f49e3046",
+    "semantic_hash": "21a4fb6c844bec2918e0f4b3f49e3046"
+  },
+  "Packages/manifest.json": {
+    "mtime": 1790881409.3146613,
+    "seen": 1790912110.9397936,
+    "ast_hash": "871a7feed2bafed5cc175cb0fe788562",
+    "semantic_hash": "871a7feed2bafed5cc175cb0fe788562"
+  },
+  "Packages/packages-lock.json": {
+    "mtime": 1790881409.3294697,
+    "seen": 1790912110.939794,
+    "ast_hash": "33e22a1713538ff9357ac3ee992532da",
+    "semantic_hash": "33e22a1713538ff9357ac3ee992532da"
+  },
+  "ProjectSettings/Packages/com.unity.ai.assistant/Settings.json": {
+    "mtime": 1790880224.6477535,
+    "seen": 1790912110.9397948,
+    "ast_hash": "4f9c21d5609f1a76712f4f1619c9291d",
+    "semantic_hash": "4f9c21d5609f1a76712f4f1619c9291d"
+  },
+  "ProjectSettings/SceneTemplateSettings.json": {
+    "mtime": 1790882736.422915,
+    "seen": 1790912110.9397955,
+    "ast_hash": "eeb26e313b89cd9334b828428a4847ef",
+    "semantic_hash": "eeb26e313b89cd9334b828428a4847ef"
+  }
+}
