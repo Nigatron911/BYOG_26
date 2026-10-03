@@ -29,7 +29,6 @@ namespace Game.Presentation.UI
         private Label countChain;
         private Button btnRotate;
         private Button btnSimulate;
-        private Button btnNextLevel;
         private Label labelSimulate;
         private Transform toolsContainer;
         private VisualElement toolbarContainer;
@@ -102,6 +101,12 @@ namespace Game.Presentation.UI
             {
                 BindUI();
             }
+
+            if (UnityEngine.InputSystem.Keyboard.current != null && UnityEngine.InputSystem.Keyboard.current.nKey.wasPressedThisFrame)
+            {
+                OnNextLevelClicked();
+            }
+
             RefreshCounts();
         }
 
@@ -124,7 +129,6 @@ namespace Game.Presentation.UI
             countChain = root.Q<Label>("Count_Chain");
             btnRotate = root.Q<Button>("Btn_Rotate");
             btnSimulate = root.Q<Button>("Btn_Simulate");
-            btnNextLevel = root.Q<Button>("Btn_NextLevel");
             labelSimulate = root.Q<Label>("Label_Simulate");
             toolbarContainer = root.Q<VisualElement>("BottomToolbarContainer");
             toolbarDock = root.Q<VisualElement>("ToolbarDock");
@@ -135,7 +139,11 @@ namespace Game.Presentation.UI
             if (btnChain != null) btnChain.clicked += OnChainClicked;
             if (btnRotate != null) btnRotate.clicked += OnRotateClicked;
             if (btnSimulate != null) btnSimulate.clicked += OnSimulateClicked;
-            if (btnNextLevel != null) btnNextLevel.clicked += OnNextLevelClicked;
+            root.Query<Button>("Btn_NextLevel").ForEach(btn =>
+            {
+                btn.clicked -= OnNextLevelClicked;
+                btn.clicked += OnNextLevelClicked;
+            });
 
             UpdateChainVisibility();
             SetSimulatingState(isSimulating);
@@ -224,7 +232,13 @@ namespace Game.Presentation.UI
             if (btnChain != null) btnChain.clicked -= OnChainClicked;
             if (btnRotate != null) btnRotate.clicked -= OnRotateClicked;
             if (btnSimulate != null) btnSimulate.clicked -= OnSimulateClicked;
-            if (btnNextLevel != null) btnNextLevel.clicked -= OnNextLevelClicked;
+            if (uiDocument != null && uiDocument.rootVisualElement != null)
+            {
+                uiDocument.rootVisualElement.Query<Button>("Btn_NextLevel").ForEach(btn =>
+                {
+                    btn.clicked -= OnNextLevelClicked;
+                });
+            }
         }
 
         private void OnPlankClicked() => OnButtonClicked(ToolType.Plank);
@@ -304,7 +318,10 @@ namespace Game.Presentation.UI
             btnPlatform?.SetEnabled(!simulating);
             btnChain?.SetEnabled(!simulating);
             btnRotate?.SetEnabled(!simulating);
-            btnNextLevel?.SetEnabled(true);
+            if (uiDocument != null && uiDocument.rootVisualElement != null)
+            {
+                uiDocument.rootVisualElement.Query<Button>("Btn_NextLevel").ForEach(btn => btn?.SetEnabled(true));
+            }
         }
 
         private void OnDestroy()

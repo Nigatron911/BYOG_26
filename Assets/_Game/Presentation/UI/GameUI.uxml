@@ -15,6 +15,29 @@
                 <ui:Label name="GravityModeLabel" class="gravity-mode-label" text="🌙 MOON GRAVITY [W: Jump | A: Left | D: Right]" />
                 <ui:Label name="GravityTimerLabel" class="gravity-timer-label" text="Switching in 5.0s  •  [G] Toggle" />
             </ui:VisualElement>
+
+            <ui:VisualElement name="MaterialStatusPanel" class="material-status-card">
+                <ui:Label name="MaterialModeLabel" class="material-mode-label" text="📄 MATERIAL: PAPER" />
+                <ui:VisualElement class="material-buttons-row">
+                    <ui:Button name="Btn_MatPaper" class="mat-badge mat-badge-paper">
+                        <ui:Label text="[1] 📄 PAPER" class="mat-badge-label" />
+                    </ui:Button>
+                    <ui:Button name="Btn_MatStone" class="mat-badge mat-badge-stone">
+                        <ui:Label text="[2] 🪨 STONE" class="mat-badge-label" />
+                    </ui:Button>
+                    <ui:Button name="Btn_MatRubber" class="mat-badge mat-badge-rubber">
+                        <ui:Label text="[3] 🟢 RUBBER" class="mat-badge-label" />
+                    </ui:Button>
+                </ui:VisualElement>
+                <ui:Label name="MaterialSwitchesLabel" class="material-switches-label" text="Switches Left: 5 / 5  •  [Q / E] Cycle" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- TOP RIGHT CONTROLS (ALWAYS VISIBLE ACROSS ALL LEVELS) -->
+        <ui:VisualElement name="TopRightContainer" class="top-right-container" picking-mode="Ignore">
+            <ui:Button name="Btn_NextLevel" class="action-button btn-next btn-next-top">
+                <ui:Label name="Label_NextLevel" class="action-button-label" text="⏭ NEXT LEVEL [N]" />
+            </ui:Button>
         </ui:VisualElement>
 
         <!-- BOTTOM TOOLBAR -->

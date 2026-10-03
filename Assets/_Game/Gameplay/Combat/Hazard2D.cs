@@ -43,6 +43,13 @@ namespace Game.Gameplay.Combat
         {
             if (target == null) return;
 
+            var immunity = target.GetComponent<IHazardImmunity>() ?? target.GetComponentInParent<IHazardImmunity>();
+            if (immunity != null && immunity.IsImmuneToHazard(hazardName))
+            {
+                // Target is immune to this hazard (e.g. Stone deflecting Spikes)
+                return;
+            }
+
             IDamageable damageable = target.GetComponent<IDamageable>() ?? target.GetComponentInParent<IDamageable>();
             if (damageable != null && !damageable.IsDead)
             {

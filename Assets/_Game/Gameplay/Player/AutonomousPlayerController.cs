@@ -12,11 +12,12 @@ namespace Game.Gameplay.Player
     public enum LocomotionMode
     {
         Autonomous,
-        Manual
+        Manual,
+        Material
     }
 
     [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
-    public class AutonomousPlayerController : MonoBehaviour, IDamageable
+    public class AutonomousPlayerController : MonoBehaviour, IDamageable, IHazardImmunity
     {
         [Header("Locomotion Mode")]
         [SerializeField] private LocomotionMode locomotionMode = LocomotionMode.Autonomous;
@@ -53,6 +54,7 @@ namespace Game.Gameplay.Player
         private GameEvents events;
         private SpriteRenderer spriteRenderer;
         private Color defaultSpriteColor = Color.white;
+        private Sprite defaultSprite;
 
         private bool isDead = false;
         private bool isClimbing = false;
@@ -82,9 +84,25 @@ namespace Game.Gameplay.Player
         public void SetLocomotionMode(LocomotionMode mode)
         {
             locomotionMode = mode;
-            if (mode == LocomotionMode.Manual)
+            if (mode == LocomotionMode.Manual || mode == LocomotionMode.Material)
             {
                 stuckTimer = 0f;
+            }
+        }
+
+        public void ResetVisuals()
+        {
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.color = defaultSpriteColor;
+                if (defaultSprite != null) spriteRenderer.sprite = defaultSprite;
+                spriteRenderer.transform.localScale = Vector3.one;
+            }
+            transform.localScale = Vector3.one;
+            if (rb != null)
+            {
+                rb.mass = 1.0f;
+                rb.gravityScale = 1.0f;
             }
         }
 
@@ -206,7 +224,11 @@ namespace Game.Gameplay.Player
             rb = GetComponent<Rigidbody2D>();
             bodyCollider = GetComponent<Collider2D>();
             spriteRenderer = GetComponent<SpriteRenderer>() ?? GetComponentInChildren<SpriteRenderer>();
-            if (spriteRenderer != null) defaultSpriteColor = spriteRenderer.color;
+            if (spriteRenderer != null)
+            {
+                defaultSpriteColor = spriteRenderer.color;
+                defaultSprite = spriteRenderer.sprite;
+            }
             if (gravityController == null) gravityController = GetComponent<PlayerGravityController>();
             initialSpawnPosition = transform.position;
             lastProgressX = transform.position.x;
@@ -214,6 +236,12 @@ namespace Game.Gameplay.Player
 
         private void FixedUpdate()
         {
+            if (locomotionMode == LocomotionMode.Material)
+            {
+                // Material mode locomotion and jumping is fully owned by PlayerMaterialController
+                return;
+            }
+
             bool canControl = (locomotionMode == LocomotionMode.Manual)
                 ? (!isDead && !isPaused)
                 : (isSimulating && !isDead && !isPaused);
@@ -590,9 +618,36 @@ namespace Game.Gameplay.Player
             }
         }
 
+        private Project.Player.PlayerMaterialController materialController;
+
+        public bool IsImmuneToHazard(string hazardType)
+        {
+            if (materialController == null)
+            {
+                materialController = GetComponent<Project.Player.PlayerMaterialController>();
+            }
+
+            if (materialController != null && materialController.enabled && materialController.IsStone)
+            {
+                if (string.IsNullOrEmpty(hazardType) || hazardType.IndexOf("spike", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public void Kill(string cause)
         {
             if (isDead || hasReachedGoal) return;
+
+            if (IsImmuneToHazard(cause))
+            {
+                // Stone form deflects spikes
+                materialController?.NotifyNotice("STONE DEFLECTS SPIKES!");
+                return;
+            }
 
             LastEventLog = $"KILLED: {cause} at {transform.position}";
             isDead = true;
@@ -632,6 +687,7 @@ namespace Game.Gameplay.Player
             var hazard = other.GetComponent<Game.Gameplay.Combat.Hazard2D>() ?? other.GetComponentInParent<Game.Gameplay.Combat.Hazard2D>();
             if (hazard != null)
             {
+                if (IsImmuneToHazard(hazard.HazardName)) return;
                 Kill($"Fell into {hazard.HazardName.ToLower()}");
                 return;
             }
@@ -655,6 +711,7 @@ namespace Game.Gameplay.Player
                 ?? collision.gameObject.GetComponentInParent<Game.Gameplay.Combat.Hazard2D>();
             if (hazard != null)
             {
+                if (IsImmuneToHazard(hazard.HazardName)) return;
                 Kill($"Fell into {hazard.HazardName.ToLower()}");
                 return;
             }
@@ -682,6 +739,7 @@ namespace Game.Gameplay.Player
                 ?? collision.gameObject.GetComponentInParent<Game.Gameplay.Combat.Hazard2D>();
             if (hazard != null)
             {
+                if (IsImmuneToHazard(hazard.HazardName)) return;
                 Kill($"Fell into {hazard.HazardName.ToLower()}");
                 return;
             }

@@ -23,6 +23,13 @@ namespace Game.Presentation.UI
         private Label gravityModeLabel;
         private Label gravityTimerLabel;
 
+        private VisualElement materialStatusCard;
+        private Label materialModeLabel;
+        private Label materialSwitchesLabel;
+        private Button btnMatPaper;
+        private Button btnMatStone;
+        private Button btnMatRubber;
+
         private void Awake()
         {
             if (uiDocument == null)
@@ -57,6 +64,29 @@ namespace Game.Presentation.UI
             gravityModeLabel = root.Q<Label>("GravityModeLabel");
             gravityTimerLabel = root.Q<Label>("GravityTimerLabel");
 
+            materialStatusCard = root.Q<VisualElement>("MaterialStatusPanel");
+            materialModeLabel = root.Q<Label>("MaterialModeLabel");
+            materialSwitchesLabel = root.Q<Label>("MaterialSwitchesLabel");
+            btnMatPaper = root.Q<Button>("Btn_MatPaper");
+            btnMatStone = root.Q<Button>("Btn_MatStone");
+            btnMatRubber = root.Q<Button>("Btn_MatRubber");
+
+            if (btnMatPaper != null)
+            {
+                btnMatPaper.clicked -= OnMatPaperClicked;
+                btnMatPaper.clicked += OnMatPaperClicked;
+            }
+            if (btnMatStone != null)
+            {
+                btnMatStone.clicked -= OnMatStoneClicked;
+                btnMatStone.clicked += OnMatStoneClicked;
+            }
+            if (btnMatRubber != null)
+            {
+                btnMatRubber.clicked -= OnMatRubberClicked;
+                btnMatRubber.clicked += OnMatRubberClicked;
+            }
+
             if (stuckWarningCard != null)
             {
                 stuckWarningCard.style.display = DisplayStyle.None;
@@ -66,11 +96,20 @@ namespace Game.Presentation.UI
             {
                 gravityStatusCard.style.display = DisplayStyle.None;
             }
+
+            if (materialStatusCard != null)
+            {
+                materialStatusCard.style.display = DisplayStyle.None;
+            }
         }
+
+        private void OnMatPaperClicked() => player?.GetComponent<Project.Player.PlayerMaterialController>()?.TryTransform(Project.Player.MaterialType.Paper);
+        private void OnMatStoneClicked() => player?.GetComponent<Project.Player.PlayerMaterialController>()?.TryTransform(Project.Player.MaterialType.Stone);
+        private void OnMatRubberClicked() => player?.GetComponent<Project.Player.PlayerMaterialController>()?.TryTransform(Project.Player.MaterialType.Rubber);
 
         private void Update()
         {
-            if (stuckWarningCard == null || gravityStatusCard == null)
+            if (stuckWarningCard == null || gravityStatusCard == null || materialStatusCard == null)
             {
                 BindUI();
                 if (stuckWarningCard == null) return;
@@ -78,6 +117,7 @@ namespace Game.Presentation.UI
 
             UpdateStuckIndicator();
             UpdateGravityIndicator();
+            UpdateMaterialIndicator();
         }
 
         private void UpdateStuckIndicator()
@@ -184,6 +224,92 @@ namespace Game.Presentation.UI
                 else
                 {
                     gravityTimerLabel.text = "Simulate to begin gravity cycle  •  [G] Toggle";
+                }
+            }
+        }
+
+        private void UpdateMaterialIndicator()
+        {
+            if (materialStatusCard == null) return;
+
+            var matCtrl = player != null ? player.GetComponent<Project.Player.PlayerMaterialController>() : null;
+            if (matCtrl == null || !matCtrl.enabled)
+            {
+                if (materialStatusCard.style.display != DisplayStyle.None)
+                {
+                    materialStatusCard.style.display = DisplayStyle.None;
+                }
+                return;
+            }
+
+            if (materialStatusCard.style.display != DisplayStyle.Flex)
+            {
+                materialStatusCard.style.display = DisplayStyle.Flex;
+            }
+
+            if (materialModeLabel != null)
+            {
+                switch (matCtrl.CurrentMaterial)
+                {
+                    case Project.Player.MaterialType.Paper:
+                        materialModeLabel.text = "📄 MATERIAL: PAPER (Light & Floaty)";
+                        break;
+                    case Project.Player.MaterialType.Stone:
+                        materialModeLabel.text = "🪨 MATERIAL: STONE (Heavy • Immune to Wind & Spikes)";
+                        break;
+                    case Project.Player.MaterialType.Rubber:
+                        materialModeLabel.text = "🟢 MATERIAL: RUBBER (Progressive Ground Bounce)";
+                        break;
+                }
+            }
+
+            if (btnMatPaper != null)
+            {
+                if (matCtrl.CurrentMaterial == Project.Player.MaterialType.Paper) btnMatPaper.AddToClassList("mat-badge-active");
+                else btnMatPaper.RemoveFromClassList("mat-badge-active");
+            }
+            if (btnMatStone != null)
+            {
+                if (matCtrl.CurrentMaterial == Project.Player.MaterialType.Stone) btnMatStone.AddToClassList("mat-badge-active");
+                else btnMatStone.RemoveFromClassList("mat-badge-active");
+            }
+            if (btnMatRubber != null)
+            {
+                if (matCtrl.CurrentMaterial == Project.Player.MaterialType.Rubber) btnMatRubber.AddToClassList("mat-badge-active");
+                else btnMatRubber.RemoveFromClassList("mat-badge-active");
+            }
+
+            if (materialSwitchesLabel != null)
+            {
+                string timerTag = "";
+                if (matCtrl.HasFormTimerActive)
+                {
+                    timerTag = $"  •  ⏱ {matCtrl.FormDurationTimer:F1}s";
+                }
+
+                string bounceTag = "";
+                if (matCtrl.CurrentMaterial == Project.Player.MaterialType.Rubber)
+                {
+                    int currentTierDisplay = matCtrl.BounceComboTier == 0 ? 1 : (matCtrl.BounceComboTier + 1);
+                    if (matCtrl.IsGrounded)
+                    {
+                        bounceTag = $"  •  [Ground Bounce: Tier {currentTierDisplay}/3]";
+                    }
+                    else
+                    {
+                        bounceTag = $"  •  [Airborne: Touch Ground for x{currentTierDisplay}/3]";
+                    }
+                }
+
+                if (matCtrl.RemainingTransformations > 0)
+                {
+                    materialSwitchesLabel.text = $"Switches Left: {matCtrl.RemainingTransformations} / {matCtrl.MaxTransformations}{timerTag}{bounceTag}  •  [1: Paper | 2: Stone | 3: Rubber | Q/E: Cycle]";
+                    materialSwitchesLabel.style.color = new StyleColor(new Color(0.58f, 0.64f, 0.72f));
+                }
+                else
+                {
+                    materialSwitchesLabel.text = $"⚠️ NO SWITCHES REMAINING! (0 / 5){timerTag}{bounceTag}";
+                    materialSwitchesLabel.style.color = new StyleColor(new Color(0.96f, 0.44f, 0.44f));
                 }
             }
         }

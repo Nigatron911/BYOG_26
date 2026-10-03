@@ -48,6 +48,8 @@ namespace Game.Gameplay
 
         public int CurrentLevelNumber => levels.Count > currentLevelIndex ? levels[currentLevelIndex].levelNumber : 1;
         public LevelConfig CurrentLevel => levels.Count > currentLevelIndex ? levels[currentLevelIndex] : null;
+        public IReadOnlyList<LevelConfig> Levels => levels;
+        public void ReinitializeLevels() => EnsureDefaultLevels();
 
         private void Awake()
         {
@@ -114,11 +116,15 @@ namespace Game.Gameplay
 
         private void EnsureDefaultLevels()
         {
-            if (levels.Count >= 4)
+            if (levels.Count >= 6)
             {
                 if (levels.Count > 0)
                 {
-                    levels[0].toolLifetimeSeconds = 6.0f;
+                    levels[0].toolLifetimeSeconds = 6.5f;
+                }
+                if (levels.Count > 1)
+                {
+                    levels[1].toolLifetimeSeconds = 8.0f;
                 }
 
                 var lvl2SpawnObj = GameObject.Find("Level 2 spawn");
@@ -139,6 +145,18 @@ namespace Game.Gameplay
                     levels[3].spawnPosition = lvl4SpawnObj.transform.position;
                 }
 
+                var lvl5SpawnObj = GameObject.Find("Level 5 spawn");
+                if (lvl5SpawnObj != null && levels.Count > 4)
+                {
+                    levels[4].spawnPosition = lvl5SpawnObj.transform.position;
+                }
+
+                var lvl6SpawnObj = GameObject.Find("Level 6 spawn");
+                if (lvl6SpawnObj != null && levels.Count > 5)
+                {
+                    levels[5].spawnPosition = lvl6SpawnObj.transform.position;
+                }
+
                 if (levels.Count > 2)
                 {
                     levels[2].plankCount = 0;
@@ -154,6 +172,75 @@ namespace Game.Gameplay
                     levels[3].platformCount = 0;
                     levels[3].chainCount = 0;
                 }
+
+                if (levels.Count > 4)
+                {
+                    levels[4].plankCount = 0;
+                    levels[4].ladderCount = 0;
+                    levels[4].platformCount = 0;
+                    levels[4].chainCount = 0;
+                    if (levels[4].goalShrine == null)
+                    {
+                        levels[4].goalShrine = GameObject.Find("Goal_Shrine (3)");
+                    }
+                }
+
+                if (levels.Count > 5)
+                {
+                    levels[5].plankCount = 0;
+                    levels[5].ladderCount = 0;
+                    levels[5].platformCount = 0;
+                    levels[5].chainCount = 0;
+                    if (levels[5].goalShrine == null)
+                    {
+                        levels[5].goalShrine = GameObject.Find("Goal_Shrine (4)");
+                    }
+                }
+                return;
+            }
+
+            if (levels.Count == 4)
+            {
+                Vector2 lvl5SpawnPoint = new Vector2(297.21f, -0.70f);
+                var lvl5Obj = GameObject.Find("Level 5 spawn");
+                if (lvl5Obj != null) lvl5SpawnPoint = lvl5Obj.transform.position;
+
+                levels.Add(new LevelConfig
+                {
+                    levelNumber = 5,
+                    levelName = "Level 5 - Material Alchemy",
+                    spawnPosition = lvl5SpawnPoint,
+                    cameraPosition = new Vector3(343.5f, 7.5f, -10f),
+                    cameraOrthoSize = 31.0f,
+                    plankCount = 0,
+                    ladderCount = 0,
+                    platformCount = 0,
+                    chainCount = 0,
+                    toolLifetimeSeconds = 8.0f,
+                    goalShrine = GameObject.Find("Goal_Shrine (3)")
+                });
+            }
+
+            if (levels.Count == 5)
+            {
+                Vector2 lvl6SpawnPoint = new Vector2(400.60f, 0.30f);
+                var lvl6Obj = GameObject.Find("Level 6 spawn");
+                if (lvl6Obj != null) lvl6SpawnPoint = lvl6Obj.transform.position;
+
+                levels.Add(new LevelConfig
+                {
+                    levelNumber = 6,
+                    levelName = "Level 6 - Aerial Material Traverse",
+                    spawnPosition = lvl6SpawnPoint,
+                    cameraPosition = new Vector3(466.0f, 9.6f, -10f),
+                    cameraOrthoSize = 46.0f,
+                    plankCount = 0,
+                    ladderCount = 0,
+                    platformCount = 0,
+                    chainCount = 0,
+                    toolLifetimeSeconds = 8.0f,
+                    goalShrine = GameObject.Find("Goal_Shrine (4)")
+                });
                 return;
             }
 
@@ -171,7 +258,7 @@ namespace Game.Gameplay
                 ladderCount = 1,
                 platformCount = 1,
                 chainCount = 0,
-                toolLifetimeSeconds = 6.0f, // Level 1: placed tools disappear in 6 seconds
+                toolLifetimeSeconds = 6.5f, // Level 1: placed tools disappear in 6.5 seconds
                 goalShrine = GameObject.Find("Goal_Shrine")
             });
 
@@ -242,6 +329,52 @@ namespace Game.Gameplay
                 chainCount = 0,
                 toolLifetimeSeconds = 8.0f,
                 goalShrine = null // Handled by Level 4 Timed Door!
+            });
+
+            // Level 5: Material Alchemy (Paper, Stone, Rubber)
+            Vector2 lvl5Spawn = new Vector2(297.21f, -0.70f);
+            var lvl5GO = GameObject.Find("Level 5 spawn");
+            if (lvl5GO != null)
+            {
+                lvl5Spawn = lvl5GO.transform.position;
+            }
+
+            levels.Add(new LevelConfig
+            {
+                levelNumber = 5,
+                levelName = "Level 5 - Material Alchemy",
+                spawnPosition = lvl5Spawn,
+                cameraPosition = new Vector3(343.5f, 7.5f, -10f),
+                cameraOrthoSize = 31.0f,
+                plankCount = 0,
+                ladderCount = 0,
+                platformCount = 0,
+                chainCount = 0,
+                toolLifetimeSeconds = 8.0f,
+                goalShrine = GameObject.Find("Goal_Shrine (3)")
+            });
+
+            // Level 6: Aerial Material Traverse (Paper, Stone, Rubber)
+            Vector2 lvl6Spawn = new Vector2(400.60f, 0.30f);
+            var lvl6GO = GameObject.Find("Level 6 spawn");
+            if (lvl6GO != null)
+            {
+                lvl6Spawn = lvl6GO.transform.position;
+            }
+
+            levels.Add(new LevelConfig
+            {
+                levelNumber = 6,
+                levelName = "Level 6 - Aerial Material Traverse",
+                spawnPosition = lvl6Spawn,
+                cameraPosition = new Vector3(466.0f, 9.6f, -10f),
+                cameraOrthoSize = 46.0f,
+                plankCount = 0,
+                ladderCount = 0,
+                platformCount = 0,
+                chainCount = 0,
+                toolLifetimeSeconds = 8.0f,
+                goalShrine = GameObject.Find("Goal_Shrine (4)")
             });
         }
 
@@ -333,8 +466,13 @@ namespace Game.Gameplay
             currentLevelIndex = index;
             LevelConfig config = levels[index];
 
-            if (index == 1)
+            if (index == 0)
             {
+                config.toolLifetimeSeconds = 6.5f;
+            }
+            else if (index == 1)
+            {
+                config.toolLifetimeSeconds = 8.0f;
                 var lvl2GO = GameObject.Find("Level 2 spawn");
                 if (lvl2GO != null)
                 {
@@ -357,6 +495,22 @@ namespace Game.Gameplay
                     config.spawnPosition = lvl4GO.transform.position;
                 }
             }
+            else if (index == 4)
+            {
+                var lvl5GO = GameObject.Find("Level 5 spawn");
+                if (lvl5GO != null)
+                {
+                    config.spawnPosition = lvl5GO.transform.position;
+                }
+            }
+            else if (index == 5)
+            {
+                var lvl6GO = GameObject.Find("Level 6 spawn");
+                if (lvl6GO != null)
+                {
+                    config.spawnPosition = lvl6GO.transform.position;
+                }
+            }
 
             // 1. Stop simulation & clear placed tools
             events?.PublishSimulationStopped();
@@ -377,6 +531,8 @@ namespace Game.Gameplay
                 player.SetSpawnPosition(config.spawnPosition);
 
                 var gravCtrl = player.GetComponent<PlayerGravityController>();
+                var matCtrl = player.GetComponent<Project.Player.PlayerMaterialController>();
+
                 if (index == 2 || index == 3)
                 {
                     player.SetLocomotionMode(LocomotionMode.Manual);
@@ -395,6 +551,29 @@ namespace Game.Gameplay
                     );
                     gravCtrl.ResetCycle();
                     player.SetGravityController(gravCtrl);
+
+                    if (matCtrl != null)
+                    {
+                        matCtrl.enabled = false;
+                        player.ResetVisuals();
+                    }
+                }
+                else if (index == 4 || index == 5) // Level 5 & Level 6: Material Alchemy (Paper, Stone, Rubber)
+                {
+                    player.SetLocomotionMode(LocomotionMode.Material);
+                    if (gravCtrl != null)
+                    {
+                        gravCtrl.enabled = false;
+                    }
+                    player.transform.localEulerAngles = Vector3.zero;
+                    player.SetGravityController(null);
+
+                    if (matCtrl == null)
+                    {
+                        matCtrl = player.gameObject.AddComponent<Project.Player.PlayerMaterialController>();
+                    }
+                    matCtrl.enabled = true;
+                    matCtrl.ResetToDefault(Project.Player.MaterialType.Paper, switches: 5);
                 }
                 else
                 {
@@ -403,10 +582,16 @@ namespace Game.Gameplay
                     {
                         gravCtrl.enabled = false;
                     }
+                    if (matCtrl != null)
+                    {
+                        matCtrl.enabled = false;
+                        player.ResetVisuals();
+                    }
                     var rb = player.GetComponent<Rigidbody2D>();
                     if (rb != null)
                     {
                         rb.gravityScale = 1.0f;
+                        rb.mass = 1.0f;
                     }
                     player.transform.localEulerAngles = Vector3.zero;
                     player.SetGravityController(null);
@@ -485,8 +670,8 @@ namespace Game.Gameplay
             // 6. Notify systems of new level
             events?.PublishLevelLoaded(config.levelNumber);
 
-            // In Levels 3 & 4: auto-start simulation so the player can immediately use manual WASD controls!
-            if ((index == 2 || index == 3) && Application.isPlaying)
+            // In Levels 3, 4, 5, & 6: auto-start simulation so the player can immediately use controls!
+            if ((index == 2 || index == 3 || index == 4 || index == 5) && Application.isPlaying)
             {
                 StartCoroutine(AutoStartSimulationRoutine());
             }
@@ -544,9 +729,21 @@ namespace Game.Gameplay
                     var lvl4GO = FindLevel4SpawnObject();
                     if (lvl4GO != null) spawnPos = lvl4GO.transform.position;
                 }
+                else if (currentLevelIndex == 4)
+                {
+                    var lvl5GO = GameObject.Find("Level 5 spawn");
+                    if (lvl5GO != null) spawnPos = lvl5GO.transform.position;
+                }
+                else if (currentLevelIndex == 5)
+                {
+                    var lvl6GO = GameObject.Find("Level 6 spawn");
+                    if (lvl6GO != null) spawnPos = lvl6GO.transform.position;
+                }
                 player.ResetState(spawnPos);
 
                 var gravCtrl = player.GetComponent<PlayerGravityController>();
+                var matCtrl = player.GetComponent<Project.Player.PlayerMaterialController>();
+
                 if (currentLevelIndex == 2 || currentLevelIndex == 3)
                 {
                     if (gravCtrl != null)
@@ -555,6 +752,24 @@ namespace Game.Gameplay
                         gravCtrl.SetRandomCycle(currentLevelIndex == 3);
                         gravCtrl.ResetCycle();
                     }
+                    if (matCtrl != null)
+                    {
+                        matCtrl.enabled = false;
+                        player.ResetVisuals();
+                    }
+                    if (Application.isPlaying)
+                    {
+                        StartCoroutine(AutoStartSimulationRoutine());
+                    }
+                }
+                else if (currentLevelIndex == 4 || currentLevelIndex == 5)
+                {
+                    player.SetLocomotionMode(LocomotionMode.Material);
+                    if (gravCtrl != null) gravCtrl.enabled = false;
+                    player.transform.localEulerAngles = Vector3.zero;
+                    if (matCtrl == null) matCtrl = player.gameObject.AddComponent<Project.Player.PlayerMaterialController>();
+                    matCtrl.enabled = true;
+                    matCtrl.ResetToDefault(Project.Player.MaterialType.Paper, switches: 5);
                     if (Application.isPlaying)
                     {
                         StartCoroutine(AutoStartSimulationRoutine());
@@ -566,8 +781,17 @@ namespace Game.Gameplay
                     {
                         gravCtrl.enabled = false;
                     }
+                    if (matCtrl != null)
+                    {
+                        matCtrl.enabled = false;
+                        player.ResetVisuals();
+                    }
                     var rb = player.GetComponent<Rigidbody2D>();
-                    if (rb != null) rb.gravityScale = 1.0f;
+                    if (rb != null)
+                    {
+                        rb.gravityScale = 1.0f;
+                        rb.mass = 1.0f;
+                    }
                     player.transform.localEulerAngles = Vector3.zero;
                 }
 
@@ -582,7 +806,7 @@ namespace Game.Gameplay
         private IEnumerator AutoStartSimulationRoutine()
         {
             yield return null;
-            if ((currentLevelIndex == 2 || currentLevelIndex == 3) && player != null && !player.IsDead)
+            if ((currentLevelIndex == 2 || currentLevelIndex == 3 || currentLevelIndex == 4 || currentLevelIndex == 5) && player != null && !player.IsDead)
             {
                 events?.PublishSimulationStarted();
             }

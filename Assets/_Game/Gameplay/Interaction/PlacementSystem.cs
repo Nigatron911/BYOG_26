@@ -151,6 +151,7 @@ namespace Game.Gameplay.Interaction
             isSimulating = false;
             SetAllToolsSimulating(false);
             CancelChainPlacement();
+            ResetAllPlacedTools();
         }
 
         private void OnLevelCompleted()
@@ -181,7 +182,10 @@ namespace Game.Gameplay.Interaction
             var tools = toolsContainer.GetComponentsInChildren<DraggableTool>(true);
             foreach (var tool in tools)
             {
-                if (tool != null) tool.SetSimulating(simulating);
+                if (tool != null)
+                {
+                    tool.SetSimulating(simulating);
+                }
             }
         }
 
@@ -194,6 +198,10 @@ namespace Game.Gameplay.Interaction
                 {
                     if (tool != null)
                     {
+                        if (toolLifetimeSeconds > 0f)
+                        {
+                            tool.SetLifetime(toolLifetimeSeconds);
+                        }
                         tool.ResetToPlacedTransform();
                     }
                 }

@@ -281,11 +281,6 @@ namespace Game.Gameplay.Interaction
         public void SetSimulating(bool simulating)
         {
             isSimulating = simulating;
-            if (!simulating)
-            {
-                lifetimeRemaining = lifetimeSeconds;
-                SetVisualAlpha(1.0f);
-            }
         }
 
         public void StartLifetime()
@@ -302,7 +297,7 @@ namespace Game.Gameplay.Interaction
 
         private void Update()
         {
-            if (!isSimulating || !autoDisappear || lifetimeSeconds <= 0f || !hasStartedLifetime || !isPlaced || isDragging) return;
+            if (!autoDisappear || lifetimeSeconds <= 0f || !hasStartedLifetime || !isPlaced || isDragging) return;
 
             lifetimeRemaining -= Time.deltaTime;
 

@@ -228,10 +228,10 @@ namespace Game.Tests.EditMode
 
             manager.Initialize(events, player, cam, null, null, null, null);
 
-            // Level 1: lifetime 6.0s
+            // Level 1: lifetime 6.5s
             manager.ApplyLevelConfig(0, immediate: true);
             Assert.AreEqual(1, manager.CurrentLevelNumber);
-            Assert.AreEqual(6.0f, manager.CurrentLevel.toolLifetimeSeconds, 0.01f, "Level 1 tool lifetime should be 6.0s.");
+            Assert.AreEqual(6.5f, manager.CurrentLevel.toolLifetimeSeconds, 0.01f, "Level 1 tool lifetime should be 6.5s.");
 
             // Level 2: lifetime 8.0s
             manager.ApplyLevelConfig(1, immediate: true);
@@ -267,6 +267,14 @@ namespace Game.Tests.EditMode
                 // Skip to Level 4
                 manager.SkipToNextLevel();
                 Assert.AreEqual(4, manager.CurrentLevelNumber);
+
+                // Skip to Level 5
+                manager.SkipToNextLevel();
+                Assert.AreEqual(5, manager.CurrentLevelNumber);
+
+                // Skip to Level 6
+                manager.SkipToNextLevel();
+                Assert.AreEqual(6, manager.CurrentLevelNumber);
 
                 // Skip again cycles back to Level 1
                 manager.SkipToNextLevel();
@@ -537,6 +545,458 @@ namespace Game.Tests.EditMode
             Object.DestroyImmediate(pltGO);
             Object.DestroyImmediate(doorGO);
             Object.DestroyImmediate(coordGO);
+        }
+
+        [Test]
+        public void SkipLevelRequested_Event_AdvancesLevels()
+        {
+            var managerGO = CreateTestGameObject("TestLPM");
+            var manager = managerGO.AddComponent<Game.Gameplay.LevelProgressionManager>();
+            var camGO = CreateTestGameObject("TestCam");
+            var cam = camGO.AddComponent<Camera>();
+
+            try
+            {
+                manager.Initialize(events, player, cam);
+                Assert.AreEqual(1, manager.CurrentLevelNumber);
+
+                events.PublishSkipLevelRequested();
+                Assert.AreEqual(2, manager.CurrentLevelNumber);
+
+                events.PublishSkipLevelRequested();
+                Assert.AreEqual(3, manager.CurrentLevelNumber);
+
+                events.PublishSkipLevelRequested();
+                Assert.AreEqual(4, manager.CurrentLevelNumber);
+
+                events.PublishSkipLevelRequested();
+                Assert.AreEqual(5, manager.CurrentLevelNumber);
+
+                events.PublishSkipLevelRequested();
+                Assert.AreEqual(6, manager.CurrentLevelNumber);
+
+                events.PublishSkipLevelRequested();
+                Assert.AreEqual(1, manager.CurrentLevelNumber);
+            }
+            finally
+            {
+                manager.Dispose();
+                Object.DestroyImmediate(managerGO);
+                Object.DestroyImmediate(camGO);
+            }
+        }
+
+        [Test]
+        public void LevelProgressionManager_Level5_ConfiguredProperly()
+        {
+            var managerGO = CreateTestGameObject("TestLPM5");
+            var manager = managerGO.AddComponent<Game.Gameplay.LevelProgressionManager>();
+            var camGO = CreateTestGameObject("TestCam5");
+            var cam = camGO.AddComponent<Camera>();
+
+            try
+            {
+                manager.Initialize(events, player, cam);
+
+                // Advance to Level 5
+                manager.ApplyLevelConfig(4, immediate: true);
+                Assert.AreEqual(5, manager.CurrentLevelNumber);
+                Assert.AreEqual(Game.Gameplay.Player.LocomotionMode.Material, player.CurrentLocomotionMode);
+
+                var matCtrl = player.GetComponent<Project.Player.PlayerMaterialController>();
+                Assert.IsNotNull(matCtrl, "Player should have PlayerMaterialController in Level 5.");
+                Assert.IsTrue(matCtrl.enabled, "PlayerMaterialController should be enabled in Level 5.");
+                Assert.AreEqual(Project.Player.MaterialType.Paper, matCtrl.CurrentMaterial, "Default material in Level 5 must be Paper.");
+                Assert.AreEqual(5, matCtrl.RemainingTransformations, "Player should have 5 switch charges in Level 5.");
+                Assert.AreEqual(5, matCtrl.MaxTransformations, "Max switch charges in Level 5 must be 5.");
+            }
+            finally
+            {
+                manager.Dispose();
+                Object.DestroyImmediate(managerGO);
+                Object.DestroyImmediate(camGO);
+            }
+        }
+
+        [Test]
+        public void LevelProgressionManager_Level6_ConfiguredProperly()
+        {
+            var managerGO = CreateTestGameObject("TestLPM6");
+            var manager = managerGO.AddComponent<Game.Gameplay.LevelProgressionManager>();
+            var camGO = CreateTestGameObject("TestCam6");
+            var cam = camGO.AddComponent<Camera>();
+
+            try
+            {
+                manager.Initialize(events, player, cam);
+
+                // Advance to Level 6 (index 5)
+                manager.ApplyLevelConfig(5, immediate: true);
+                Assert.AreEqual(6, manager.CurrentLevelNumber);
+                Assert.AreEqual(Game.Gameplay.Player.LocomotionMode.Material, player.CurrentLocomotionMode);
+
+                var matCtrl = player.GetComponent<Project.Player.PlayerMaterialController>();
+                Assert.IsNotNull(matCtrl, "Player should have PlayerMaterialController in Level 6.");
+                Assert.IsTrue(matCtrl.enabled, "PlayerMaterialController should be enabled in Level 6.");
+                Assert.AreEqual(Project.Player.MaterialType.Paper, matCtrl.CurrentMaterial, "Default material in Level 6 must be Paper.");
+                Assert.AreEqual(5, matCtrl.RemainingTransformations, "Player should have 5 switch charges in Level 6.");
+                Assert.AreEqual(5, matCtrl.MaxTransformations, "Max switch charges in Level 6 must be 5.");
+                Assert.AreEqual(400.60f, player.transform.position.x, 0.05f, "Player should spawn at Level 6 spawn point X.");
+                Assert.AreEqual(0.30f, player.transform.position.y, 0.05f, "Player should spawn at Level 6 spawn point Y.");
+                Assert.AreEqual(46.0f, cam.orthographicSize, 0.01f);
+            }
+            finally
+            {
+                manager.Dispose();
+                Object.DestroyImmediate(managerGO);
+                Object.DestroyImmediate(camGO);
+            }
+        }
+
+        [Test]
+        public void PlayerMaterialController_MaterialSwitchLimit_EnforcedStrictly()
+        {
+            var testGO = CreateTestGameObject("TestMaterialPlayer");
+            var rb = testGO.AddComponent<Rigidbody2D>();
+            var col = testGO.AddComponent<BoxCollider2D>();
+            var matCtrl = testGO.AddComponent<Project.Player.PlayerMaterialController>();
+
+            try
+            {
+                matCtrl.ResetToDefault(Project.Player.MaterialType.Paper, switches: 5);
+
+                Assert.AreEqual(Project.Player.MaterialType.Paper, matCtrl.CurrentMaterial);
+                Assert.AreEqual(5, matCtrl.RemainingTransformations);
+
+                // Switching to same material does not consume charge
+                bool sameMatResult = matCtrl.TryTransform(Project.Player.MaterialType.Paper);
+                Assert.IsFalse(sameMatResult, "Transforming to current material must return false.");
+                Assert.AreEqual(5, matCtrl.RemainingTransformations, "Charges must not decrease when transforming to same material.");
+
+                // 1st switch: Paper -> Stone
+                Assert.IsTrue(matCtrl.TryTransform(Project.Player.MaterialType.Stone));
+                Assert.AreEqual(Project.Player.MaterialType.Stone, matCtrl.CurrentMaterial);
+                Assert.AreEqual(4, matCtrl.RemainingTransformations);
+
+                // 2nd switch: Stone -> Rubber
+                Assert.IsTrue(matCtrl.TryTransform(Project.Player.MaterialType.Rubber));
+                Assert.AreEqual(Project.Player.MaterialType.Rubber, matCtrl.CurrentMaterial);
+                Assert.AreEqual(3, matCtrl.RemainingTransformations);
+
+                // 3rd switch: Rubber -> Paper
+                Assert.IsTrue(matCtrl.TryTransform(Project.Player.MaterialType.Paper));
+                Assert.AreEqual(Project.Player.MaterialType.Paper, matCtrl.CurrentMaterial);
+                Assert.AreEqual(2, matCtrl.RemainingTransformations);
+
+                // 4th switch: Paper -> Stone
+                Assert.IsTrue(matCtrl.TryTransform(Project.Player.MaterialType.Stone));
+                Assert.AreEqual(Project.Player.MaterialType.Stone, matCtrl.CurrentMaterial);
+                Assert.AreEqual(1, matCtrl.RemainingTransformations);
+
+                // 5th switch: Stone -> Rubber
+                Assert.IsTrue(matCtrl.TryTransform(Project.Player.MaterialType.Rubber));
+                Assert.AreEqual(Project.Player.MaterialType.Rubber, matCtrl.CurrentMaterial);
+                Assert.AreEqual(0, matCtrl.RemainingTransformations);
+
+                // 6th switch attempt: Must fail because remaining is 0!
+                Assert.IsFalse(matCtrl.TryTransform(Project.Player.MaterialType.Paper), "6th switch must be rejected.");
+                Assert.AreEqual(Project.Player.MaterialType.Rubber, matCtrl.CurrentMaterial, "Material must remain unchanged after rejected switch.");
+                Assert.AreEqual(0, matCtrl.RemainingTransformations, "Remaining charges must remain 0.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(testGO);
+            }
+        }
+
+        [Test]
+        public void PlayerMaterialController_RubberProgressiveBounce_TiersAdvanceCorrectly()
+        {
+            var testGO = CreateTestGameObject("TestRubberBouncePlayer");
+            var rb = testGO.AddComponent<Rigidbody2D>();
+            testGO.AddComponent<BoxCollider2D>();
+            var matCtrl = testGO.AddComponent<Project.Player.PlayerMaterialController>();
+
+            try
+            {
+                matCtrl.ResetToDefault(Project.Player.MaterialType.Rubber, switches: 5);
+                Assert.AreEqual(Project.Player.MaterialType.Rubber, matCtrl.CurrentMaterial);
+                Assert.AreEqual(0, matCtrl.BounceComboTier, "Initial bounce combo tier should be 0.");
+
+                // 1st Bounce: bounces a little (13.0f)
+                matCtrl.ExecuteRubberBounce();
+                Assert.AreEqual(matCtrl.RubberBounce1Velocity, rb.linearVelocity.y, 0.01f, "1st bounce should have RubberBounce1Velocity.");
+                Assert.AreEqual(1, matCtrl.BounceComboTier, "After 1st bounce, combo tier should be 1.");
+
+                // 2nd Bounce: bounces a little higher (18.5f)
+                matCtrl.ExecuteRubberBounce();
+                Assert.AreEqual(matCtrl.RubberBounce2Velocity, rb.linearVelocity.y, 0.01f, "2nd bounce should have RubberBounce2Velocity.");
+                Assert.AreEqual(2, matCtrl.BounceComboTier, "After 2nd bounce, combo tier should be 2.");
+
+                // 3rd Bounce: bounces a lil more higher (24.0f)
+                matCtrl.ExecuteRubberBounce();
+                Assert.AreEqual(matCtrl.RubberBounce3Velocity, rb.linearVelocity.y, 0.01f, "3rd bounce should have RubberBounce3Velocity.");
+                Assert.AreEqual(0, matCtrl.BounceComboTier, "After 3rd bounce, combo tier should cycle back to 0.");
+
+                // Verify relative bounce heights: Tier 1 < Tier 2 < Tier 3
+                Assert.Less(matCtrl.RubberBounce1Velocity, matCtrl.RubberBounce2Velocity);
+                Assert.Less(matCtrl.RubberBounce2Velocity, matCtrl.RubberBounce3Velocity);
+            }
+            finally
+            {
+                Object.DestroyImmediate(testGO);
+            }
+        }
+
+        [Test]
+        public void PlayerMaterialController_RubberProgressiveBounce_ResetsOnMaterialSwitch()
+        {
+            var testGO = CreateTestGameObject("TestRubberBounceReset");
+            var rb = testGO.AddComponent<Rigidbody2D>();
+            testGO.AddComponent<BoxCollider2D>();
+            var matCtrl = testGO.AddComponent<Project.Player.PlayerMaterialController>();
+
+            try
+            {
+                matCtrl.ResetToDefault(Project.Player.MaterialType.Rubber, switches: 5);
+                matCtrl.ExecuteRubberBounce(); // Advance to tier 1
+                Assert.AreEqual(1, matCtrl.BounceComboTier);
+
+                // Switch to Stone -> Bounce combo must reset to 0
+                matCtrl.TryTransform(Project.Player.MaterialType.Stone);
+                Assert.AreEqual(0, matCtrl.BounceComboTier, "Switching material must reset bounce combo.");
+
+                // Switch back to Rubber -> Starts at tier 0
+                matCtrl.TryTransform(Project.Player.MaterialType.Rubber);
+                Assert.AreEqual(0, matCtrl.BounceComboTier, "Switching back to Rubber must start at tier 0.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(testGO);
+            }
+        }
+
+        [Test]
+        public void WindObstacle_ParticleEffect_ConfiguredAndPlays()
+        {
+            var windGO = CreateTestGameObject("TestWindSpawner");
+            var col = windGO.AddComponent<BoxCollider2D>();
+            col.size = new Vector2(4f, 18f);
+            col.offset = new Vector2(0f, 9f);
+            var wind = windGO.AddComponent<Project.Environment.WindObstacle>();
+
+            var psChild = new GameObject("WindParticles");
+            psChild.transform.SetParent(windGO.transform);
+            var ps = psChild.AddComponent<ParticleSystem>();
+
+            try
+            {
+                var method = typeof(Project.Environment.WindObstacle).GetMethod("Awake", 
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                method.Invoke(wind, null);
+
+                Assert.IsNotNull(wind.WindParticles, "WindObstacle should automatically find or assign its child ParticleSystem.");
+                Assert.IsTrue(col.isTrigger, "WindObstacle collider must be a trigger.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(windGO);
+            }
+        }
+
+        [Test]
+        public void PlayerMaterialController_FormDurationTimer_RevertsToPaperAfter10Seconds()
+        {
+            var testGO = CreateTestGameObject("TestFormDurationTimer");
+            testGO.AddComponent<Rigidbody2D>();
+            testGO.AddComponent<BoxCollider2D>();
+            var matCtrl = testGO.AddComponent<Project.Player.PlayerMaterialController>();
+
+            try
+            {
+                matCtrl.ResetToDefault(Project.Player.MaterialType.Paper, switches: 5);
+                Assert.IsFalse(matCtrl.HasFormTimerActive);
+                Assert.AreEqual(0f, matCtrl.FormDurationTimer, 0.01f);
+
+                // Transform to Rubber
+                bool transformed = matCtrl.TryTransform(Project.Player.MaterialType.Rubber);
+                Assert.IsTrue(transformed);
+                Assert.AreEqual(Project.Player.MaterialType.Rubber, matCtrl.CurrentMaterial);
+                Assert.IsTrue(matCtrl.HasFormTimerActive);
+                Assert.AreEqual(10f, matCtrl.FormDurationTimer, 0.01f);
+                Assert.AreEqual(4, matCtrl.RemainingTransformations);
+
+                // Reverting to Paper resets timer and preserves remaining transformation charges
+                matCtrl.RevertToDefaultPaperForm();
+                Assert.AreEqual(Project.Player.MaterialType.Paper, matCtrl.CurrentMaterial);
+                Assert.IsFalse(matCtrl.HasFormTimerActive);
+                Assert.AreEqual(0f, matCtrl.FormDurationTimer, 0.01f);
+                Assert.AreEqual(4, matCtrl.RemainingTransformations, "Reversion to Paper must not consume an extra charge.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(testGO);
+            }
+        }
+
+        [Test]
+        public void PlayerMaterialController_RubberWindLift_AppliesModerateLiftAndCapsHeight()
+        {
+            var testGO = CreateTestGameObject("TestRubberWindLift");
+            var rb = testGO.AddComponent<Rigidbody2D>();
+            testGO.AddComponent<BoxCollider2D>();
+            var matCtrl = testGO.AddComponent<Project.Player.PlayerMaterialController>();
+
+            try
+            {
+                matCtrl.ResetToDefault(Project.Player.MaterialType.Paper, switches: 5);
+
+                // 1. Stone form immunity
+                matCtrl.TryTransform(Project.Player.MaterialType.Stone);
+                rb.linearVelocity = Vector2.zero;
+                matCtrl.ApplyWindForce(new Vector2(0f, 25f), ventBaseY: 0f);
+                Assert.AreEqual(0f, rb.linearVelocity.y, 0.01f, "Stone must be completely unaffected by wind.");
+
+                // 2. Rubber form moderate lift below max flying height
+                matCtrl.TryTransform(Project.Player.MaterialType.Rubber);
+                testGO.transform.position = new Vector3(0f, 2f, 0f); // 2m above vent base 0m
+                rb.linearVelocity = Vector2.zero;
+                matCtrl.ApplyWindForce(new Vector2(0f, 25f), ventBaseY: 0f);
+                Assert.Greater(rb.linearVelocity.y, 0f, "Rubber should lift upward in wind.");
+                Assert.LessOrEqual(rb.linearVelocity.y, matCtrl.RubberMaxWindLiftSpeed + 0.1f, "Rubber lift speed must respect max wind lift speed.");
+
+                // 3. Rubber form hovering / dampening above max flying height
+                testGO.transform.position = new Vector3(0f, 8f, 0f); // 8m > 6.5m default
+                rb.linearVelocity = new Vector2(0f, 5f);
+                matCtrl.ApplyWindForce(new Vector2(0f, 25f), ventBaseY: 0f);
+                Assert.Less(rb.linearVelocity.y, 5f, "Rubber upward velocity must be dampened when above max flying height.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(testGO);
+            }
+        }
+
+        [Test]
+        public void PlayerMaterialController_Rubber_NoMidAirDoubleJump_OnlyBouncesWhenGrounded()
+        {
+            var testGO = CreateTestGameObject("TestRubberGroundBounce");
+            testGO.AddComponent<Rigidbody2D>();
+            testGO.AddComponent<BoxCollider2D>();
+            var matCtrl = testGO.AddComponent<Project.Player.PlayerMaterialController>();
+
+            try
+            {
+                matCtrl.ResetToDefault(Project.Player.MaterialType.Paper, switches: 5);
+                matCtrl.TryTransform(Project.Player.MaterialType.Rubber);
+
+                // Rubber must NOT have mid-air double jump!
+                Assert.IsFalse(matCtrl.CanDoubleJump, "Rubber must not have mid-air double jump enabled.");
+                Assert.IsFalse(matCtrl.IsImmuneToHazard("Spike"), "Rubber must be vulnerable to Spikes.");
+
+                // Ground bounce execution advances tiers
+                Assert.AreEqual(0, matCtrl.BounceComboTier);
+                matCtrl.ExecuteRubberBounce();
+                Assert.AreEqual(1, matCtrl.BounceComboTier);
+                matCtrl.ExecuteRubberBounce();
+                Assert.AreEqual(2, matCtrl.BounceComboTier);
+                matCtrl.ExecuteRubberBounce();
+                Assert.AreEqual(0, matCtrl.BounceComboTier);
+            }
+            finally
+            {
+                Object.DestroyImmediate(testGO);
+            }
+        }
+
+        [Test]
+        public void PlayerMaterialController_StoneImmunity_ImmuneToWindAndSpikes()
+        {
+            var pGO = CreateTestGameObject("TestStoneImmunityPlayer");
+            var rb = pGO.AddComponent<Rigidbody2D>();
+            pGO.AddComponent<BoxCollider2D>();
+            var playerCtrl = pGO.AddComponent<Game.Gameplay.Player.AutonomousPlayerController>();
+            var matCtrl = pGO.AddComponent<Project.Player.PlayerMaterialController>();
+
+            var spikeGO = CreateTestGameObject("TestSpikeHazard");
+            var spikeCol = spikeGO.AddComponent<BoxCollider2D>();
+            spikeCol.isTrigger = true;
+            var spike = spikeGO.AddComponent<Game.Gameplay.Combat.Spike>();
+
+            try
+            {
+                matCtrl.ResetToDefault(Project.Player.MaterialType.Paper, switches: 5);
+
+                // 1. In Paper form, touching Spike eliminates player
+                var tryEliminateMethod = typeof(Game.Gameplay.Combat.Hazard2D).GetMethod("TryEliminate", 
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                tryEliminateMethod.Invoke(spike, new object[] { pGO });
+                Assert.IsTrue(playerCtrl.IsDead, "Paper form must be eliminated by Spikes.");
+
+                // Reset player for Stone test
+                playerCtrl.ResetState(Vector2.zero);
+                Assert.IsFalse(playerCtrl.IsDead);
+
+                // 2. Transform to Stone
+                matCtrl.TryTransform(Project.Player.MaterialType.Stone);
+                Assert.IsTrue(matCtrl.IsStone);
+                Assert.IsTrue(matCtrl.IsImmuneToHazard("Spike"), "Stone must be immune to Spikes.");
+                Assert.IsTrue(playerCtrl.IsImmuneToHazard("Spike"), "PlayerController must be immune to Spikes when in Stone form.");
+
+                // Contact with spike hazard must NOT eliminate Stone player!
+                tryEliminateMethod.Invoke(spike, new object[] { pGO });
+                Assert.IsFalse(playerCtrl.IsDead, "Stone form must NOT be eliminated by Spikes!");
+
+                // Calling Kill("Eliminated by Spike") directly must also be deflected!
+                playerCtrl.Kill("Eliminated by Spike");
+                Assert.IsFalse(playerCtrl.IsDead, "Stone form must deflect Kill calls caused by Spikes!");
+
+                // 3. Stone is also unaffected by heavy wind
+                rb.linearVelocity = Vector2.zero;
+                matCtrl.ApplyWindForce(new Vector2(0f, 42f), ventBaseY: 0f);
+                Assert.AreEqual(0f, rb.linearVelocity.y, 0.01f, "Stone must remain completely unaffected by heavy wind.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(pGO);
+                Object.DestroyImmediate(spikeGO);
+            }
+        }
+
+        [Test]
+        public void PlayerMaterialController_SuperHeavyWind_AcceleratesPaperAndCapsRubber()
+        {
+            var testGO = CreateTestGameObject("TestSuperHeavyWind");
+            var rb = testGO.AddComponent<Rigidbody2D>();
+            testGO.AddComponent<BoxCollider2D>();
+            var matCtrl = testGO.AddComponent<Project.Player.PlayerMaterialController>();
+
+            try
+            {
+                // 1. Paper: blasted rapidly upward by super heavy wind
+                matCtrl.ResetToDefault(Project.Player.MaterialType.Paper, switches: 5);
+                rb.linearVelocity = Vector2.zero;
+                matCtrl.ApplyWindForce(new Vector2(0f, 42f), ventBaseY: 0f);
+                Assert.Greater(rb.linearVelocity.y, 5.0f, "Paper must experience a strong initial blast from super heavy wind.");
+                Assert.LessOrEqual(rb.linearVelocity.y, matCtrl.PaperMaxWindLiftSpeed + 0.1f, "Paper must respect max wind lift speed.");
+
+                // 2. Rubber: lifted moderately and hovers at max flying height
+                matCtrl.TryTransform(Project.Player.MaterialType.Rubber);
+                testGO.transform.position = new Vector3(0f, 2f, 0f);
+                rb.linearVelocity = Vector2.zero;
+                matCtrl.ApplyWindForce(new Vector2(0f, 42f), ventBaseY: 0f);
+                Assert.Greater(rb.linearVelocity.y, 0f, "Rubber should lift upward in super heavy wind.");
+
+                // Above max flying height, upward velocity is damped
+                testGO.transform.position = new Vector3(0f, 8f, 0f);
+                rb.linearVelocity = new Vector2(0f, 5f);
+                matCtrl.ApplyWindForce(new Vector2(0f, 42f), ventBaseY: 0f);
+                Assert.Less(rb.linearVelocity.y, 5f, "Rubber upward velocity must be damped above max flying height.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(testGO);
+            }
         }
     }
 }

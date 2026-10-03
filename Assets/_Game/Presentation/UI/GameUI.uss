@@ -251,6 +251,34 @@
     background-color: #9b59b6;
 }
 
+/* TOP RIGHT CONTAINER */
+.top-right-container {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    flex-direction: row;
+    align-items: center;
+}
+
+.btn-next-top {
+    min-width: 145px;
+    height: 44px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border-width: 2px;
+    border-color: rgba(255, 255, 255, 0.45);
+    background-color: #8e44ad;
+}
+.btn-next-top:hover {
+    background-color: #9b59b6;
+    border-color: rgba(255, 255, 255, 0.8);
+    scale: 1.04 1.04;
+}
+.btn-next-top:active {
+    background-color: #7d3c98;
+    scale: 0.96 0.96;
+}
+
 /* GAME OVER OVERLAY */
 .gameover-overlay {
     position: absolute;
@@ -329,4 +357,83 @@
     background-color: #000000;
     opacity: 0;
     pointer-events: none;
+}
+
+/* MATERIAL STATUS PANEL (LEVEL 5) */
+.material-status-card {
+    background-color: rgba(14, 18, 28, 0.94);
+    border-width: 2px;
+    border-color: #38bdf8;
+    border-radius: 8px;
+    padding: 8px 16px;
+    align-items: center;
+    justify-content: center;
+    min-width: 320px;
+    margin-bottom: 6px;
+}
+
+.material-mode-label {
+    color: #38bdf8;
+    font-size: 15px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-bottom: 4px;
+}
+
+.material-buttons-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+    margin-bottom: 4px;
+}
+
+.mat-badge {
+    padding: 3px 8px;
+    margin-left: 3px;
+    margin-right: 3px;
+    border-radius: 5px;
+    border-width: 1px;
+    transition: scale 0.1s;
+}
+
+.mat-badge:hover {
+    scale: 1.05 1.05;
+}
+
+.mat-badge:active {
+    scale: 0.95 0.95;
+}
+
+.mat-badge-paper {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: #ffffff;
+}
+
+.mat-badge-stone {
+    background-color: rgba(100, 116, 139, 0.35);
+    border-color: #94a3b8;
+}
+
+.mat-badge-rubber {
+    background-color: rgba(16, 185, 129, 0.25);
+    border-color: #10b981;
+}
+
+.mat-badge-active {
+    border-width: 2px;
+    border-color: #facc15;
+}
+
+.mat-badge-label {
+    color: #f8fafc;
+    font-size: 12px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.material-switches-label {
+    color: #94a3b8;
+    font-size: 12px;
+    -unity-text-align: middle-center;
 }
