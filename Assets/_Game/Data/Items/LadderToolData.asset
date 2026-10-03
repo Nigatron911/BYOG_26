@@ -16,4 +16,4 @@ MonoBehaviour:
   displayName: Ladder
   icon: {fileID: 21300000, guid: af7fa45f853af504b9900ea98185899a, type: 3}
   prefab: {fileID: 3908298832182944647, guid: 849c1823df46d8b4d954aa21a7b35366, type: 3}
-  maxCount: 2
+  maxCount: 1

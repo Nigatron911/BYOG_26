@@ -27,6 +27,19 @@ namespace Game.Gameplay.Interaction
         public bool IsPlaced => isPlaced;
         public bool IsDragging => isDragging;
 
+        [Header("Lifetime Settings")]
+        [SerializeField] private float lifetimeSeconds = 6.5f;
+        [SerializeField] private bool autoDisappear = true;
+        [SerializeField] private bool isSimulating = false;
+
+        private float lifetimeRemaining = 6.5f;
+        private bool hasStartedLifetime = false;
+
+        public float LifetimeRemaining => lifetimeRemaining;
+        public float LifetimeSeconds => lifetimeSeconds;
+        public bool AutoDisappear { get => autoDisappear; set => autoDisappear = value; }
+        public bool IsSimulating => isSimulating;
+
         private bool[] originalTriggerStates;
 
         private void Awake()
@@ -106,6 +119,7 @@ namespace Game.Gameplay.Interaction
                 }
 
                 SetVisualAlpha(0.6f);
+                CancelLifetime();
             }
             else
             {
@@ -133,6 +147,7 @@ namespace Game.Gameplay.Interaction
 
                 SetVisualAlpha(1.0f);
                 IgnoreCollisionWithPlayerIfLadder();
+                StartLifetime();
             }
         }
 
@@ -167,6 +182,7 @@ namespace Game.Gameplay.Interaction
 
             SetVisualAlpha(1.0f);
             IgnoreCollisionWithPlayerIfLadder();
+            StartLifetime();
         }
 
         /// <summary>
@@ -188,6 +204,9 @@ namespace Game.Gameplay.Interaction
                 rb.gravityScale = 1.8f;
                 rb.WakeUp();
             }
+
+            StartLifetime();
+            SetVisualAlpha(1.0f);
         }
 
         public void Rotate(float angleDelta)
@@ -238,6 +257,81 @@ namespace Game.Gameplay.Interaction
         {
             placedPosition = transform.position;
             placedRotation = transform.rotation;
+        }
+
+        public void SetType(ToolType type)
+        {
+            toolType = type;
+        }
+
+        public void SetLifetime(float seconds)
+        {
+            lifetimeSeconds = seconds;
+            lifetimeRemaining = seconds;
+            autoDisappear = seconds > 0f;
+        }
+
+        public void RefreshRenderers()
+        {
+            allRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+            allColliders = null;
+            EnsureInitialized();
+        }
+
+        public void SetSimulating(bool simulating)
+        {
+            isSimulating = simulating;
+            if (!simulating)
+            {
+                lifetimeRemaining = lifetimeSeconds;
+                SetVisualAlpha(1.0f);
+            }
+        }
+
+        public void StartLifetime()
+        {
+            lifetimeRemaining = lifetimeSeconds;
+            hasStartedLifetime = true;
+        }
+
+        public void CancelLifetime()
+        {
+            hasStartedLifetime = false;
+            SetVisualAlpha(1.0f);
+        }
+
+        private void Update()
+        {
+            if (!isSimulating || !autoDisappear || lifetimeSeconds <= 0f || !hasStartedLifetime || !isPlaced || isDragging) return;
+
+            lifetimeRemaining -= Time.deltaTime;
+
+            // Warning visual feedback: pulse transparency in the last 1.5 seconds
+            if (lifetimeRemaining <= 1.5f && lifetimeRemaining > 0f)
+            {
+                float pulse = Mathf.PingPong(Time.time * 8f, 1f) * 0.5f + 0.5f;
+                SetVisualAlpha(pulse);
+            }
+
+            if (lifetimeRemaining <= 0f)
+            {
+                Disappear();
+            }
+        }
+
+        public void Disappear()
+        {
+            hasStartedLifetime = false;
+            isPlaced = false;
+            Debug.Log($"[DraggableTool] {toolType} disappeared after {lifetimeSeconds} seconds.");
+            if (Application.isPlaying)
+            {
+                Destroy(gameObject);
+            }
+            else
+            {
+                DestroyImmediate(gameObject);
+            }
         }
     }
 }

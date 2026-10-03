@@ -16,4 +16,4 @@ MonoBehaviour:
   displayName: Platform
   icon: {fileID: -1979530691900156416, guid: edcf16b19fa42494aa280d19ec910bc3, type: 3}
   prefab: {fileID: 6291298455345399814, guid: a24505c9a957db445a57e144001c12db, type: 3}
-  maxCount: 2
+  maxCount: 1

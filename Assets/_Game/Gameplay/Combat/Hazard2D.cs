@@ -11,8 +11,13 @@ namespace Game.Gameplay.Combat
     [RequireComponent(typeof(Collider2D))]
     public class Hazard2D : MonoBehaviour
     {
-        [SerializeField] private string hazardName = "Spike Hazard";
+        [SerializeField] protected string hazardName = "Spike Hazard";
         public string HazardName => hazardName;
+
+        public void SetHazardName(string name)
+        {
+            hazardName = name;
+        }
 
         private void OnTriggerEnter2D(Collider2D other)
         {

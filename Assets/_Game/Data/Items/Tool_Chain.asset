@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 42f237893df8c1d4f854ff34bedaa77f, type: 3}
-  m_Name: PlankToolData
+  m_Name: Tool_Chain
   m_EditorClassIdentifier: Assembly-CSharp::Game.Data.Items.ToolDefinition
-  toolType: 1
-  displayName: Plank
-  icon: {fileID: 2890438909580299443, guid: 7c07ac91961f0ca47848baa04a526c2f, type: 3}
-  prefab: {fileID: 6440388878451132104, guid: f3324b031ce5a3740a36e4e30da1f399, type: 3}
+  toolType: 4
+  displayName: Chain
+  icon: {fileID: 8265709568917298549, guid: fe406a3b44976d243acff7da35ef1ec4, type: 3}
+  prefab: {fileID: 3331969204931877903, guid: 278e83dba90a2424c9177c6e10189413, type: 3}
   maxCount: 1

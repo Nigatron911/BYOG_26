@@ -9,22 +9,50 @@ namespace Game.Gameplay.Player
     /// Walks forward automatically, climbs ladders, negotiates ramps, and monitors stuck timeouts.
     /// Strictly adheres to Section 4 (Single Responsibility) and Section 6 (Interfaces).
     /// </summary>
+    public enum LocomotionMode
+    {
+        Autonomous,
+        Manual
+    }
+
     [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
     public class AutonomousPlayerController : MonoBehaviour, IDamageable
     {
+        [Header("Locomotion Mode")]
+        [SerializeField] private LocomotionMode locomotionMode = LocomotionMode.Autonomous;
+        [SerializeField] private float jumpVelocity = 8.5f;
+        [SerializeField] private float manualAcceleration = 40.0f;
+        private PlayerGravityController gravityController;
+
+        [Header("Manual Mode & Gravity Float")]
+        [SerializeField] private float jumpBufferDuration = 0.25f;
+        [SerializeField] private float coyoteTimeDuration = 0.15f;
+        [SerializeField] private float moonFloatLiftSpeed = 4.2f;
+        [SerializeField] private float moonMaxFallSpeed = 2.2f;
+        [SerializeField] private float moonBuoyancyForce = 12f;
+
+        // Input buffering and coyote timers
+        private float cachedInputX = 0f;
+        private float jumpBufferTimer = 0f;
+        private float roofJumpBufferTimer = 0f;
+        private float groundCoyoteTimer = 0f;
+        private float roofCoyoteTimer = 0f;
+
         [Header("Locomotion Settings")]
-        [SerializeField] private float walkSpeed = 2.0f;
-        [SerializeField] private float climbSpeed = 2.2f;
+        [SerializeField] private float walkSpeed = 7.0f;
+        [SerializeField] private float climbSpeed = 6.5f;
         [SerializeField] private float slopeCheckDistance = 0.5f;
         [SerializeField] private LayerMask groundLayerMask = ~0;
 
         [Header("Stuck Detection Settings")]
         [SerializeField] private float stuckTimeoutSeconds = 5.0f;
-        [SerializeField] private float minimumProgressDelta = 0.05f;
+        [SerializeField] private float minimumProgressDelta = 0.1f;
 
         private Rigidbody2D rb;
         private Collider2D bodyCollider;
         private GameEvents events;
+        private SpriteRenderer spriteRenderer;
+        private Color defaultSpriteColor = Color.white;
 
         private bool isDead = false;
         private bool isClimbing = false;
@@ -39,15 +67,40 @@ namespace Game.Gameplay.Player
         private float stuckTimer = 0f;
         private float progressCheckTimer = 0f;
 
+        public static string LastEventLog = "";
+        public static System.Collections.Generic.List<string> TrajectoryLog = new System.Collections.Generic.List<string>();
+
         public bool IsDead => isDead;
         public bool IsSimulating => isSimulating;
+        public float WalkSpeed => walkSpeed;
         public float StuckTimer => stuckTimer;
         public float StuckTimeoutSeconds => stuckTimeoutSeconds;
         public float StuckProgress => Mathf.Clamp01(stuckTimer / stuckTimeoutSeconds);
+        public LocomotionMode CurrentLocomotionMode => locomotionMode;
+        public PlayerGravityController GravityController => gravityController;
+
+        public void SetLocomotionMode(LocomotionMode mode)
+        {
+            locomotionMode = mode;
+            if (mode == LocomotionMode.Manual)
+            {
+                stuckTimer = 0f;
+            }
+        }
+
+        public void SetGravityController(PlayerGravityController gc)
+        {
+            gravityController = gc;
+        }
 
         public void Initialize(GameEvents gameEvents)
         {
             events = gameEvents;
+            if (rb == null) rb = GetComponent<Rigidbody2D>();
+            if (bodyCollider == null) bodyCollider = GetComponent<Collider2D>();
+            if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>() ?? GetComponentInChildren<SpriteRenderer>();
+            if (spriteRenderer != null) defaultSpriteColor = spriteRenderer.color;
+
             initialSpawnPosition = transform.position;
             ResetState(initialSpawnPosition);
 
@@ -55,6 +108,7 @@ namespace Game.Gameplay.Player
             {
                 events.SimulationStarted += OnSimulationStarted;
                 events.SimulationStopped += OnSimulationStopped;
+                events.LevelResetRequested += OnLevelResetRequested;
             }
         }
 
@@ -64,15 +118,39 @@ namespace Game.Gameplay.Player
             {
                 events.SimulationStarted -= OnSimulationStarted;
                 events.SimulationStopped -= OnSimulationStopped;
+                events.LevelResetRequested -= OnLevelResetRequested;
             }
+        }
+
+        private void OnLevelResetRequested()
+        {
+            ResetState(initialSpawnPosition);
         }
 
         private void OnSimulationStarted()
         {
             isSimulating = true;
+            isDead = false;
+            hasReachedGoal = false;
+            isClimbing = false;
+            activeClimbable = null;
+            LastEventLog = "SIMULATION_ACTIVE";
+            TrajectoryLog.Clear();
             lastProgressX = transform.position.x;
             stuckTimer = 0f;
             progressCheckTimer = 0f;
+            if (rb != null)
+            {
+                rb.bodyType = RigidbodyType2D.Dynamic;
+                if (gravityController == null || !gravityController.enabled)
+                {
+                    rb.gravityScale = 1f;
+                }
+            }
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.color = defaultSpriteColor;
+            }
             Debug.Log("[AutonomousPlayerController] Simulation started! Player is walking.");
         }
 
@@ -93,15 +171,33 @@ namespace Game.Gameplay.Player
             stuckTimer = 0f;
             progressCheckTimer = 0f;
             lastProgressX = spawnPosition.x;
+            cachedInputX = 0f;
+            jumpBufferTimer = 0f;
+            roofJumpBufferTimer = 0f;
+            groundCoyoteTimer = 0f;
+            roofCoyoteTimer = 0f;
             transform.position = new Vector3(spawnPosition.x, spawnPosition.y, transform.position.z);
             if (rb != null)
             {
                 rb.bodyType = RigidbodyType2D.Dynamic;
-                rb.gravityScale = 1f;
+                if (gravityController == null || !gravityController.enabled)
+                {
+                    rb.gravityScale = 1f;
+                }
                 rb.position = spawnPosition;
                 rb.linearVelocity = Vector2.zero;
                 rb.angularVelocity = 0f;
             }
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.color = defaultSpriteColor;
+            }
+        }
+
+        public void SetSpawnPosition(Vector2 newSpawn)
+        {
+            initialSpawnPosition = newSpawn;
+            ResetState(newSpawn);
         }
 
         private void Awake()
@@ -109,13 +205,20 @@ namespace Game.Gameplay.Player
             Physics2D.queriesStartInColliders = false;
             rb = GetComponent<Rigidbody2D>();
             bodyCollider = GetComponent<Collider2D>();
+            spriteRenderer = GetComponent<SpriteRenderer>() ?? GetComponentInChildren<SpriteRenderer>();
+            if (spriteRenderer != null) defaultSpriteColor = spriteRenderer.color;
+            if (gravityController == null) gravityController = GetComponent<PlayerGravityController>();
             initialSpawnPosition = transform.position;
             lastProgressX = transform.position.x;
         }
 
         private void FixedUpdate()
         {
-            if (!isSimulating || isDead || isPaused)
+            bool canControl = (locomotionMode == LocomotionMode.Manual)
+                ? (!isDead && !isPaused)
+                : (isSimulating && !isDead && !isPaused);
+
+            if (!canControl)
             {
                 if (!isSimulating && rb != null && !isDead)
                 {
@@ -124,17 +227,27 @@ namespace Game.Gameplay.Player
                 return;
             }
 
+            if (Time.frameCount % 5 == 0)
+            {
+                TrajectoryLog.Add($"t={Time.time:F2}s pos={transform.position}");
+                if (TrajectoryLog.Count > 100) TrajectoryLog.RemoveAt(0);
+            }
+
             if (isClimbing && activeClimbable != null)
             {
                 HandleClimbing();
+            }
+            else if (locomotionMode == LocomotionMode.Manual)
+            {
+                HandleManualMovement();
             }
             else
             {
                 HandleWalking();
             }
 
-            // Only monitor stuck condition while solving the puzzle, not after reaching the goal
-            if (!hasReachedGoal)
+            // Only monitor stuck condition while in autonomous mode, not after reaching the goal
+            if (!hasReachedGoal && locomotionMode == LocomotionMode.Autonomous)
             {
                 CheckStuckCondition();
             }
@@ -149,6 +262,38 @@ namespace Game.Gameplay.Player
             if (isDead)
             {
                 transform.rotation = Quaternion.Euler(0f, 0f, 90f); // Fallen pose
+                return;
+            }
+
+            // Decrement input buffer & coyote timers
+            if (jumpBufferTimer > 0f) jumpBufferTimer -= Time.deltaTime;
+            if (roofJumpBufferTimer > 0f) roofJumpBufferTimer -= Time.deltaTime;
+            if (groundCoyoteTimer > 0f) groundCoyoteTimer -= Time.deltaTime;
+            if (roofCoyoteTimer > 0f) roofCoyoteTimer -= Time.deltaTime;
+
+            // In Manual mode, capture frame-accurate keyboard inputs
+            if (locomotionMode == LocomotionMode.Manual && !isPaused)
+            {
+                ReadManualInputs();
+            }
+
+            // In Manual mode with GravityController, maintain exact gravity mode orientation
+            if (locomotionMode == LocomotionMode.Manual && gravityController != null && gravityController.enabled)
+            {
+                if (gravityController.CurrentMode == GravityMode.InvertedRoof)
+                {
+                    transform.rotation = Quaternion.Euler(0f, 0f, 180f);
+                }
+                else if (gravityController.CurrentMode == GravityMode.Moon)
+                {
+                    // Gentle floating hover wobble
+                    float floatAngle = Mathf.Sin(Time.time * 4f) * 3f;
+                    transform.rotation = Quaternion.Euler(0f, 0f, floatAngle);
+                }
+                else
+                {
+                    transform.rotation = Quaternion.identity;
+                }
                 return;
             }
 
@@ -168,6 +313,177 @@ namespace Game.Gameplay.Player
             {
                 transform.rotation = Quaternion.identity;
             }
+        }
+
+        private void ReadManualInputs()
+        {
+            bool aHeld = false;
+            bool dHeld = false;
+            bool wDown = false;
+            bool sDown = false;
+
+            // Read New Input System
+            var kb = UnityEngine.InputSystem.Keyboard.current;
+            if (kb != null)
+            {
+                aHeld = kb.aKey.isPressed || kb.leftArrowKey.isPressed;
+                dHeld = kb.dKey.isPressed || kb.rightArrowKey.isPressed;
+                wDown = kb.wKey.wasPressedThisFrame || kb.upArrowKey.wasPressedThisFrame || kb.spaceKey.wasPressedThisFrame;
+                sDown = kb.sKey.wasPressedThisFrame || kb.downArrowKey.wasPressedThisFrame;
+            }
+
+            // 3. Cache horizontal movement
+            cachedInputX = 0f;
+            if (aHeld) cachedInputX -= 1f;
+            if (dHeld) cachedInputX += 1f;
+
+            // 4. Buffer jump presses
+            if (wDown)
+            {
+                jumpBufferTimer = jumpBufferDuration;
+            }
+            if (sDown)
+            {
+                roofJumpBufferTimer = jumpBufferDuration;
+            }
+        }
+
+        private void HandleManualMovement()
+        {
+            GravityMode currentGravity = gravityController != null && gravityController.enabled
+                ? gravityController.CurrentMode
+                : GravityMode.Earth;
+
+            bool isGrounded = CheckSurfaceGrounded(Vector2.down);
+            bool isOnRoof = CheckSurfaceGrounded(Vector2.up);
+
+            if (isGrounded) groundCoyoteTimer = coyoteTimeDuration;
+            if (isOnRoof) roofCoyoteTimer = coyoteTimeDuration;
+
+            float moveX = 0f;
+
+            switch (currentGravity)
+            {
+                case GravityMode.Earth:
+                {
+                    // Earth Mode: A = Left, D = Right, W = Jump Up
+                    moveX = cachedInputX;
+
+                    if (jumpBufferTimer > 0f && (isGrounded || groundCoyoteTimer > 0f))
+                    {
+                        jumpBufferTimer = 0f;
+                        groundCoyoteTimer = 0f;
+                        rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpVelocity);
+                        rb.gravityScale = 1.0f;
+                    }
+                    else if (!isGrounded && rb.linearVelocity.y < 0f)
+                    {
+                        // Snappy, sudden fall in Earth mode
+                        rb.gravityScale = 1.8f;
+                    }
+                    else
+                    {
+                        rb.gravityScale = 1.0f;
+                    }
+                    break;
+                }
+
+                case GravityMode.Moon:
+                {
+                    // Moon Mode: Floats! A = Left, D = Right, W = Float Jump / Air Thrust
+                    moveX = cachedInputX;
+
+                    // 1. Automatic float off ground: if touching ground or low altitude, gently float up!
+                    if (isGrounded || transform.position.y < -1.8f)
+                    {
+                        rb.linearVelocity = new Vector2(rb.linearVelocity.x, Mathf.Max(rb.linearVelocity.y, moonFloatLiftSpeed));
+                    }
+
+                    // 2. Upward float boost on W jump: can be pressed in mid-air or on ground
+                    if (jumpBufferTimer > 0f)
+                    {
+                        jumpBufferTimer = 0f;
+                        rb.linearVelocity = new Vector2(rb.linearVelocity.x, Mathf.Max(rb.linearVelocity.y + 4.2f, 6.8f));
+                    }
+
+                    // 3. Gentle float fall-speed clamping (astronaut low-g float)
+                    if (rb.linearVelocity.y < -moonMaxFallSpeed)
+                    {
+                        rb.linearVelocity = new Vector2(rb.linearVelocity.x, -moonMaxFallSpeed);
+                    }
+
+                    // 4. Hover buoyancy force keeping the player comfortably airborne above hazards
+                    if (transform.position.y < 4.5f)
+                    {
+                        rb.AddForce(Vector2.up * moonBuoyancyForce, ForceMode2D.Force);
+                    }
+
+                    // 5. Downward descent if S is pressed in Moon mode
+                    if (roofJumpBufferTimer > 0f)
+                    {
+                        roofJumpBufferTimer = 0f;
+                        rb.linearVelocity = new Vector2(rb.linearVelocity.x, -3.5f);
+                    }
+                    break;
+                }
+
+                case GravityMode.InvertedRoof:
+                {
+                    // Inverted Roof Mode: upside down, feet on ceiling
+                    // "a right d left and s will be jump"
+                    if (cachedInputX < 0f) moveX = 1f;   // A key moves Right
+                    if (cachedInputX > 0f) moveX = -1f;  // D key moves Left
+
+                    // S key jumps down off roof
+                    if (roofJumpBufferTimer > 0f && (isOnRoof || roofCoyoteTimer > 0f))
+                    {
+                        roofJumpBufferTimer = 0f;
+                        roofCoyoteTimer = 0f;
+                        rb.linearVelocity = new Vector2(rb.linearVelocity.x, -jumpVelocity);
+                    }
+                    break;
+                }
+            }
+
+            // Smooth Horizontal Velocity
+            float targetVelX = moveX * walkSpeed;
+            float currentVelX = rb.linearVelocity.x;
+            float newVelX = Mathf.MoveTowards(currentVelX, targetVelX, manualAcceleration * Time.fixedDeltaTime);
+            rb.linearVelocity = new Vector2(newVelX, rb.linearVelocity.y);
+
+            // Sprite Facing Direction
+            if (spriteRenderer != null && Mathf.Abs(moveX) > 0.05f)
+            {
+                if (currentGravity != GravityMode.InvertedRoof)
+                {
+                    spriteRenderer.flipX = (moveX < 0f);
+                }
+                else
+                {
+                    // Inverted rotation: flipX true faces world right, false faces world left
+                    spriteRenderer.flipX = (moveX > 0f);
+                }
+            }
+        }
+
+        public bool CheckSurfaceGrounded(Vector2 direction)
+        {
+            if (bodyCollider == null) bodyCollider = GetComponent<Collider2D>();
+            float halfHeight = bodyCollider != null ? bodyCollider.bounds.extents.y : 2.67f;
+            float halfWidth = bodyCollider != null ? bodyCollider.bounds.extents.x : 1.39f;
+            Vector2 boxSize = new Vector2(halfWidth * 1.3f, 0.25f);
+            Vector2 center = bodyCollider != null ? (Vector2)bodyCollider.bounds.center : (Vector2)transform.position;
+            Vector2 origin = center + direction * (halfHeight - 0.15f);
+            RaycastHit2D[] hits = Physics2D.BoxCastAll(origin, boxSize, 0f, direction, 0.50f, groundLayerMask);
+            for (int i = 0; i < hits.Length; i++)
+            {
+                var h = hits[i];
+                if (h.collider != null && h.collider != bodyCollider && !h.collider.isTrigger)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private void HandleWalking()
@@ -205,7 +521,7 @@ namespace Game.Gameplay.Player
 
         private void HandleClimbing()
         {
-            if (activeClimbable == null)
+            if (activeClimbable == null || (activeClimbable as Object) == null)
             {
                 isClimbing = false;
                 rb.gravityScale = 1f;
@@ -278,10 +594,14 @@ namespace Game.Gameplay.Player
         {
             if (isDead || hasReachedGoal) return;
 
+            LastEventLog = $"KILLED: {cause} at {transform.position}";
             isDead = true;
             isSimulating = false;
-            rb.linearVelocity = Vector2.zero;
-            rb.bodyType = RigidbodyType2D.Kinematic;
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+                rb.bodyType = RigidbodyType2D.Kinematic;
+            }
 
             Debug.Log($"[AutonomousPlayerController] Player died: {cause}");
 
@@ -295,8 +615,8 @@ namespace Game.Gameplay.Player
         {
             if (hasReachedGoal || isDead) return;
 
+            LastEventLog = $"REACHED_GOAL at {transform.position}";
             hasReachedGoal = true;
-            // The player continues walking forward outside the level during the fade transition
             Debug.Log("[AutonomousPlayerController] Goal reached! Player is walking outside the level...");
 
             if (events != null)

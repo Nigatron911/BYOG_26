@@ -25,6 +25,7 @@ namespace Game.Core.Bootstrap
         [SerializeField] private PlacementSystem placementSystem;
         [SerializeField] private ToolSpawner toolSpawner;
         [SerializeField] private Transform toolsContainer;
+        [SerializeField] private Game.Gameplay.LevelProgressionManager levelManager;
 
         [Header("Presentation References")]
         [SerializeField] private ScreenFaderUI screenFader;
@@ -118,8 +119,19 @@ namespace Game.Core.Bootstrap
                 playerHUD.BindPlayer(playerController);
             }
 
+            if (levelManager == null)
+            {
+                levelManager = GetComponent<Game.Gameplay.LevelProgressionManager>() 
+                    ?? FindFirstObjectByType<Game.Gameplay.LevelProgressionManager>() 
+                    ?? gameObject.AddComponent<Game.Gameplay.LevelProgressionManager>();
+            }
+
+            if (levelManager != null)
+            {
+                levelManager.Initialize(gameEvents, playerController, mainCamera, placementSystem, toolSelectionBar, screenFader, toolsContainer);
+            }
+
             // 4. Hook Lifecycle Transitions
-            gameEvents.LevelCompleted += OnLevelCompleted;
             gameEvents.LevelResetRequested += OnLevelResetRequested;
         }
 
@@ -127,7 +139,6 @@ namespace Game.Core.Bootstrap
         {
             if (gameEvents != null)
             {
-                gameEvents.LevelCompleted -= OnLevelCompleted;
                 gameEvents.LevelResetRequested -= OnLevelResetRequested;
             }
         }
@@ -141,29 +152,7 @@ namespace Game.Core.Bootstrap
             }
         }
 
-        private void OnLevelCompleted()
-        {
-            Debug.Log("[GameBootstrap] Level completed! Player continuing outside level, starting transition...");
-            StartCoroutine(WalkOutThenFadeRoutine());
-        }
 
-        private IEnumerator WalkOutThenFadeRoutine()
-        {
-            // Give player time to walk past the shrine toward and beyond the screen boundary
-            yield return new WaitForSeconds(0.6f);
-
-            if (screenFader != null)
-            {
-                screenFader.FadeOut(1.0f, () =>
-                {
-                    StartCoroutine(ReloadSceneAfterDelay(0.4f));
-                });
-            }
-            else
-            {
-                StartCoroutine(ReloadSceneAfterDelay(1.4f));
-            }
-        }
 
         private void OnLevelResetRequested()
         {

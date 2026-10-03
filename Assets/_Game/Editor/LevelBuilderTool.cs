@@ -73,7 +73,7 @@ namespace Game.Editor
             var plankSR = plankGO.AddComponent<SpriteRenderer>();
             plankSR.sprite = plankSprite;
             plankSR.sortingOrder = 10;
-            plankGO.transform.localScale = new Vector3(1.05f, 0.9f, 1f); // 2.6m length x 0.45m height
+            plankGO.transform.localScale = new Vector3(3.442985f, 2.330985f, 1f); // Enlarged bridge matching platform ratio
 
             var plankCol = plankGO.AddComponent<BoxCollider2D>();
             plankCol.size = new Vector2(2.6f, 0.4f);
@@ -99,7 +99,7 @@ namespace Game.Editor
             var ladderSR = ladderGO.AddComponent<SpriteRenderer>();
             ladderSR.sprite = ladderSprite;
             ladderSR.sortingOrder = 10;
-            ladderGO.transform.localScale = new Vector3(0.85f, 1.05f, 1f); // ~0.85m width x 2.5m height
+            ladderGO.transform.localScale = new Vector3(2.787178f, 2.85f, 1f); // Enlarged climbing ladder
 
             // Solid physical frame collider (rests on ground)
             var ladderCol = ladderGO.AddComponent<BoxCollider2D>();
@@ -135,7 +135,7 @@ namespace Game.Editor
             var platformSR = platformGO.AddComponent<SpriteRenderer>();
             platformSR.sprite = platformSprite;
             platformSR.sortingOrder = 10;
-            platformGO.transform.localScale = new Vector3(1.0f, 0.95f, 1f); // ~2.0m width x 0.95m height
+            platformGO.transform.localScale = new Vector3(3.27903295f, 3.20f, 1f); // Enlarged platform scale
 
             var platformCol = platformGO.AddComponent<BoxCollider2D>();
             platformCol.size = new Vector2(2.0f, 0.95f);
@@ -213,69 +213,69 @@ namespace Game.Editor
             bedrockBaseGO.GetComponent<SpriteRenderer>().sortingOrder = 1;
 
             // =========================================================================
-            // 1. START FLOOR (x: -7.2 to -4.0, surface at y = -1.5)
+            // 1. START FLOOR (x: -7.2 to -3.8, surface at y = -1.5)
             // Low start platform where player stands, matching user sketch
             // =========================================================================
-            CreatePlatformBlock(levelGO.transform, "Start_Floor", squareSprite, ledgeMossSprite, new Vector2(-5.6f, -4.25f), new Vector2(3.2f, 5.5f), terrainMat);
+            CreatePlatformBlock(levelGO.transform, "Start_Floor", squareSprite, ledgeMossSprite, new Vector2(-5.5f, -4.25f), new Vector2(3.4f, 5.5f), terrainMat);
 
             // =========================================================================
-            // 2. OBSTACLE 1: RAISED PILLAR BLOCK (x: -4.0 to -1.8, surface at y = 0.5)
-            // Step up of 2.0m! Cannot be jumped. Solved by climbing with Ladder 1.
+            // 2. OBSTACLE 1: RAISED PILLAR BLOCK (x: -3.8 to -1.6, surface at y = 0.5)
+            // Step up of 2.0m! Solved by climbing with Ladder 1.
             // =========================================================================
-            CreatePlatformBlock(levelGO.transform, "Obstacle1_Pillar", squareSprite, ledgeMossSprite, new Vector2(-2.9f, -3.25f), new Vector2(2.2f, 7.5f), terrainMat);
+            CreatePlatformBlock(levelGO.transform, "Obstacle1_Pillar", squareSprite, ledgeMossSprite, new Vector2(-2.7f, -3.25f), new Vector2(2.2f, 7.5f), terrainMat);
 
             // =========================================================================
-            // 3. OBSTACLE 2: WIDE SPIKE BED (x: -1.8 to +3.6, width = 5.4m)
+            // 3. OBSTACLE 2: WIDE SPIKE BED (x: -1.6 to +2.8, width = 4.4m)
             // Bedrock at y = -1.7 with 3 spike segments (tips reach y = -1.18).
-            // Solved by placing Planks across the gap or as ramp.
+            // Solved effortlessly by bridging with Plank 1 and Plank 2 (total 5.2m with overlap)!
             // =========================================================================
-            CreatePlatformBlock(levelGO.transform, "Obstacle2_Bedrock", squareSprite, null, new Vector2(0.9f, -4.35f), new Vector2(5.4f, 5.3f), terrainMat);
-            CreateSpikeBed(levelGO.transform, "Obstacle2_Spikes_1", spikeSprite, new Vector2(-0.9f, -1.425f), 1.8f);
-            CreateSpikeBed(levelGO.transform, "Obstacle2_Spikes_2", spikeSprite, new Vector2(0.9f, -1.425f), 1.8f);
-            CreateSpikeBed(levelGO.transform, "Obstacle2_Spikes_3", spikeSprite, new Vector2(2.7f, -1.425f), 1.8f);
+            CreatePlatformBlock(levelGO.transform, "Obstacle2_Bedrock", squareSprite, null, new Vector2(0.6f, -4.35f), new Vector2(4.4f, 5.3f), terrainMat);
+            CreateSpikeBed(levelGO.transform, "Obstacle2_Spikes_1", spikeSprite, new Vector2(-0.87f, -1.425f), 1.46f);
+            CreateSpikeBed(levelGO.transform, "Obstacle2_Spikes_2", spikeSprite, new Vector2(0.60f, -1.425f), 1.46f);
+            CreateSpikeBed(levelGO.transform, "Obstacle2_Spikes_3", spikeSprite, new Vector2(2.07f, -1.425f), 1.46f);
 
             // =========================================================================
-            // 4. OBSTACLE 3: MID STRUCTURE WITH U-PIT & OVERHANG (x: 3.6 to 10.6)
+            // 4. OBSTACLE 3: MID STRUCTURE WITH U-PIT & OVERHANG (x: 2.8 to 9.8)
             // Surface at y = 0.8 with recessed U-Pit (depth 1.2m) and cantilevered overhang
             // =========================================================================
-            // Left Plateau (x: 3.6 to 5.2, surface at y = 0.8)
-            CreatePlatformBlock(levelGO.transform, "Obstacle3_Mid_Left", squareSprite, ledgeMossSprite, new Vector2(4.4f, -3.1f), new Vector2(1.6f, 7.8f), terrainMat);
+            // Left Plateau (x: 2.8 to 4.4, surface at y = 0.8)
+            CreatePlatformBlock(levelGO.transform, "Obstacle3_Mid_Left", squareSprite, ledgeMossSprite, new Vector2(3.6f, -3.1f), new Vector2(1.6f, 7.8f), terrainMat);
 
-            // Recessed U-Pit (x: 5.2 to 7.4, surface at y = -0.4)
+            // Recessed U-Pit (x: 4.4 to 6.6, surface at y = -0.4)
             // Solved by dropping Platform 1 into the pit to create a level walking surface!
-            CreatePlatformBlock(levelGO.transform, "Obstacle3_Pit_Bedrock", squareSprite, null, new Vector2(6.3f, -3.7f), new Vector2(2.2f, 6.6f), terrainMat);
+            CreatePlatformBlock(levelGO.transform, "Obstacle3_Pit_Bedrock", squareSprite, null, new Vector2(5.5f, -3.7f), new Vector2(2.2f, 6.6f), terrainMat);
             var pitHazardGO = new GameObject("Obstacle3_Pit_Hazard");
             pitHazardGO.transform.SetParent(levelGO.transform, false);
-            pitHazardGO.transform.position = new Vector3(6.3f, -0.3f, 0f);
+            pitHazardGO.transform.position = new Vector3(5.5f, -0.3f, 0f);
             var pitCol = pitHazardGO.AddComponent<BoxCollider2D>();
             pitCol.size = new Vector2(2.1f, 0.35f);
             pitCol.isTrigger = true;
             var pitHazard = pitHazardGO.AddComponent<Hazard2D>();
             SetPrivateField(pitHazard, "hazardName", "Pit Hazard");
 
-            // Right Plateau (x: 7.4 to 8.6, surface at y = 0.8)
-            CreatePlatformBlock(levelGO.transform, "Obstacle3_Mid_Right", squareSprite, ledgeMossSprite, new Vector2(8.0f, -3.1f), new Vector2(1.2f, 7.8f), terrainMat);
+            // Right Plateau (x: 6.6 to 7.8, surface at y = 0.8)
+            CreatePlatformBlock(levelGO.transform, "Obstacle3_Mid_Right", squareSprite, ledgeMossSprite, new Vector2(7.2f, -3.1f), new Vector2(1.2f, 7.8f), terrainMat);
 
-            // Cantilevered Overhang (x: 8.6 to 10.6, surface at y = 0.8, thickness = 0.4m)
-            CreatePlatformBlock(levelGO.transform, "Obstacle3_Overhang", squareSprite, ledgeMossSprite, new Vector2(9.6f, 0.6f), new Vector2(2.0f, 0.4f), terrainMat);
-
-            // =========================================================================
-            // 5. OBSTACLE 4: LOWER SPIKES & AERIAL GAP (x: 8.6 to 12.8)
-            // Bedrock at y = -1.7 under overhang and across the 2.2m aerial gap (x: 10.6 to 12.8).
-            // Solved by bridging with Plank 2 or Platform 2!
-            // =========================================================================
-            CreatePlatformBlock(levelGO.transform, "Obstacle4_Bedrock", squareSprite, null, new Vector2(10.7f, -4.35f), new Vector2(4.2f, 5.3f), terrainMat);
-            CreateSpikeBed(levelGO.transform, "Obstacle4_Spikes_1", spikeSprite, new Vector2(9.65f, -1.425f), 2.1f);
-            CreateSpikeBed(levelGO.transform, "Obstacle4_Spikes_2", spikeSprite, new Vector2(11.75f, -1.425f), 2.1f);
+            // Cantilevered Overhang (x: 7.8 to 9.8, surface at y = 0.8, thickness = 0.4m)
+            CreatePlatformBlock(levelGO.transform, "Obstacle3_Overhang", squareSprite, ledgeMossSprite, new Vector2(8.8f, 0.6f), new Vector2(2.0f, 0.4f), terrainMat);
 
             // =========================================================================
-            // 6. GOAL PLATFORM & SHRINE (x: 12.8 to 24.0, surface at y = 0.8)
+            // 5. OBSTACLE 4: LOWER SPIKES & AERIAL GAP (x: 7.8 to 11.8)
+            // Bedrock at y = -1.7 under overhang and across the 2.0m aerial gap (x: 9.8 to 11.8).
+            // Solved by bridging with Platform 2 or Plank 2!
             // =========================================================================
-            CreatePlatformBlock(levelGO.transform, "Goal_Platform", squareSprite, ledgeMossSprite, new Vector2(18.4f, -3.1f), new Vector2(11.2f, 7.8f), terrainMat);
+            CreatePlatformBlock(levelGO.transform, "Obstacle4_Bedrock", squareSprite, null, new Vector2(9.8f, -4.35f), new Vector2(4.0f, 5.3f), terrainMat);
+            CreateSpikeBed(levelGO.transform, "Obstacle4_Spikes_1", spikeSprite, new Vector2(8.8f, -1.425f), 2.0f);
+            CreateSpikeBed(levelGO.transform, "Obstacle4_Spikes_2", spikeSprite, new Vector2(10.8f, -1.425f), 2.0f);
+
+            // =========================================================================
+            // 6. GOAL PLATFORM & SHRINE (x: 11.8 to 23.0, surface at y = 0.8)
+            // =========================================================================
+            CreatePlatformBlock(levelGO.transform, "Goal_Platform", squareSprite, ledgeMossSprite, new Vector2(17.4f, -3.1f), new Vector2(11.2f, 7.8f), terrainMat);
 
             var goalGO = new GameObject("Goal_Shrine");
             goalGO.transform.SetParent(levelGO.transform, false);
-            goalGO.transform.position = new Vector3(16.5f, 1.8f, 0f);
+            goalGO.transform.position = new Vector3(15.5f, 1.8f, 0f);
             goalGO.transform.localScale = new Vector3(1.3f, 1.3f, 1f);
 
             var goalSR = goalGO.AddComponent<SpriteRenderer>();
@@ -289,8 +289,8 @@ namespace Game.Editor
 
             // Boundary Walls
             CreateSimpleBlock(levelGO.transform, "Left_Boundary", squareSprite, new Color(0.08f, 0.10f, 0.14f), new Vector2(-8.0f, 0.5f), new Vector2(1.2f, 16.0f), terrainMat);
-            CreateSimpleBlock(levelGO.transform, "Right_Boundary", squareSprite, new Color(0.08f, 0.10f, 0.14f), new Vector2(24.6f, 0.5f), new Vector2(1.2f, 16.0f), terrainMat);
-            CreateSimpleBlock(levelGO.transform, "Ceiling_Boundary", squareSprite, new Color(0.08f, 0.10f, 0.14f), new Vector2(8.5f, 8.5f), new Vector2(35.0f, 1.2f), terrainMat);
+            CreateSimpleBlock(levelGO.transform, "Right_Boundary", squareSprite, new Color(0.08f, 0.10f, 0.14f), new Vector2(23.6f, 0.5f), new Vector2(1.2f, 16.0f), terrainMat);
+            CreateSimpleBlock(levelGO.transform, "Ceiling_Boundary", squareSprite, new Color(0.08f, 0.10f, 0.14f), new Vector2(7.8f, 8.5f), new Vector2(34.0f, 1.2f), terrainMat);
 
             // Tools Container
             var existingTools = envRoot.transform.Find("Placed_Tools");
@@ -440,8 +440,8 @@ namespace Game.Editor
             rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 
             var controller = playerGO.AddComponent<AutonomousPlayerController>();
-            SetPrivateField(controller, "walkSpeed", 2.2f);
-            SetPrivateField(controller, "climbSpeed", 2.4f);
+            SetPrivateField(controller, "walkSpeed", 6.7f);
+            SetPrivateField(controller, "climbSpeed", 6.5f);
             SetPrivateField(controller, "stuckTimeoutSeconds", 5.0f);
             SetPrivateField(controller, "maxStepHeight", 0.45f);
             SetPrivateField(controller, "stepSearchDistance", 0.50f);
@@ -504,7 +504,7 @@ namespace Game.Editor
                 cam.transform.SetParent(coreRoot.transform, true);
             }
 
-            cam.transform.position = new Vector3(5.0f, 0.5f, -10f);
+            cam.transform.position = new Vector3(4.0f, 0.5f, -10f);
             cam.orthographic = true;
             cam.orthographicSize = 7.0f; // Wide cinematic view matching Hollow Knight reference ratio
             cam.backgroundColor = new Color(0.07f, 0.10f, 0.18f); // Deep mystical blue twilight

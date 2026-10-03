@@ -18,6 +18,8 @@ namespace Game.Core.Events
         public event Action LevelCompleted;
         public event Action LevelResetRequested;
         public event Action ToolRotateRequested;
+        public event Action<int> LevelLoaded;
+        public event Action SkipLevelRequested;
 
         public void PublishToolSelected(ToolType type) => ToolSelected?.Invoke(type);
         public void PublishToolPlaced(ToolType type, Vector2 position) => ToolPlaced?.Invoke(type, position);
@@ -28,6 +30,8 @@ namespace Game.Core.Events
         public void PublishLevelCompleted() => LevelCompleted?.Invoke();
         public void PublishLevelResetRequested() => LevelResetRequested?.Invoke();
         public void PublishToolRotateRequested() => ToolRotateRequested?.Invoke();
+        public void PublishLevelLoaded(int levelNumber) => LevelLoaded?.Invoke(levelNumber);
+        public void PublishSkipLevelRequested() => SkipLevelRequested?.Invoke();
     }
 
     public enum ToolType
@@ -36,6 +40,7 @@ namespace Game.Core.Events
         Plank = 1,
         Ladder = 2,
         Platform = 3,
+        Chain = 4,
         // Backward compatibility aliases:
         Ramp = 1,
         Box = 3

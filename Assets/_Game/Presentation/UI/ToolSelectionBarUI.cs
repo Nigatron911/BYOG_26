@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 using Game.Core.Events;
+using Game.Gameplay.Interaction;
 
 namespace Game.Presentation.UI
 {
@@ -21,15 +22,22 @@ namespace Game.Presentation.UI
         private Button btnPlank;
         private Button btnLadder;
         private Button btnPlatform;
+        private Button btnChain;
         private Label countPlank;
         private Label countLadder;
         private Label countPlatform;
+        private Label countChain;
         private Button btnRotate;
         private Button btnSimulate;
+        private Button btnNextLevel;
         private Label labelSimulate;
-        private Button btnReset;
         private Transform toolsContainer;
-        private int maxPerTool = 2;
+        private VisualElement toolbarContainer;
+        private VisualElement toolbarDock;
+        private int maxPlanks = 1;
+        private int maxLadders = 1;
+        private int maxPlatforms = 1;
+        private int maxChains = 0;
 
         private void Awake()
         {
@@ -94,6 +102,7 @@ namespace Game.Presentation.UI
             {
                 BindUI();
             }
+            RefreshCounts();
         }
 
         private void BindUI()
@@ -108,23 +117,75 @@ namespace Game.Presentation.UI
             btnPlank = root.Q<Button>("Btn_Plank");
             btnLadder = root.Q<Button>("Btn_Ladder");
             btnPlatform = root.Q<Button>("Btn_Platform");
+            btnChain = root.Q<Button>("Btn_Chain");
             countPlank = root.Q<Label>("Count_Plank");
             countLadder = root.Q<Label>("Count_Ladder");
             countPlatform = root.Q<Label>("Count_Platform");
+            countChain = root.Q<Label>("Count_Chain");
             btnRotate = root.Q<Button>("Btn_Rotate");
             btnSimulate = root.Q<Button>("Btn_Simulate");
+            btnNextLevel = root.Q<Button>("Btn_NextLevel");
             labelSimulate = root.Q<Label>("Label_Simulate");
-            btnReset = root.Q<Button>("Btn_Reset");
+            toolbarContainer = root.Q<VisualElement>("BottomToolbarContainer");
+            toolbarDock = root.Q<VisualElement>("ToolbarDock");
 
             if (btnPlank != null) btnPlank.clicked += OnPlankClicked;
             if (btnLadder != null) btnLadder.clicked += OnLadderClicked;
             if (btnPlatform != null) btnPlatform.clicked += OnPlatformClicked;
+            if (btnChain != null) btnChain.clicked += OnChainClicked;
             if (btnRotate != null) btnRotate.clicked += OnRotateClicked;
             if (btnSimulate != null) btnSimulate.clicked += OnSimulateClicked;
-            if (btnReset != null) btnReset.clicked += OnResetClicked;
+            if (btnNextLevel != null) btnNextLevel.clicked += OnNextLevelClicked;
 
+            UpdateChainVisibility();
             SetSimulatingState(isSimulating);
             RefreshCounts();
+        }
+
+        public void SetToolbarVisible(bool visible)
+        {
+            if (toolbarContainer == null || toolbarDock == null)
+            {
+                BindUI();
+            }
+
+            if (toolbarContainer != null)
+            {
+                toolbarContainer.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+            if (toolbarDock != null)
+            {
+                toolbarDock.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+        }
+
+        public void SetToolLimits(int planks, int ladders, int platforms, int chains)
+        {
+            maxPlanks = planks;
+            maxLadders = ladders;
+            maxPlatforms = platforms;
+            maxChains = chains;
+
+            int totalTools = planks + ladders + platforms + chains;
+            if (totalTools == 0)
+            {
+                SetToolbarVisible(false);
+            }
+            else
+            {
+                SetToolbarVisible(true);
+            }
+
+            UpdateChainVisibility();
+            RefreshCounts();
+        }
+
+        private void UpdateChainVisibility()
+        {
+            if (btnChain != null)
+            {
+                btnChain.style.display = maxChains > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+            }
         }
 
         public void RefreshCounts()
@@ -135,7 +196,7 @@ namespace Game.Presentation.UI
                 if (go != null) toolsContainer = go.transform;
             }
 
-            int planks = 0, ladders = 0, platforms = 0;
+            int planks = 0, ladders = 0, platforms = 0, chains = 0;
             if (toolsContainer != null)
             {
                 var tools = toolsContainer.GetComponentsInChildren<DraggableTool>(true);
@@ -145,12 +206,14 @@ namespace Game.Presentation.UI
                     if (t.Type == ToolType.Plank) planks++;
                     else if (t.Type == ToolType.Ladder) ladders++;
                     else if (t.Type == ToolType.Platform) platforms++;
+                    else if (t.Type == ToolType.Chain) chains++;
                 }
             }
 
-            if (countPlank != null) countPlank.text = $"x{Mathf.Max(0, maxPerTool - planks)}";
-            if (countLadder != null) countLadder.text = $"x{Mathf.Max(0, maxPerTool - ladders)}";
-            if (countPlatform != null) countPlatform.text = $"x{Mathf.Max(0, maxPerTool - platforms)}";
+            if (countPlank != null) countPlank.text = $"x{Mathf.Max(0, maxPlanks - planks)}";
+            if (countLadder != null) countLadder.text = $"x{Mathf.Max(0, maxLadders - ladders)}";
+            if (countPlatform != null) countPlatform.text = $"x{Mathf.Max(0, maxPlatforms - platforms)}";
+            if (countChain != null) countChain.text = $"x{Mathf.Max(0, maxChains - chains)}";
         }
 
         private void UnbindButtons()
@@ -158,22 +221,31 @@ namespace Game.Presentation.UI
             if (btnPlank != null) btnPlank.clicked -= OnPlankClicked;
             if (btnLadder != null) btnLadder.clicked -= OnLadderClicked;
             if (btnPlatform != null) btnPlatform.clicked -= OnPlatformClicked;
+            if (btnChain != null) btnChain.clicked -= OnChainClicked;
             if (btnRotate != null) btnRotate.clicked -= OnRotateClicked;
             if (btnSimulate != null) btnSimulate.clicked -= OnSimulateClicked;
-            if (btnReset != null) btnReset.clicked -= OnResetClicked;
+            if (btnNextLevel != null) btnNextLevel.clicked -= OnNextLevelClicked;
         }
 
         private void OnPlankClicked() => OnButtonClicked(ToolType.Plank);
         private void OnLadderClicked() => OnButtonClicked(ToolType.Ladder);
         private void OnPlatformClicked() => OnButtonClicked(ToolType.Platform);
+        private void OnChainClicked() => OnButtonClicked(ToolType.Chain);
+
+        private void OnNextLevelClicked()
+        {
+            events?.PublishSkipLevelRequested();
+        }
 
         private void OnButtonClicked(ToolType toolType)
         {
+            if (isSimulating) return;
             events?.PublishToolSelected(toolType);
         }
 
         private void OnRotateClicked()
         {
+            if (isSimulating) return;
             events?.PublishToolRotateRequested();
         }
 
@@ -189,11 +261,6 @@ namespace Game.Presentation.UI
             {
                 events.PublishSimulationStopped();
             }
-        }
-
-        private void OnResetClicked()
-        {
-            events?.PublishLevelResetRequested();
         }
 
         private void OnSimulationStarted() => SetSimulatingState(true);
@@ -231,11 +298,13 @@ namespace Game.Presentation.UI
                 }
             }
 
-            // Disable tool spawning and rotation buttons while simulating
+            // Disable tool buttons during simulation so player cannot place objects while simulating
             btnPlank?.SetEnabled(!simulating);
             btnLadder?.SetEnabled(!simulating);
             btnPlatform?.SetEnabled(!simulating);
+            btnChain?.SetEnabled(!simulating);
             btnRotate?.SetEnabled(!simulating);
+            btnNextLevel?.SetEnabled(true);
         }
 
         private void OnDestroy()

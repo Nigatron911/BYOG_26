@@ -10,6 +10,11 @@
                     <ui:VisualElement name="StuckProgressFill" class="stuck-progress-fill" />
                 </ui:VisualElement>
             </ui:VisualElement>
+
+            <ui:VisualElement name="GravityStatusPanel" class="gravity-status-card">
+                <ui:Label name="GravityModeLabel" class="gravity-mode-label" text="🌙 MOON GRAVITY [W: Jump | A: Left | D: Right]" />
+                <ui:Label name="GravityTimerLabel" class="gravity-timer-label" text="Switching in 5.0s  •  [G] Toggle" />
+            </ui:VisualElement>
         </ui:VisualElement>
 
         <!-- BOTTOM TOOLBAR -->
@@ -39,6 +44,14 @@
                     <ui:Label name="Count_Platform" text="x2" class="tool-card-count" />
                 </ui:Button>
 
+                <ui:Button name="Btn_Chain" class="tool-card">
+                    <ui:VisualElement class="tool-card-keybadge">
+                        <ui:Label text="[ 4 ]" class="tool-card-keybadge-text" />
+                    </ui:VisualElement>
+                    <ui:Label text="Chain" class="tool-card-title" />
+                    <ui:Label name="Count_Chain" text="x1" class="tool-card-count" />
+                </ui:Button>
+
                 <ui:Button name="Btn_Rotate" class="action-button btn-rotate">
                     <ui:Label name="Label_Rotate" class="action-button-label" text="⟳ ROTATE" />
                 </ui:Button>
@@ -47,8 +60,8 @@
                     <ui:Label name="Label_Simulate" class="action-button-label" text="▶ SIMULATE" />
                 </ui:Button>
 
-                <ui:Button name="Btn_Reset" class="action-button btn-reset">
-                    <ui:Label name="Label_Reset" class="action-button-label" text="↺ RESET" />
+                <ui:Button name="Btn_NextLevel" class="action-button btn-next">
+                    <ui:Label name="Label_NextLevel" class="action-button-label" text="⏭ NEXT [N]" />
                 </ui:Button>
             </ui:VisualElement>
         </ui:VisualElement>
