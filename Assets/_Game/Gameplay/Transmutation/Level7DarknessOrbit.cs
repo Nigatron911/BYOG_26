@@ -75,8 +75,15 @@ namespace Game.Gameplay.Transmutation
             }
         }
 
+        private Game.Core.Events.GameEvents events;
+        public void SetGameEvents(Game.Core.Events.GameEvents gameEvents) => events = gameEvents;
+
         public void EndSurge()
         {
+            if (isSurgeActive)
+            {
+                events?.PublishRealityRewriteExpired();
+            }
             isSurgeActive = false;
             surgeRemainingTimer = 0f;
             currentAlpha = 0f;

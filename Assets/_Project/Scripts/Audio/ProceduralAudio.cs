@@ -35,20 +35,33 @@ namespace Project.Audio
 
         private void GenerateClips()
         {
-            jumpClip = CreateToneClip("Jump", 0.12f, 260f, 520f, 0.4f, WaveType.Sine);
-            doubleJumpClip = CreateToneClip("DoubleJump", 0.18f, 500f, 1000f, 0.5f, WaveType.Sine);
-            transformClip = CreateHarmonicClip("Transform", 0.25f, 330f, 660f, 0.5f);
-            failClip = CreateToneClip("Fail", 0.15f, 160f, 120f, 0.35f, WaveType.Sawtooth);
+#if UNITY_EDITOR
+            jumpClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Ui New/SFX/SFX/jump.mp3");
+            doubleJumpClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Ui New/SFX/SFX/3/bounce.mp3") ?? jumpClip;
+            transformClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Ui New/SFX/SFX/3/stone fall.mp3");
+            failClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Ui New/SFX/SFX/Hurt.mp3");
+            rubberBounceClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Ui New/SFX/SFX/3/bounce.mp3");
+            springBounceClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Ui New/SFX/SFX/3/bounce.mp3");
+            checkpointClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Ui New/SFX/SFX/Door sound.mp3");
+            victoryClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Ui New/SFX/SFX/Door sound.mp3");
+            rewriteFireClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Ui New/SFX/SFX/4/reality_rewrite_shot.mp3");
+            rewriteRestoreClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Ui New/SFX/SFX/4/reality_rewrite_expire.mp3");
+            anvilImpactClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Ui New/SFX/SFX/3/stone fall.mp3");
+#endif
+            if (jumpClip == null) jumpClip = CreateToneClip("Jump", 0.12f, 260f, 520f, 0.4f, WaveType.Sine);
+            if (doubleJumpClip == null) doubleJumpClip = CreateToneClip("DoubleJump", 0.18f, 500f, 1000f, 0.5f, WaveType.Sine);
+            if (transformClip == null) transformClip = CreateHarmonicClip("Transform", 0.25f, 330f, 660f, 0.5f);
+            if (failClip == null) failClip = CreateToneClip("Fail", 0.15f, 160f, 120f, 0.35f, WaveType.Sawtooth);
             floorCrackClip = CreateNoiseClip("Crack", 0.18f, 0.6f);
             floorBreakClip = CreateNoiseClip("Break", 0.35f, 0.9f);
-            rubberBounceClip = CreateBounceClip("RubberBounce", 0.22f);
-            checkpointClip = CreateChimeClip("Checkpoint", 0.35f);
-            victoryClip = CreateFanfareClip("Victory", 0.9f);
+            if (rubberBounceClip == null) rubberBounceClip = CreateBounceClip("RubberBounce", 0.22f);
+            if (checkpointClip == null) checkpointClip = CreateChimeClip("Checkpoint", 0.35f);
+            if (victoryClip == null) victoryClip = CreateFanfareClip("Victory", 0.9f);
 
             // Level 2 Reality Rewrite clips
-            rewriteFireClip = CreateToneClip("RewriteFire", 0.28f, 320f, 980f, 0.55f, WaveType.Sine);
-            rewriteRestoreClip = CreateToneClip("RewriteRestore", 0.22f, 750f, 280f, 0.45f, WaveType.Sine);
-            springBounceClip = CreateToneClip("SpringBounce", 0.26f, 240f, 850f, 0.6f, WaveType.Sine);
+            if (rewriteFireClip == null) rewriteFireClip = CreateToneClip("RewriteFire", 0.28f, 320f, 980f, 0.55f, WaveType.Sine);
+            if (rewriteRestoreClip == null) rewriteRestoreClip = CreateToneClip("RewriteRestore", 0.22f, 750f, 280f, 0.45f, WaveType.Sine);
+            if (springBounceClip == null) springBounceClip = CreateToneClip("SpringBounce", 0.26f, 240f, 850f, 0.6f, WaveType.Sine);
             cooldownReadyClip = CreateToneClip("CooldownReady", 0.15f, 880f, 1200f, 0.4f, WaveType.Sine);
 
             // Level 3 Blank Canvas clips
@@ -58,7 +71,7 @@ namespace Project.Audio
             creationSpawnClip = CreateHarmonicClip("CreationSpawn", 0.3f, 440f, 880f, 0.5f);
             creationWarningClip = CreateToneClip("CreationWarning", 0.18f, 220f, 180f, 0.6f, WaveType.Square);
             creationDissolveClip = CreateNoiseClip("CreationDissolve", 0.25f, 0.5f);
-            anvilImpactClip = CreateToneClip("AnvilImpact", 0.3f, 180f, 60f, 0.8f, WaveType.Sawtooth);
+            if (anvilImpactClip == null) anvilImpactClip = CreateToneClip("AnvilImpact", 0.3f, 180f, 60f, 0.8f, WaveType.Sawtooth);
             switchActivateClip = CreateChimeClip("SwitchActivate", 0.3f);
         }
 

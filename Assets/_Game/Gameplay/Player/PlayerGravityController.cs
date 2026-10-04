@@ -196,6 +196,7 @@ namespace Game.Gameplay.Player
 
             Debug.Log($"[PlayerGravityController] Switched to {currentMode} gravity! (Scale: {rb?.gravityScale}, Interval: {switchIntervalSeconds}s)");
             GravityModeChanged?.Invoke(currentMode);
+            events?.PublishGravityModeChanged(currentMode.ToString());
         }
 
         private void ApplyCurrentModePhysics()

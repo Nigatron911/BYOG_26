@@ -32,6 +32,8 @@ namespace Game.Core.Bootstrap
         [SerializeField] private ToolSelectionBarUI toolSelectionBar;
         [SerializeField] private GameOverUI gameOverUI;
         [SerializeField] private PlayerHUDUI playerHUD;
+        [SerializeField] private RulebookUI rulebookUI;
+        [SerializeField] private Game.Presentation.Audio.GameAudioPresenter audioPresenter;
 
         [Header("Configuration")]
         [SerializeField] private ToolDefinition[] toolDefinitions;
@@ -117,6 +119,40 @@ namespace Game.Core.Bootstrap
             if (playerHUD != null && playerController != null)
             {
                 playerHUD.BindPlayer(playerController);
+            }
+
+            if (rulebookUI == null)
+            {
+                rulebookUI = FindFirstObjectByType<RulebookUI>(FindObjectsInactive.Include);
+                if (rulebookUI == null)
+                {
+                    var uiDoc = FindFirstObjectByType<UnityEngine.UIElements.UIDocument>();
+                    if (uiDoc != null)
+                    {
+                        rulebookUI = uiDoc.gameObject.AddComponent<RulebookUI>();
+                    }
+                }
+            }
+            if (rulebookUI != null)
+            {
+                rulebookUI.Initialize(gameEvents);
+            }
+
+            if (audioPresenter == null)
+            {
+                audioPresenter = FindFirstObjectByType<Game.Presentation.Audio.GameAudioPresenter>();
+                if (audioPresenter == null)
+                {
+                    var coreObj = GameObject.Find("Core====");
+                    var parentTrans = coreObj != null ? coreObj.transform : transform;
+                    var audioGO = new GameObject("AudioPresenter");
+                    audioGO.transform.SetParent(parentTrans, false);
+                    audioPresenter = audioGO.AddComponent<Game.Presentation.Audio.GameAudioPresenter>();
+                }
+            }
+            if (audioPresenter != null)
+            {
+                audioPresenter.Initialize(gameEvents);
             }
 
             if (levelManager == null)

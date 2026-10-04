@@ -51,6 +51,15 @@ namespace Game.Gameplay.Player
 
         public AnimationState CurrentState => currentState;
         public int CurrentFrameIndex => currentFrameIndex;
+        public bool FacingRight => facingRight;
+
+        public void Initialize(SpriteRenderer sr, AutonomousPlayerController pc, Rigidbody2D body, PlayerMaterialController mat = null)
+        {
+            spriteRenderer = sr;
+            playerController = pc;
+            rb = body;
+            materialController = mat;
+        }
 
         private void Awake()
         {
@@ -115,7 +124,7 @@ namespace Game.Gameplay.Player
             if (zeroG != null && zeroG.Length > 0) zeroGSprites = zeroG;
         }
 
-        private void LateUpdate()
+        public void UpdateAnimationState()
         {
             if (spriteRenderer == null) return;
 
@@ -135,10 +144,15 @@ namespace Game.Gameplay.Player
             }
 
             UpdateFacingDirection();
+        }
+
+        private void LateUpdate()
+        {
+            UpdateAnimationState();
             UpdateFrameAnimation();
         }
 
-        private AnimationState EvaluateTargetState()
+        public AnimationState EvaluateTargetState()
         {
             if (playerController != null && playerController.IsDead)
             {
@@ -186,6 +200,10 @@ namespace Game.Gameplay.Player
                     && playerController.GravityController.CurrentMode == GravityMode.InvertedRoof)
                 {
                     return playerController.CheckSurfaceGrounded(Vector2.up);
+                }
+                if (!Application.isPlaying && rb != null && Mathf.Abs(rb.linearVelocity.y) < 0.05f)
+                {
+                    return true;
                 }
                 return playerController.CheckSurfaceGrounded(Vector2.down);
             }

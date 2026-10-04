@@ -122,16 +122,20 @@ namespace Game.Gameplay
                 if (levels.Count > 0)
                 {
                     levels[0].toolLifetimeSeconds = 6.5f;
+                    levels[0].spawnPosition = new Vector2(-49.0f, 0.40f);
                 }
                 if (levels.Count > 1)
                 {
                     levels[1].toolLifetimeSeconds = 8.0f;
-                }
-
-                var lvl2SpawnObj = GameObject.Find("Level 2 spawn");
-                if (lvl2SpawnObj != null && levels.Count > 1)
-                {
-                    levels[1].spawnPosition = lvl2SpawnObj.transform.position;
+                    var lvl2SpawnObj = GameObject.Find("Level 2 spawn");
+                    if (lvl2SpawnObj != null)
+                    {
+                        levels[1].spawnPosition = lvl2SpawnObj.transform.position;
+                    }
+                    else
+                    {
+                        levels[1].spawnPosition = new Vector2(22.0f, 2.15f);
+                    }
                 }
 
                 var lvl3SpawnObj = FindLevel3SpawnObject();
@@ -352,7 +356,7 @@ namespace Game.Gameplay
             {
                 levelNumber = 1,
                 levelName = "Level 1 - The Ascent",
-                spawnPosition = new Vector2(-49.0f, -1.8f),
+                spawnPosition = new Vector2(-49.0f, 0.40f),
                 cameraPosition = new Vector3(-19.3f, 6.7f, -10f),
                 cameraOrthoSize = 19.57f,
                 plankCount = 1,
@@ -616,6 +620,7 @@ namespace Game.Gameplay
             if (index == 0)
             {
                 config.toolLifetimeSeconds = 6.5f;
+                config.spawnPosition = new Vector2(-49.0f, 0.40f);
             }
             else if (index == 1)
             {
@@ -1062,6 +1067,7 @@ namespace Game.Gameplay
                     }
                     // Ready for 3s surge on power activation - start with darkness inactive / hidden
                     darknessOrbit.EndSurge();
+                    darknessOrbit.SetGameEvents(events);
                 }
 
                 if (transmutationController == null)
@@ -1085,6 +1091,7 @@ namespace Game.Gameplay
                 {
                     transmutationController.gameObject.SetActive(true);
                     transmutationController.enabled = true;
+                    transmutationController.SetGameEvents(events);
                     if (darknessOrbit != null)
                     {
                         transmutationController.SetDarknessOrbit(darknessOrbit);

@@ -35,6 +35,9 @@
 
         <!-- TOP RIGHT CONTROLS (ALWAYS VISIBLE ACROSS ALL LEVELS) -->
         <ui:VisualElement name="TopRightContainer" class="top-right-container" picking-mode="Ignore">
+            <ui:Button name="Btn_Rulebook" class="action-button btn-rulebook">
+                <ui:Label name="Label_Rulebook" class="action-button-label" text="📖 RULES [H]" />
+            </ui:Button>
             <ui:Button name="Btn_NextLevel" class="action-button btn-next btn-next-top">
                 <ui:Label name="Label_NextLevel" class="action-button-label" text="⏭ NEXT LEVEL [N]" />
             </ui:Button>
@@ -97,6 +100,32 @@
                 <ui:Button name="Btn_Retry" class="btn-retry">
                     <ui:Label text="TRY AGAIN (KEEP TOOLS)" class="btn-retry-label" />
                 </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- RULEBOOK OVERLAY MODAL -->
+        <ui:VisualElement name="RulebookOverlay" class="rulebook-overlay">
+            <ui:VisualElement name="RulebookModal" class="rulebook-modal">
+                <ui:VisualElement class="rulebook-header">
+                    <ui:Label text="📖 CODEX OF REALITY" class="rulebook-title" />
+                    <ui:Button name="Btn_CloseRulebook" class="btn-rulebook-close">
+                        <ui:Label text="✕" class="btn-close-label" />
+                    </ui:Button>
+                </ui:VisualElement>
+
+                <ui:VisualElement class="rulebook-body">
+                    <ui:VisualElement name="RulebookPageImage" class="rulebook-page-image" />
+                </ui:VisualElement>
+
+                <ui:VisualElement class="rulebook-footer">
+                    <ui:Button name="Btn_PrevPage" class="action-button rulebook-nav-btn">
+                        <ui:Label text="◀ PREV [Q / ←]" class="action-button-label" />
+                    </ui:Button>
+                    <ui:Label name="RulebookPageIndicator" class="rulebook-page-indicator" text="Page 1 of 4: Act 1 — Fading Ink" />
+                    <ui:Button name="Btn_NextPage" class="action-button rulebook-nav-btn">
+                        <ui:Label text="NEXT ▶ [E / →]" class="action-button-label" />
+                    </ui:Button>
+                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
 

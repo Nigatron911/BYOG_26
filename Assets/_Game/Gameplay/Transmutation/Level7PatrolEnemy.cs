@@ -244,7 +244,7 @@ namespace Game.Gameplay.Transmutation
         {
             if (spriteRenderer != null)
             {
-                spriteRenderer.color = enemyColor;
+                spriteRenderer.color = Color.white;
                 spriteRenderer.sortingOrder = 5;
             }
             transform.localScale = initialScale;

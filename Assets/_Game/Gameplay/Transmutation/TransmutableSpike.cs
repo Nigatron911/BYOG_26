@@ -23,6 +23,10 @@ namespace Game.Gameplay.Transmutation
         [SerializeField] private Collider2D spikeCollider;
         [SerializeField] private SpriteRenderer spriteRenderer;
 
+        [Header("Sprites")]
+        [SerializeField] private Sprite normalSpikeSprite;
+        [SerializeField] private Sprite bouncySpikeSprite;
+
         private Color originalColor = Color.white;
         private Vector3 originalScale = Vector3.one;
         private bool isInverted = false;
@@ -50,6 +54,7 @@ namespace Game.Gameplay.Transmutation
             if (spriteRenderer != null)
             {
                 originalColor = spriteRenderer.color;
+                if (normalSpikeSprite == null) normalSpikeSprite = spriteRenderer.sprite;
             }
         }
 
@@ -79,7 +84,12 @@ namespace Game.Gameplay.Transmutation
                     hazard.enabled = false;
                 }
 
-                if (spriteRenderer != null)
+                if (bouncySpikeSprite != null && spriteRenderer != null)
+                {
+                    spriteRenderer.sprite = bouncySpikeSprite;
+                    spriteRenderer.color = Color.white;
+                }
+                else if (spriteRenderer != null)
                 {
                     spriteRenderer.color = trampolineColor;
                 }
@@ -113,7 +123,12 @@ namespace Game.Gameplay.Transmutation
                 hazard.enabled = true;
             }
 
-            if (spriteRenderer != null)
+            if (normalSpikeSprite != null && spriteRenderer != null)
+            {
+                spriteRenderer.sprite = normalSpikeSprite;
+                spriteRenderer.color = originalColor;
+            }
+            else if (spriteRenderer != null)
             {
                 spriteRenderer.color = originalColor;
             }

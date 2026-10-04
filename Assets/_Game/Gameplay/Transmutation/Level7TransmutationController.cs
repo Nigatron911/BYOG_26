@@ -106,7 +106,8 @@ namespace Game.Gameplay.Transmutation
             }
 
             // Audio & feedback juice
-            ProceduralAudio.Instance?.PlayDoubleJump();
+            ProceduralAudio.Instance?.PlayRewriteFire();
+            events?.PublishRealityRewriteFired();
         }
 
         private ITransmutable QueryTransmutableAt(Vector2 point)
@@ -135,11 +136,18 @@ namespace Game.Gameplay.Transmutation
         }
 
         private IPlacementInput placementInput;
+        private Game.Core.Events.GameEvents events;
 
-        public void Initialize(IPlacementInput input = null, Camera cam = null)
+        public void SetGameEvents(Game.Core.Events.GameEvents gameEvents)
+        {
+            events = gameEvents;
+        }
+
+        public void Initialize(IPlacementInput input = null, Camera cam = null, Game.Core.Events.GameEvents gameEvents = null)
         {
             placementInput = input ?? new NewInputSystemPlacementReader();
             if (cam != null) targetCamera = cam;
+            if (gameEvents != null) events = gameEvents;
         }
 
         private Vector2 GetMouseScreenPosition()

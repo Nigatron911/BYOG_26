@@ -1309,5 +1309,83 @@ namespace Game.Tests.EditMode
                 Object.DestroyImmediate(jumperGO);
             }
         }
+
+        [Test]
+        public void PlayerVisualAnimator_DefaultGrounded_EvaluatesIdle()
+        {
+            var animGO = CreateTestGameObject("TestAnimPlayer");
+            var sr = animGO.AddComponent<SpriteRenderer>();
+            var col = animGO.AddComponent<BoxCollider2D>();
+            var pc = animGO.AddComponent<AutonomousPlayerController>();
+            pc.Initialize(events);
+            var anim = animGO.AddComponent<PlayerVisualAnimator>();
+            var body = animGO.GetComponent<Rigidbody2D>();
+            anim.Initialize(sr, pc, body, null);
+
+            var state = anim.EvaluateTargetState();
+            Assert.AreEqual(PlayerVisualAnimator.AnimationState.Idle, state);
+        }
+
+        [Test]
+        public void PlayerVisualAnimator_HorizontalMovement_EvaluatesRun()
+        {
+            var animGO = CreateTestGameObject("TestAnimPlayerRun");
+            var sr = animGO.AddComponent<SpriteRenderer>();
+            var col = animGO.AddComponent<BoxCollider2D>();
+            var pc = animGO.AddComponent<AutonomousPlayerController>();
+            pc.Initialize(events);
+            var anim = animGO.AddComponent<PlayerVisualAnimator>();
+            var body = animGO.GetComponent<Rigidbody2D>();
+            anim.Initialize(sr, pc, body, null);
+
+            body.linearVelocity = new Vector2(3.5f, 0f);
+            var state = anim.EvaluateTargetState();
+            Assert.AreEqual(PlayerVisualAnimator.AnimationState.Run, state);
+        }
+
+        [Test]
+        public void PlayerVisualAnimator_Velocity_UpdatesFacingDirection()
+        {
+            var animGO = CreateTestGameObject("TestAnimPlayerFlip");
+            var sr = animGO.AddComponent<SpriteRenderer>();
+            var col = animGO.AddComponent<BoxCollider2D>();
+            var pc = animGO.AddComponent<AutonomousPlayerController>();
+            pc.Initialize(events);
+            var anim = animGO.AddComponent<PlayerVisualAnimator>();
+            var body = animGO.GetComponent<Rigidbody2D>();
+            anim.Initialize(sr, pc, body, null);
+
+            // Move right
+            body.linearVelocity = new Vector2(2f, 0f);
+            anim.UpdateAnimationState();
+            Assert.IsTrue(anim.FacingRight);
+            Assert.IsFalse(sr.flipX);
+
+            // Move left
+            body.linearVelocity = new Vector2(-2f, 0f);
+            anim.UpdateAnimationState();
+            Assert.IsFalse(anim.FacingRight);
+            Assert.IsTrue(sr.flipX);
+        }
+
+        [Test]
+        public void PlayerVisualAnimator_DeadPlayer_EvaluatesIdle()
+        {
+            var animGO = CreateTestGameObject("TestAnimPlayerDead");
+            var sr = animGO.AddComponent<SpriteRenderer>();
+            var col = animGO.AddComponent<BoxCollider2D>();
+            var pc = animGO.AddComponent<AutonomousPlayerController>();
+            pc.Initialize(events);
+            var anim = animGO.AddComponent<PlayerVisualAnimator>();
+            var body = animGO.GetComponent<Rigidbody2D>();
+            anim.Initialize(sr, pc, body, null);
+
+            body.linearVelocity = new Vector2(4f, 0f);
+            pc.Kill("Test hazard");
+            Assert.IsTrue(pc.IsDead);
+
+            var state = anim.EvaluateTargetState();
+            Assert.AreEqual(PlayerVisualAnimator.AnimationState.Idle, state);
+        }
     }
 }

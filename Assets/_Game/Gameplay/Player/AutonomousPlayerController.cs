@@ -38,6 +38,8 @@ namespace Game.Gameplay.Player
         private float roofJumpBufferTimer = 0f;
         private float groundCoyoteTimer = 0f;
         private float roofCoyoteTimer = 0f;
+        private bool wasGrounded = true;
+        private bool wasRunning = false;
 
         [Header("Locomotion Settings")]
         [SerializeField] private float walkSpeed = 7.0f;
@@ -91,6 +93,9 @@ namespace Game.Gameplay.Player
             }
         }
 
+        [Header("Visual Scale Settings")]
+        [SerializeField] private Vector3 defaultLocalScale = new Vector3(2.5f, 2.5f, 1.0f);
+
         public void ResetVisuals()
         {
             if (spriteRenderer != null)
@@ -99,7 +104,7 @@ namespace Game.Gameplay.Player
                 if (defaultSprite != null) spriteRenderer.sprite = defaultSprite;
                 spriteRenderer.transform.localScale = Vector3.one;
             }
-            transform.localScale = Vector3.one;
+            transform.localScale = defaultLocalScale;
             if (rb != null)
             {
                 rb.mass = 1.0f;
@@ -195,6 +200,9 @@ namespace Game.Gameplay.Player
             roofJumpBufferTimer = 0f;
             groundCoyoteTimer = 0f;
             roofCoyoteTimer = 0f;
+            wasGrounded = true;
+            wasRunning = false;
+            events?.PublishPlayerRunningChanged(false);
             transform.position = new Vector3(spawnPosition.x, spawnPosition.y, transform.position.z);
             if (rb != null)
             {
@@ -229,6 +237,14 @@ namespace Game.Gameplay.Player
             {
                 defaultSpriteColor = spriteRenderer.color;
                 defaultSprite = spriteRenderer.sprite;
+            }
+            if (transform.localScale.x > 1.05f)
+            {
+                defaultLocalScale = transform.localScale;
+            }
+            else
+            {
+                transform.localScale = defaultLocalScale;
             }
             if (gravityController == null) gravityController = GetComponent<PlayerGravityController>();
             initialSpawnPosition = transform.position;
@@ -279,6 +295,21 @@ namespace Game.Gameplay.Player
             if (!hasReachedGoal && locomotionMode == LocomotionMode.Autonomous)
             {
                 CheckStuckCondition();
+            }
+
+            // Locomotion & landing event notifications
+            bool isCurrentlyGrounded = CheckSurfaceGrounded(Vector2.down);
+            if (!wasGrounded && isCurrentlyGrounded && !isDead)
+            {
+                events?.PublishPlayerLanded();
+            }
+            wasGrounded = isCurrentlyGrounded;
+
+            bool isCurrentlyRunning = isCurrentlyGrounded && Mathf.Abs(rb.linearVelocity.x) > 0.2f && !isClimbing && !isDead && canControl;
+            if (isCurrentlyRunning != wasRunning)
+            {
+                wasRunning = isCurrentlyRunning;
+                events?.PublishPlayerRunningChanged(isCurrentlyRunning);
             }
         }
 
@@ -404,6 +435,7 @@ namespace Game.Gameplay.Player
                         groundCoyoteTimer = 0f;
                         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpVelocity);
                         rb.gravityScale = 1.0f;
+                        events?.PublishPlayerJumped();
                     }
                     else if (!isGrounded && rb.linearVelocity.y < 0f)
                     {
@@ -433,6 +465,7 @@ namespace Game.Gameplay.Player
                     {
                         jumpBufferTimer = 0f;
                         rb.linearVelocity = new Vector2(rb.linearVelocity.x, Mathf.Max(rb.linearVelocity.y + 4.2f, 6.8f));
+                        events?.PublishPlayerJumped();
                     }
 
                     // 3. Gentle float fall-speed clamping (astronaut low-g float)
@@ -469,6 +502,7 @@ namespace Game.Gameplay.Player
                         roofJumpBufferTimer = 0f;
                         roofCoyoteTimer = 0f;
                         rb.linearVelocity = new Vector2(rb.linearVelocity.x, -jumpVelocity);
+                        events?.PublishPlayerJumped();
                     }
                     break;
                 }
@@ -517,8 +551,12 @@ namespace Game.Gameplay.Player
 
         private void HandleWalking()
         {
+            if (bodyCollider == null) bodyCollider = GetComponent<Collider2D>();
+            float halfHeight = bodyCollider != null ? bodyCollider.bounds.extents.y : 1.6f;
+            Vector2 colCenter = bodyCollider != null ? (Vector2)bodyCollider.bounds.center : (Vector2)transform.position;
+
             // Ground & slope detection using CircleCast
-            Vector2 castOrigin = (Vector2)transform.position + Vector2.down * 0.3f;
+            Vector2 castOrigin = colCenter + Vector2.down * (halfHeight * 0.4f);
             RaycastHit2D hit = Physics2D.CircleCast(castOrigin, 0.25f, Vector2.down, slopeCheckDistance, groundLayerMask);
 
             Vector2 moveVelocity = new Vector2(walkSpeed, rb.linearVelocity.y);
@@ -532,7 +570,7 @@ namespace Game.Gameplay.Player
             }
 
             // Step assist: effortlessly step over small platform bumps and box lips
-            Vector2 footPos = (Vector2)transform.position + Vector2.down * 0.6f;
+            Vector2 footPos = colCenter + Vector2.down * (halfHeight - 0.15f);
             RaycastHit2D lowHit = Physics2D.Raycast(footPos + Vector2.up * 0.05f, Vector2.right, stepSearchDistance, groundLayerMask);
             if (lowHit.collider != null && !lowHit.collider.isTrigger)
             {

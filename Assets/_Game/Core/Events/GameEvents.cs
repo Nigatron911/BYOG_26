@@ -21,6 +21,19 @@ namespace Game.Core.Events
         public event Action<int> LevelLoaded;
         public event Action SkipLevelRequested;
 
+        // Presentation & Locomotion Events (Audio, Rulebook, Animations)
+        public event Action PlayerJumped;
+        public event Action PlayerLanded;
+        public event Action<bool> PlayerRunningChanged;
+        public event Action<string> GravityModeChanged;
+        public event Action<string> MaterialTypeChanged;
+        public event Action ObjectBounced;
+        public event Action RealityRewriteFired;
+        public event Action RealityRewriteExpired;
+        public event Action<int> OpenRulebookRequested;
+        public event Action CloseRulebookRequested;
+        public event Action RulebookToggleRequested;
+
         public void PublishToolSelected(ToolType type) => ToolSelected?.Invoke(type);
         public void PublishToolPlaced(ToolType type, Vector2 position) => ToolPlaced?.Invoke(type, position);
         public void PublishClearToolsRequested() => ClearToolsRequested?.Invoke();
@@ -32,6 +45,18 @@ namespace Game.Core.Events
         public void PublishToolRotateRequested() => ToolRotateRequested?.Invoke();
         public void PublishLevelLoaded(int levelNumber) => LevelLoaded?.Invoke(levelNumber);
         public void PublishSkipLevelRequested() => SkipLevelRequested?.Invoke();
+
+        public void PublishPlayerJumped() => PlayerJumped?.Invoke();
+        public void PublishPlayerLanded() => PlayerLanded?.Invoke();
+        public void PublishPlayerRunningChanged(bool isRunning) => PlayerRunningChanged?.Invoke(isRunning);
+        public void PublishGravityModeChanged(string mode) => GravityModeChanged?.Invoke(mode);
+        public void PublishMaterialTypeChanged(string mat) => MaterialTypeChanged?.Invoke(mat);
+        public void PublishObjectBounced() => ObjectBounced?.Invoke();
+        public void PublishRealityRewriteFired() => RealityRewriteFired?.Invoke();
+        public void PublishRealityRewriteExpired() => RealityRewriteExpired?.Invoke();
+        public void PublishOpenRulebookRequested(int pageIndex) => OpenRulebookRequested?.Invoke(pageIndex);
+        public void PublishCloseRulebookRequested() => CloseRulebookRequested?.Invoke();
+        public void PublishRulebookToggleRequested() => RulebookToggleRequested?.Invoke();
     }
 
     public enum ToolType

@@ -135,5 +135,5 @@ MonoBehaviour:
   linkSpacing: 0.35
   maxSag: 0.15
   edgeRadius: 0.1
-  linkSprite: {fileID: 8265709568917298549, guid: fe406a3b44976d243acff7da35ef1ec4, type: 3}
+  linkSprite: {fileID: -8566028455312386561, guid: f8913c9c2f4326a4e9240164c5e3e582, type: 3}
   anchorSprite: {fileID: -7898994332629244238, guid: 10c80e8642f62784282e566dd6346be4, type: 3}
