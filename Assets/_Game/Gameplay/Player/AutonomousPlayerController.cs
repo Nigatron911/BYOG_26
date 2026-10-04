@@ -73,6 +73,7 @@ namespace Game.Gameplay.Player
         public static System.Collections.Generic.List<string> TrajectoryLog = new System.Collections.Generic.List<string>();
 
         public bool IsDead => isDead;
+        public bool IsClimbing => isClimbing;
         public bool IsSimulating => isSimulating;
         public float WalkSpeed => walkSpeed;
         public float StuckTimer => stuckTimer;
