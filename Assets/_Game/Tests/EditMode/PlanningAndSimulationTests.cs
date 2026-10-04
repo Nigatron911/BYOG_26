@@ -4,6 +4,7 @@ using Game.Core.Events;
 using Game.Gameplay;
 using Game.Gameplay.Player;
 using Game.Gameplay.Interaction;
+using Game.Gameplay.Transmutation;
 
 namespace Game.Tests.EditMode
 {
@@ -275,6 +276,14 @@ namespace Game.Tests.EditMode
                 // Skip to Level 6
                 manager.SkipToNextLevel();
                 Assert.AreEqual(6, manager.CurrentLevelNumber);
+
+                // Skip to Level 7
+                manager.SkipToNextLevel();
+                Assert.AreEqual(7, manager.CurrentLevelNumber);
+
+                // Skip to Level 8
+                manager.SkipToNextLevel();
+                Assert.AreEqual(8, manager.CurrentLevelNumber);
 
                 // Skip again cycles back to Level 1
                 manager.SkipToNextLevel();
@@ -574,6 +583,12 @@ namespace Game.Tests.EditMode
 
                 events.PublishSkipLevelRequested();
                 Assert.AreEqual(6, manager.CurrentLevelNumber);
+
+                events.PublishSkipLevelRequested();
+                Assert.AreEqual(7, manager.CurrentLevelNumber);
+
+                events.PublishSkipLevelRequested();
+                Assert.AreEqual(8, manager.CurrentLevelNumber);
 
                 events.PublishSkipLevelRequested();
                 Assert.AreEqual(1, manager.CurrentLevelNumber);
@@ -996,6 +1011,302 @@ namespace Game.Tests.EditMode
             finally
             {
                 Object.DestroyImmediate(testGO);
+            }
+        }
+
+        [Test]
+        public void LevelProgressionManager_Level7_ConfiguredProperly()
+        {
+            var managerGO = CreateTestGameObject("TestLPM7");
+            var manager = managerGO.AddComponent<Game.Gameplay.LevelProgressionManager>();
+            var camGO = CreateTestGameObject("TestCam7");
+            var cam = camGO.AddComponent<Camera>();
+
+            try
+            {
+                manager.Initialize(events, player, cam);
+
+                // Advance to Level 7 (index 6)
+                manager.ApplyLevelConfig(6, immediate: true);
+                Assert.AreEqual(7, manager.CurrentLevelNumber);
+                Assert.AreEqual(Game.Gameplay.Player.LocomotionMode.Manual, player.CurrentLocomotionMode);
+                Assert.AreEqual(543.30f, player.transform.position.x, 0.05f, "Player should spawn at Level 7 spawn point X.");
+                Assert.AreEqual(-0.90f, player.transform.position.y, 0.05f, "Player should spawn at Level 7 spawn point Y.");
+                Assert.AreEqual(42.0f, cam.orthographicSize, 0.01f);
+            }
+            finally
+            {
+                manager.Dispose();
+                Object.DestroyImmediate(managerGO);
+                Object.DestroyImmediate(camGO);
+            }
+        }
+
+        [Test]
+        public void TransmutableWall_InvertAndRevert_TogglesCollisionAndTimer()
+        {
+            var wallGO = CreateTestGameObject("TestWall");
+            var col = wallGO.AddComponent<BoxCollider2D>();
+            var sr = wallGO.AddComponent<SpriteRenderer>();
+            var wall = wallGO.AddComponent<TransmutableWall>();
+
+            try
+            {
+                // Default state: solid
+                Assert.IsFalse(wall.IsInverted);
+                Assert.IsFalse(col.isTrigger, "Wall must be solid initially.");
+
+                // Invert for 4.0s
+                wall.Invert(4.0f);
+                Assert.IsTrue(wall.IsInverted, "Wall must be in inverted state.");
+                Assert.IsTrue(col.isTrigger, "Wall collider must be a pass-through trigger when inverted.");
+                Assert.AreEqual(4.0f, wall.RemainingDuration, 0.01f);
+
+                // Revert
+                wall.Revert();
+                Assert.IsFalse(wall.IsInverted, "Wall should no longer be inverted after revert.");
+                Assert.IsFalse(col.isTrigger, "Wall collider must become solid again after revert.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(wallGO);
+            }
+        }
+
+        [Test]
+        public void TransmutableSpike_InvertAndBounce_AppliesUpwardVelocity()
+        {
+            var spikeGO = CreateTestGameObject("TestSpike");
+            var col = spikeGO.AddComponent<BoxCollider2D>();
+            col.isTrigger = true;
+            var spikeComp = spikeGO.AddComponent<Game.Gameplay.Combat.Spike>();
+            var spike = spikeGO.AddComponent<TransmutableSpike>();
+
+            var jumperGO = CreateTestGameObject("TestJumper");
+            var rb = jumperGO.AddComponent<Rigidbody2D>();
+            rb.gravityScale = 1f;
+
+            try
+            {
+                // Default: lethal hazard and Spike script active
+                Assert.IsFalse(spike.IsInverted);
+                Assert.IsTrue(spikeComp.enabled, "Spike script must be enabled initially.");
+
+                // Invert into Trampoline (3 seconds)
+                spike.Invert(3.0f);
+                Assert.IsTrue(spike.IsInverted, "Spike must be inverted.");
+                Assert.IsFalse(spikeComp.enabled, "Spike script must be disabled while trampoline.");
+                Assert.AreEqual(3.0f, spike.RemainingDuration, 0.01f);
+
+                // Player touching inverted spike does NOT die
+                var triggerMethod = typeof(AutonomousPlayerController).GetMethod("OnTriggerEnter2D",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                triggerMethod.Invoke(player, new object[] { col });
+                Assert.IsFalse(player.IsDead, "Player must NOT die when touching inverted trampoline spike.");
+
+                // Trigger bounce
+                var bounceMethod = typeof(TransmutableSpike).GetMethod("CheckAndBounce",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                bounceMethod.Invoke(spike, new object[] { jumperGO });
+
+                Assert.AreEqual(spike.BounceVelocity, rb.linearVelocity.y, 0.05f, "Jumper must receive trampoline bounce upward velocity.");
+
+                // Revert
+                spike.Revert();
+                Assert.IsFalse(spike.IsInverted);
+                Assert.IsTrue(spikeComp.enabled, "Spike script must be re-enabled after revert.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(spikeGO);
+                Object.DestroyImmediate(jumperGO);
+            }
+        }
+
+        [Test]
+        public void Level7PatrolEnemy_PatrolAndAlibiTransmutation_TogglesLethalAndPlatform()
+        {
+            var enemyGO = CreateTestGameObject("TestEnemy");
+            var sr = enemyGO.AddComponent<SpriteRenderer>();
+            var enemy = enemyGO.AddComponent<Level7PatrolEnemy>();
+
+            var p1GO = CreateTestGameObject("P1");
+            p1GO.transform.position = new Vector3(0f, 0f, 0f);
+            var p2GO = CreateTestGameObject("P2");
+            p2GO.transform.position = new Vector3(10f, 0f, 0f);
+            enemy.Configure(p1GO.transform, p2GO.transform);
+
+            try
+            {
+                // Default: Enemy mode (lethal active, platform inactive)
+                Assert.IsFalse(enemy.IsInverted, "Enemy should start in default mode.");
+
+                var platformCol = enemy.PlatformCollider;
+                Assert.IsNotNull(platformCol, "Enemy should have a platform collider.");
+                Assert.IsFalse(platformCol.enabled, "Platform collider must be disabled in enemy mode.");
+
+                // Invert into Alibi Ally mode
+                enemy.Invert(4.0f);
+                Assert.IsTrue(enemy.IsInverted, "Enemy must be in inverted alibi mode.");
+                Assert.IsTrue(platformCol.enabled, "Platform collider must be enabled in alibi mode so player can climb/stand.");
+                Assert.AreEqual(4.0f, enemy.RemainingDuration, 0.01f);
+
+                // Revert back to Enemy mode
+                enemy.Revert();
+                Assert.IsFalse(enemy.IsInverted, "Enemy should revert back to normal mode.");
+                Assert.IsFalse(platformCol.enabled, "Platform collider must be disabled when reverted back to enemy.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(enemyGO);
+                Object.DestroyImmediate(p1GO);
+                Object.DestroyImmediate(p2GO);
+            }
+        }
+
+        [Test]
+        public void Level7DarknessOrbit_TriggerSurge_EnablesDarknessAndSlowMotion_AndEndsCleanly()
+        {
+            var orbitGO = CreateTestGameObject("TestDarknessOrbit");
+            var orbit = orbitGO.AddComponent<Level7DarknessOrbit>();
+
+            try
+            {
+                // Initially, darkness is not active and time is 1.0f
+                Assert.IsFalse(orbit.IsSurgeActive, "Darkness surge should start inactive.");
+                Assert.AreEqual(1.0f, Time.timeScale, 0.01f);
+
+                // Trigger surge: 1.0s, slow motion 0.5x
+                orbit.TriggerSurge(1.0f, 0.5f);
+                Assert.IsTrue(orbit.IsSurgeActive, "Surge should be active.");
+                Assert.AreEqual(0.5f, Time.timeScale, 0.01f, "Time.timeScale should be 0.5x.");
+                Assert.AreEqual(0.01f, Time.fixedDeltaTime, 0.001f, "Time.fixedDeltaTime should adapt to slow motion.");
+
+                // End surge: restores normal time and disables darkness
+                orbit.EndSurge();
+                Assert.IsFalse(orbit.IsSurgeActive, "Surge should be inactive.");
+                Assert.AreEqual(1.0f, Time.timeScale, 0.01f, "Time.timeScale should restore to 1.0x.");
+                Assert.AreEqual(0.02f, Time.fixedDeltaTime, 0.001f, "Time.fixedDeltaTime should restore to 0.02s.");
+            }
+            finally
+            {
+                orbit.RestoreNormalTime();
+                Object.DestroyImmediate(orbitGO);
+            }
+        }
+
+        [Test]
+        public void Level8_InitializationAndProgression_SpawnsAtLevel8()
+        {
+            var managerGO = CreateTestGameObject("TestLPM8");
+            var manager = managerGO.AddComponent<LevelProgressionManager>();
+
+            var camGO = CreateTestGameObject("TestCam8");
+            var cam = camGO.AddComponent<Camera>();
+
+            try
+            {
+                manager.Initialize(events, player, cam);
+
+                // Advance to Level 8 (index 7)
+                manager.ApplyLevelConfig(7, immediate: true);
+                Assert.AreEqual(8, manager.CurrentLevelNumber);
+                Assert.AreEqual(Game.Gameplay.Player.LocomotionMode.Manual, player.CurrentLocomotionMode);
+                Assert.AreEqual(662.50f, player.transform.position.x, 0.05f, "Player should spawn at Level 8 spawn point X.");
+                Assert.AreEqual(-2.80f, player.transform.position.y, 0.05f, "Player should spawn at Level 8 spawn point Y.");
+                Assert.AreEqual(42.0f, cam.orthographicSize, 0.01f);
+            }
+            finally
+            {
+                manager.Dispose();
+                Object.DestroyImmediate(managerGO);
+                Object.DestroyImmediate(camGO);
+            }
+        }
+
+        [Test]
+        public void Level7PatrolEnemy_AlibiBoostJump_PropelsPlayerUpwardWithBoostVelocity()
+        {
+            var enemyGO = CreateTestGameObject("TestEnemyAlibi");
+            var enemy = enemyGO.AddComponent<Level7PatrolEnemy>();
+            enemyGO.transform.position = new Vector3(0f, 0f, 0f);
+
+            var jumperGO = CreateTestGameObject("TestJumperPlayer");
+            jumperGO.transform.position = new Vector3(0f, 0.5f, 0f);
+            var jumperCol = jumperGO.AddComponent<BoxCollider2D>();
+            var jumperCtrl = jumperGO.AddComponent<AutonomousPlayerController>();
+            jumperCtrl.Initialize(events);
+            var rb = jumperGO.GetComponent<Rigidbody2D>();
+            rb.gravityScale = 1.0f;
+            rb.linearVelocity = new Vector2(0f, -1.0f); // falling onto alibi
+
+            try
+            {
+                // Invert into alibi mode
+                enemy.Invert(3.0f);
+                Assert.IsTrue(enemy.IsInverted);
+
+                // Simulate player landing on top of alibi
+                var boostMethod = typeof(Level7PatrolEnemy).GetMethod("CheckAlibiBoostJump",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                boostMethod.Invoke(enemy, new object[] { jumperGO, null });
+
+                Assert.AreEqual(enemy.BoostJumpVelocity, rb.linearVelocity.y, 0.05f,
+                    "Jumping on top of Alibi must apply high boost jump velocity.");
+                Assert.AreEqual(19.5f, enemy.BoostJumpVelocity, 0.05f, "Boost jump velocity should be 19.5f.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(enemyGO);
+                Object.DestroyImmediate(jumperGO);
+            }
+        }
+
+        [Test]
+        public void Level8_EnemyTransmutationAndBoostJump_WorksIdenticalToLevel7()
+        {
+            var parentGO = CreateTestGameObject("enemy to alabi (1)");
+            var enemy = parentGO.AddComponent<Level7PatrolEnemy>();
+            var p1 = CreateTestGameObject("path 1 for enemy  (1)");
+            p1.transform.SetParent(parentGO.transform);
+            p1.transform.localPosition = new Vector3(-5f, 0f, 0f);
+
+            var p2 = CreateTestGameObject("path 2 for enemy  (1)");
+            p2.transform.SetParent(parentGO.transform);
+            p2.transform.localPosition = new Vector3(5f, 0f, 0f);
+
+            enemy.Configure(p1.transform, p2.transform);
+
+            var jumperGO = CreateTestGameObject("TestJumper8");
+            jumperGO.transform.position = parentGO.transform.position + new Vector3(0f, 0.8f, 0f);
+            var jumperCol = jumperGO.AddComponent<BoxCollider2D>();
+            var jumperCtrl = jumperGO.AddComponent<AutonomousPlayerController>();
+            jumperCtrl.Initialize(events);
+            var rb = jumperGO.GetComponent<Rigidbody2D>();
+            rb.linearVelocity = new Vector2(0f, -2.0f);
+
+            try
+            {
+                // Invert into alibi mode
+                enemy.Invert(4.0f);
+                Assert.IsTrue(enemy.IsInverted);
+
+                // Boost jump check
+                var boostMethod = typeof(Level7PatrolEnemy).GetMethod("CheckAlibiBoostJump",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                boostMethod.Invoke(enemy, new object[] { jumperGO, null });
+
+                Assert.AreEqual(enemy.BoostJumpVelocity, rb.linearVelocity.y, 0.05f);
+                Assert.AreEqual(19.5f, enemy.BoostJumpVelocity, 0.05f);
+
+                // Revert
+                enemy.Revert();
+                Assert.IsFalse(enemy.IsInverted);
+            }
+            finally
+            {
+                Object.DestroyImmediate(parentGO);
+                Object.DestroyImmediate(jumperGO);
             }
         }
     }

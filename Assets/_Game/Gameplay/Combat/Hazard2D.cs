@@ -41,6 +41,7 @@ namespace Game.Gameplay.Combat
 
         private void TryEliminate(GameObject target)
         {
+            if (!enabled || !gameObject.activeInHierarchy) return;
             if (target == null) return;
 
             var immunity = target.GetComponent<IHazardImmunity>() ?? target.GetComponentInParent<IHazardImmunity>();

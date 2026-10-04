@@ -4,6 +4,7 @@ using UnityEngine;
 using Game.Core.Events;
 using Game.Gameplay.Player;
 using Game.Gameplay.Interaction;
+using Game.Gameplay.Transmutation;
 using Game.Presentation.UI;
 
 namespace Game.Gameplay
@@ -116,7 +117,7 @@ namespace Game.Gameplay
 
         private void EnsureDefaultLevels()
         {
-            if (levels.Count >= 6)
+            if (levels.Count >= 7)
             {
                 if (levels.Count > 0)
                 {
@@ -157,6 +158,12 @@ namespace Game.Gameplay
                     levels[5].spawnPosition = lvl6SpawnObj.transform.position;
                 }
 
+                var lvl7SpawnObj = GameObject.Find("Level 7 spawn ") ?? GameObject.Find("Level 7 spawn");
+                if (lvl7SpawnObj != null && levels.Count > 6)
+                {
+                    levels[6].spawnPosition = lvl7SpawnObj.transform.position;
+                }
+
                 if (levels.Count > 2)
                 {
                     levels[2].plankCount = 0;
@@ -195,6 +202,56 @@ namespace Game.Gameplay
                     {
                         levels[5].goalShrine = GameObject.Find("Goal_Shrine (4)");
                     }
+                }
+
+                if (levels.Count > 6)
+                {
+                    levels[6].plankCount = 0;
+                    levels[6].ladderCount = 0;
+                    levels[6].platformCount = 0;
+                    levels[6].chainCount = 0;
+                    if (levels[6].goalShrine == null)
+                    {
+                        levels[6].goalShrine = GameObject.Find("Goal_Shrine (5)");
+                    }
+                }
+
+                if (levels.Count > 7)
+                {
+                    levels[7].plankCount = 0;
+                    levels[7].ladderCount = 0;
+                    levels[7].platformCount = 0;
+                    levels[7].chainCount = 0;
+                    var lvl8SpawnObj = GameObject.Find("Level 8 spawn point") ?? GameObject.Find("level 8 spawn ");
+                    if (lvl8SpawnObj != null)
+                    {
+                        levels[7].spawnPosition = lvl8SpawnObj.transform.position;
+                    }
+                    if (levels[7].goalShrine == null)
+                    {
+                        levels[7].goalShrine = GameObject.Find("Goal_Shrine (6)");
+                    }
+                }
+                else if (levels.Count == 7)
+                {
+                    Vector2 lvl8SpawnPoint = new Vector2(662.50f, -2.80f);
+                    var lvl8Obj = GameObject.Find("Level 8 spawn point") ?? GameObject.Find("level 8 spawn ");
+                    if (lvl8Obj != null) lvl8SpawnPoint = lvl8Obj.transform.position;
+
+                    levels.Add(new LevelConfig
+                    {
+                        levelNumber = 8,
+                        levelName = "Level 8 - Transmutation Trials",
+                        spawnPosition = lvl8SpawnPoint,
+                        cameraPosition = new Vector3(716.0f, 8.5f, -10f),
+                        cameraOrthoSize = 42.0f,
+                        plankCount = 0,
+                        ladderCount = 0,
+                        platformCount = 0,
+                        chainCount = 0,
+                        toolLifetimeSeconds = 8.0f,
+                        goalShrine = GameObject.Find("Goal_Shrine (6)")
+                    });
                 }
                 return;
             }
@@ -240,6 +297,50 @@ namespace Game.Gameplay
                     chainCount = 0,
                     toolLifetimeSeconds = 8.0f,
                     goalShrine = GameObject.Find("Goal_Shrine (4)")
+                });
+            }
+
+            if (levels.Count == 6)
+            {
+                Vector2 lvl7SpawnPoint = new Vector2(543.30f, -0.90f);
+                var lvl7Obj = GameObject.Find("Level 7 spawn ") ?? GameObject.Find("Level 7 spawn");
+                if (lvl7Obj != null) lvl7SpawnPoint = lvl7Obj.transform.position;
+
+                levels.Add(new LevelConfig
+                {
+                    levelNumber = 7,
+                    levelName = "Level 7 - Inversion & Obscurity",
+                    spawnPosition = lvl7SpawnPoint,
+                    cameraPosition = new Vector3(600.0f, 9.6f, -10f),
+                    cameraOrthoSize = 42.0f,
+                    plankCount = 0,
+                    ladderCount = 0,
+                    platformCount = 0,
+                    chainCount = 0,
+                    toolLifetimeSeconds = 8.0f,
+                    goalShrine = GameObject.Find("Goal_Shrine (5)")
+                });
+            }
+
+            if (levels.Count == 7)
+            {
+                Vector2 lvl8SpawnPoint = new Vector2(662.50f, -2.80f);
+                var lvl8Obj = GameObject.Find("Level 8 spawn point") ?? GameObject.Find("level 8 spawn ");
+                if (lvl8Obj != null) lvl8SpawnPoint = lvl8Obj.transform.position;
+
+                levels.Add(new LevelConfig
+                {
+                    levelNumber = 8,
+                    levelName = "Level 8 - Transmutation Trials",
+                    spawnPosition = lvl8SpawnPoint,
+                    cameraPosition = new Vector3(716.0f, 8.5f, -10f),
+                    cameraOrthoSize = 42.0f,
+                    plankCount = 0,
+                    ladderCount = 0,
+                    platformCount = 0,
+                    chainCount = 0,
+                    toolLifetimeSeconds = 8.0f,
+                    goalShrine = GameObject.Find("Goal_Shrine (6)")
                 });
                 return;
             }
@@ -376,6 +477,52 @@ namespace Game.Gameplay
                 toolLifetimeSeconds = 8.0f,
                 goalShrine = GameObject.Find("Goal_Shrine (4)")
             });
+
+            // Level 7: Inversion & Obscurity (Transmutation & Darkness Orbit)
+            Vector2 lvl7Spawn = new Vector2(543.30f, -0.90f);
+            var lvl7GO = GameObject.Find("Level 7 spawn ") ?? GameObject.Find("Level 7 spawn");
+            if (lvl7GO != null)
+            {
+                lvl7Spawn = lvl7GO.transform.position;
+            }
+
+            levels.Add(new LevelConfig
+            {
+                levelNumber = 7,
+                levelName = "Level 7 - Inversion & Obscurity",
+                spawnPosition = lvl7Spawn,
+                cameraPosition = new Vector3(600.0f, 9.6f, -10f),
+                cameraOrthoSize = 42.0f,
+                plankCount = 0,
+                ladderCount = 0,
+                platformCount = 0,
+                chainCount = 0,
+                toolLifetimeSeconds = 8.0f,
+                goalShrine = GameObject.Find("Goal_Shrine (5)")
+            });
+
+            // Level 8: Transmutation Trials
+            Vector2 lvl8Spawn = new Vector2(662.50f, -2.80f);
+            var lvl8GO = GameObject.Find("Level 8 spawn point") ?? GameObject.Find("level 8 spawn ");
+            if (lvl8GO != null)
+            {
+                lvl8Spawn = lvl8GO.transform.position;
+            }
+
+            levels.Add(new LevelConfig
+            {
+                levelNumber = 8,
+                levelName = "Level 8 - Transmutation Trials",
+                spawnPosition = lvl8Spawn,
+                cameraPosition = new Vector3(716.0f, 8.5f, -10f),
+                cameraOrthoSize = 42.0f,
+                plankCount = 0,
+                ladderCount = 0,
+                platformCount = 0,
+                chainCount = 0,
+                toolLifetimeSeconds = 8.0f,
+                goalShrine = GameObject.Find("Goal_Shrine (6)")
+            });
         }
 
         private void OnLevelCompleted()
@@ -511,6 +658,22 @@ namespace Game.Gameplay
                     config.spawnPosition = lvl6GO.transform.position;
                 }
             }
+            else if (index == 6)
+            {
+                var lvl7GO = GameObject.Find("Level 7 spawn ") ?? GameObject.Find("Level 7 spawn");
+                if (lvl7GO != null)
+                {
+                    config.spawnPosition = lvl7GO.transform.position;
+                }
+            }
+            else if (index == 7)
+            {
+                var lvl8GO = GameObject.Find("Level 8 spawn point") ?? GameObject.Find("level 8 spawn ");
+                if (lvl8GO != null)
+                {
+                    config.spawnPosition = lvl8GO.transform.position;
+                }
+            }
 
             // 1. Stop simulation & clear placed tools
             events?.PublishSimulationStopped();
@@ -557,6 +720,7 @@ namespace Game.Gameplay
                         matCtrl.enabled = false;
                         player.ResetVisuals();
                     }
+                    ConfigureLevel7Components(false);
                 }
                 else if (index == 4 || index == 5) // Level 5 & Level 6: Material Alchemy (Paper, Stone, Rubber)
                 {
@@ -574,6 +738,23 @@ namespace Game.Gameplay
                     }
                     matCtrl.enabled = true;
                     matCtrl.ResetToDefault(Project.Player.MaterialType.Paper, switches: 5);
+                    ConfigureLevel7Components(false);
+                }
+                else if (index == 6 || index == 7) // Level 7 & Level 8: Transmutation & Darkness Orbit
+                {
+                    player.SetLocomotionMode(LocomotionMode.Manual);
+                    if (gravCtrl != null) gravCtrl.enabled = false;
+                    if (matCtrl != null) { matCtrl.enabled = false; player.ResetVisuals(); }
+                    player.transform.localEulerAngles = Vector3.zero;
+                    player.SetGravityController(null);
+                    var rb = player.GetComponent<Rigidbody2D>();
+                    if (rb != null)
+                    {
+                        rb.gravityScale = 1.0f;
+                        rb.mass = 1.0f;
+                    }
+
+                    ConfigureLevel7Components(true);
                 }
                 else
                 {
@@ -595,6 +776,7 @@ namespace Game.Gameplay
                     }
                     player.transform.localEulerAngles = Vector3.zero;
                     player.SetGravityController(null);
+                    ConfigureLevel7Components(false);
                 }
             }
 
@@ -670,8 +852,8 @@ namespace Game.Gameplay
             // 6. Notify systems of new level
             events?.PublishLevelLoaded(config.levelNumber);
 
-            // In Levels 3, 4, 5, & 6: auto-start simulation so the player can immediately use controls!
-            if ((index == 2 || index == 3 || index == 4 || index == 5) && Application.isPlaying)
+            // In Levels 3, 4, 5, 6, 7 & 8: auto-start simulation so the player can immediately use controls!
+            if ((index == 2 || index == 3 || index == 4 || index == 5 || index == 6 || index == 7) && Application.isPlaying)
             {
                 StartCoroutine(AutoStartSimulationRoutine());
             }
@@ -739,6 +921,16 @@ namespace Game.Gameplay
                     var lvl6GO = GameObject.Find("Level 6 spawn");
                     if (lvl6GO != null) spawnPos = lvl6GO.transform.position;
                 }
+                else if (currentLevelIndex == 6)
+                {
+                    var lvl7GO = GameObject.Find("Level 7 spawn ") ?? GameObject.Find("Level 7 spawn");
+                    if (lvl7GO != null) spawnPos = lvl7GO.transform.position;
+                }
+                else if (currentLevelIndex == 7)
+                {
+                    var lvl8GO = GameObject.Find("Level 8 spawn point") ?? GameObject.Find("level 8 spawn ");
+                    if (lvl8GO != null) spawnPos = lvl8GO.transform.position;
+                }
                 player.ResetState(spawnPos);
 
                 var gravCtrl = player.GetComponent<PlayerGravityController>();
@@ -757,6 +949,7 @@ namespace Game.Gameplay
                         matCtrl.enabled = false;
                         player.ResetVisuals();
                     }
+                    ConfigureLevel7Components(false);
                     if (Application.isPlaying)
                     {
                         StartCoroutine(AutoStartSimulationRoutine());
@@ -770,6 +963,27 @@ namespace Game.Gameplay
                     if (matCtrl == null) matCtrl = player.gameObject.AddComponent<Project.Player.PlayerMaterialController>();
                     matCtrl.enabled = true;
                     matCtrl.ResetToDefault(Project.Player.MaterialType.Paper, switches: 5);
+                    ConfigureLevel7Components(false);
+                    if (Application.isPlaying)
+                    {
+                        StartCoroutine(AutoStartSimulationRoutine());
+                    }
+                }
+                else if (currentLevelIndex == 6 || currentLevelIndex == 7)
+                {
+                    player.SetLocomotionMode(LocomotionMode.Manual);
+                    if (gravCtrl != null) gravCtrl.enabled = false;
+                    if (matCtrl != null) { matCtrl.enabled = false; player.ResetVisuals(); }
+                    var rb = player.GetComponent<Rigidbody2D>();
+                    if (rb != null)
+                    {
+                        rb.gravityScale = 1.0f;
+                        rb.mass = 1.0f;
+                    }
+                    player.transform.localEulerAngles = Vector3.zero;
+                    player.SetGravityController(null);
+                    ConfigureLevel7Components(true);
+                    ResetLevel7Objects();
                     if (Application.isPlaying)
                     {
                         StartCoroutine(AutoStartSimulationRoutine());
@@ -793,6 +1007,7 @@ namespace Game.Gameplay
                         rb.mass = 1.0f;
                     }
                     player.transform.localEulerAngles = Vector3.zero;
+                    ConfigureLevel7Components(false);
                 }
 
                 var puzzleCoordinator = FindFirstObjectByType<Game.Gameplay.Environment.Level4PuzzleCoordinator>();
@@ -806,24 +1021,248 @@ namespace Game.Gameplay
         private IEnumerator AutoStartSimulationRoutine()
         {
             yield return null;
-            if ((currentLevelIndex == 2 || currentLevelIndex == 3 || currentLevelIndex == 4 || currentLevelIndex == 5) && player != null && !player.IsDead)
+            if ((currentLevelIndex == 2 || currentLevelIndex == 3 || currentLevelIndex == 4 || currentLevelIndex == 5 || currentLevelIndex == 6 || currentLevelIndex == 7) && player != null && !player.IsDead)
             {
                 events?.PublishSimulationStarted();
             }
         }
 
+        private Level7DarknessOrbit darknessOrbit;
+        private Level7TransmutationController transmutationController;
+
+        private void ConfigureLevel7Components(bool enable)
+        {
+            if (enable)
+            {
+                if (darknessOrbit == null)
+                {
+                    var allOrbits = FindObjectsByType<Level7DarknessOrbit>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+                    if (allOrbits.Length > 0)
+                    {
+                        darknessOrbit = allOrbits[0];
+                        for (int i = 1; i < allOrbits.Length; i++)
+                        {
+                            if (allOrbits[i] != null) Destroy(allOrbits[i].gameObject);
+                        }
+                    }
+                    else
+                    {
+                        var orbitGO = new GameObject("Level7_DarknessOrbit");
+                        darknessOrbit = orbitGO.AddComponent<Level7DarknessOrbit>();
+                    }
+                }
+                if (darknessOrbit != null)
+                {
+                    darknessOrbit.gameObject.SetActive(true);
+                    darknessOrbit.enabled = true;
+                    if (player != null)
+                    {
+                        darknessOrbit.SetTarget(player.transform);
+                        darknessOrbit.transform.position = new Vector3(player.transform.position.x, player.transform.position.y, -2f);
+                    }
+                    // Ready for 3s surge on power activation - start with darkness inactive / hidden
+                    darknessOrbit.EndSurge();
+                }
+
+                if (transmutationController == null)
+                {
+                    var allCtrls = FindObjectsByType<Level7TransmutationController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+                    if (allCtrls.Length > 0)
+                    {
+                        transmutationController = allCtrls[0];
+                        for (int i = 1; i < allCtrls.Length; i++)
+                        {
+                            if (allCtrls[i] != null) Destroy(allCtrls[i].gameObject);
+                        }
+                    }
+                    else
+                    {
+                        var ctrlGO = new GameObject("Level7_TransmutationController");
+                        transmutationController = ctrlGO.AddComponent<Level7TransmutationController>();
+                    }
+                }
+                if (transmutationController != null)
+                {
+                    transmutationController.gameObject.SetActive(true);
+                    transmutationController.enabled = true;
+                    if (darknessOrbit != null)
+                    {
+                        transmutationController.SetDarknessOrbit(darknessOrbit);
+                    }
+                }
+
+                SetupLevel7SceneObjects();
+            }
+            else
+            {
+                // In Levels 1 through 6: strictly guarantee NO darkness, NO slow-mo, and NO transmutation
+                var allOrbits = FindObjectsByType<Level7DarknessOrbit>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+                foreach (var o in allOrbits)
+                {
+                    if (o != null)
+                    {
+                        o.EndSurge();
+                        o.RestoreNormalTime();
+                        o.SetVisible(false);
+                        o.enabled = false;
+                        o.gameObject.SetActive(false);
+                    }
+                }
+                Time.timeScale = 1.0f;
+                Time.fixedDeltaTime = 0.02f;
+
+                var allCtrls = FindObjectsByType<Level7TransmutationController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+                foreach (var c in allCtrls)
+                {
+                    if (c != null)
+                    {
+                        c.enabled = false;
+                        c.gameObject.SetActive(false);
+                    }
+                }
+            }
+        }
+
+        private void SetupLevel7SceneObjects()
+        {
+            var enemyObj = GameObject.Find("enemy to alabi");
+            if (enemyObj != null)
+            {
+                var enemy = enemyObj.GetComponent<Level7PatrolEnemy>();
+                if (enemy == null)
+                {
+                    enemy = enemyObj.AddComponent<Level7PatrolEnemy>();
+                }
+                var p1 = GameObject.Find("path 1 for enemy ") ?? GameObject.Find("path 1 for enemy");
+                var p2 = GameObject.Find("path 2 for enemy ") ?? GameObject.Find("path 2 for enemy");
+                if (p1 != null && p2 != null)
+                {
+                    enemy.Configure(p1.transform, p2.transform);
+                }
+            }
+
+            var spike19 = GameObject.Find("spike  (19)");
+            if (spike19 != null && spike19.GetComponent<TransmutableSpike>() == null)
+            {
+                spike19.AddComponent<TransmutableSpike>();
+            }
+            var spike20 = GameObject.Find("spike  (20)");
+            if (spike20 != null && spike20.GetComponent<TransmutableSpike>() == null)
+            {
+                spike20.AddComponent<TransmutableSpike>();
+            }
+
+            string[] wallNames = new string[]
+            {
+                "changable object",
+                "Changable object",
+                "changable object ",
+                "Changable object (1)",
+                "changable object  (1)"
+            };
+
+            foreach (var wName in wallNames)
+            {
+                var wallObj = GameObject.Find(wName);
+                if (wallObj != null && wallObj.GetComponent<TransmutableWall>() == null)
+                {
+                    wallObj.AddComponent<TransmutableWall>();
+                }
+            }
+            for (int i = 1; i <= 4; i++)
+            {
+                var enemy8Obj = GameObject.Find($"enemy to alabi ({i})");
+                if (enemy8Obj != null)
+                {
+                    var enemy = enemy8Obj.GetComponent<Level7PatrolEnemy>();
+                    if (enemy == null)
+                    {
+                        enemy = enemy8Obj.AddComponent<Level7PatrolEnemy>();
+                    }
+                    Transform p1 = null;
+                    Transform p2 = null;
+                    foreach (Transform child in enemy8Obj.transform)
+                    {
+                        if (child.name.StartsWith("path 1")) p1 = child;
+                        else if (child.name.StartsWith("path 2")) p2 = child;
+                    }
+                    if (p1 != null && p2 != null)
+                    {
+                        enemy.Configure(p1, p2);
+                    }
+                }
+            }
+
+            for (int i = 2; i <= 9; i++)
+            {
+                var wall8Obj = GameObject.Find($"Changable object ({i})") ?? GameObject.Find($"changable object ({i})");
+                if (wall8Obj != null && wall8Obj.GetComponent<TransmutableWall>() == null)
+                {
+                    wall8Obj.AddComponent<TransmutableWall>();
+                }
+            }
+
+            for (int i = 21; i <= 24; i++)
+            {
+                var spike8Obj = GameObject.Find($"spike  ({i})") ?? GameObject.Find($"spike ({i})");
+                if (spike8Obj != null && spike8Obj.GetComponent<TransmutableSpike>() == null)
+                {
+                    spike8Obj.AddComponent<TransmutableSpike>();
+                }
+            }
+        }
+
+        private void ResetLevel7Objects()
+        {
+            var enemies = FindObjectsByType<Level7PatrolEnemy>(FindObjectsSortMode.None);
+            foreach (var e in enemies)
+            {
+                e.ResetToSpawn();
+            }
+
+            var walls = FindObjectsByType<TransmutableWall>(FindObjectsSortMode.None);
+            foreach (var w in walls)
+            {
+                w.Revert();
+            }
+
+            var spikes = FindObjectsByType<TransmutableSpike>(FindObjectsSortMode.None);
+            foreach (var s in spikes)
+            {
+                s.Revert();
+            }
+
+            var orbits = FindObjectsByType<Level7DarknessOrbit>(FindObjectsSortMode.None);
+            foreach (var o in orbits)
+            {
+                o.EndSurge();
+            }
+            Time.timeScale = 1.0f;
+            Time.fixedDeltaTime = 0.02f;
+        }
+
         private void Update()
         {
-            // Allow testing shortcut 'N' to skip level at any time
+            // Allow testing shortcut 'N' to skip level at any time, or 1-8 to jump directly
             var kb = UnityEngine.InputSystem.Keyboard.current;
-            if (kb != null && kb.nKey.wasPressedThisFrame)
+            if (kb != null)
             {
-                SkipToNextLevel();
+                if (kb.nKey.wasPressedThisFrame) SkipToNextLevel();
+                else if (kb.digit1Key.wasPressedThisFrame) ApplyLevelConfig(0, immediate: true);
+                else if (kb.digit2Key.wasPressedThisFrame) ApplyLevelConfig(1, immediate: true);
+                else if (kb.digit3Key.wasPressedThisFrame) ApplyLevelConfig(2, immediate: true);
+                else if (kb.digit4Key.wasPressedThisFrame) ApplyLevelConfig(3, immediate: true);
+                else if (kb.digit5Key.wasPressedThisFrame) ApplyLevelConfig(4, immediate: true);
+                else if (kb.digit6Key.wasPressedThisFrame) ApplyLevelConfig(5, immediate: true);
+                else if (kb.digit7Key.wasPressedThisFrame) ApplyLevelConfig(6, immediate: true);
+                else if (kb.digit8Key.wasPressedThisFrame) ApplyLevelConfig(7, immediate: true);
             }
         }
 
         private void OnLevelResetRequested()
         {
+            Time.timeScale = 1.0f;
+            Time.fixedDeltaTime = 0.02f;
             ApplyLevelConfig(currentLevelIndex, immediate: true);
         }
 

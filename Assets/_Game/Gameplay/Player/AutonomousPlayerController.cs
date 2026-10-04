@@ -684,12 +684,21 @@ namespace Game.Gameplay.Player
         {
             if (isDead) return;
 
-            var hazard = other.GetComponent<Game.Gameplay.Combat.Hazard2D>() ?? other.GetComponentInParent<Game.Gameplay.Combat.Hazard2D>();
-            if (hazard != null)
+            var trans = other.GetComponent<Game.Gameplay.Transmutation.ITransmutable>() 
+                ?? other.GetComponentInParent<Game.Gameplay.Transmutation.ITransmutable>();
+            if (trans != null && trans.IsInverted)
             {
-                if (IsImmuneToHazard(hazard.HazardName)) return;
-                Kill($"Fell into {hazard.HazardName.ToLower()}");
-                return;
+                // Inverted object is safe (e.g. trampoline, alibi, phase wall)
+            }
+            else
+            {
+                var hazard = other.GetComponent<Game.Gameplay.Combat.Hazard2D>() ?? other.GetComponentInParent<Game.Gameplay.Combat.Hazard2D>();
+                if (hazard != null && hazard.enabled)
+                {
+                    if (IsImmuneToHazard(hazard.HazardName)) return;
+                    Kill($"Fell into {hazard.HazardName.ToLower()}");
+                    return;
+                }
             }
 
             IClimbable climbable = other.GetComponent<IClimbable>() 
@@ -707,13 +716,22 @@ namespace Game.Gameplay.Player
         {
             if (isDead) return;
 
-            var hazard = collision.gameObject.GetComponent<Game.Gameplay.Combat.Hazard2D>() 
-                ?? collision.gameObject.GetComponentInParent<Game.Gameplay.Combat.Hazard2D>();
-            if (hazard != null)
+            var trans = collision.gameObject.GetComponent<Game.Gameplay.Transmutation.ITransmutable>() 
+                ?? collision.gameObject.GetComponentInParent<Game.Gameplay.Transmutation.ITransmutable>();
+            if (trans != null && trans.IsInverted)
             {
-                if (IsImmuneToHazard(hazard.HazardName)) return;
-                Kill($"Fell into {hazard.HazardName.ToLower()}");
-                return;
+                // Inverted object is safe (e.g. trampoline, alibi, phase wall)
+            }
+            else
+            {
+                var hazard = collision.gameObject.GetComponent<Game.Gameplay.Combat.Hazard2D>() 
+                    ?? collision.gameObject.GetComponentInParent<Game.Gameplay.Combat.Hazard2D>();
+                if (hazard != null && hazard.enabled)
+                {
+                    if (IsImmuneToHazard(hazard.HazardName)) return;
+                    Kill($"Fell into {hazard.HazardName.ToLower()}");
+                    return;
+                }
             }
 
             IClimbable climbable = collision.gameObject.GetComponent<IClimbable>() 
@@ -735,13 +753,22 @@ namespace Game.Gameplay.Player
         {
             if (isDead || isClimbing) return;
 
-            var hazard = collision.gameObject.GetComponent<Game.Gameplay.Combat.Hazard2D>() 
-                ?? collision.gameObject.GetComponentInParent<Game.Gameplay.Combat.Hazard2D>();
-            if (hazard != null)
+            var trans = collision.gameObject.GetComponent<Game.Gameplay.Transmutation.ITransmutable>() 
+                ?? collision.gameObject.GetComponentInParent<Game.Gameplay.Transmutation.ITransmutable>();
+            if (trans != null && trans.IsInverted)
             {
-                if (IsImmuneToHazard(hazard.HazardName)) return;
-                Kill($"Fell into {hazard.HazardName.ToLower()}");
-                return;
+                // Inverted object is safe (e.g. trampoline, alibi, phase wall)
+            }
+            else
+            {
+                var hazard = collision.gameObject.GetComponent<Game.Gameplay.Combat.Hazard2D>() 
+                    ?? collision.gameObject.GetComponentInParent<Game.Gameplay.Combat.Hazard2D>();
+                if (hazard != null && hazard.enabled)
+                {
+                    if (IsImmuneToHazard(hazard.HazardName)) return;
+                    Kill($"Fell into {hazard.HazardName.ToLower()}");
+                    return;
+                }
             }
 
             IClimbable climbable = collision.gameObject.GetComponent<IClimbable>() 
