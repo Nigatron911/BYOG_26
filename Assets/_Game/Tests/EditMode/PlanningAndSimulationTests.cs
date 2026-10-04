@@ -657,7 +657,7 @@ namespace Game.Tests.EditMode
                 Assert.AreEqual(5, matCtrl.RemainingTransformations, "Player should have 5 switch charges in Level 6.");
                 Assert.AreEqual(5, matCtrl.MaxTransformations, "Max switch charges in Level 6 must be 5.");
                 Assert.AreEqual(400.60f, player.transform.position.x, 0.05f, "Player should spawn at Level 6 spawn point X.");
-                Assert.AreEqual(0.30f, player.transform.position.y, 0.05f, "Player should spawn at Level 6 spawn point Y.");
+                Assert.AreEqual(3.75f, player.transform.position.y, 0.05f, "Player should spawn at Level 6 spawn point Y.");
                 Assert.AreEqual(46.0f, cam.orthographicSize, 0.01f);
             }
             finally
@@ -1031,7 +1031,7 @@ namespace Game.Tests.EditMode
                 Assert.AreEqual(7, manager.CurrentLevelNumber);
                 Assert.AreEqual(Game.Gameplay.Player.LocomotionMode.Manual, player.CurrentLocomotionMode);
                 Assert.AreEqual(543.30f, player.transform.position.x, 0.05f, "Player should spawn at Level 7 spawn point X.");
-                Assert.AreEqual(-0.90f, player.transform.position.y, 0.05f, "Player should spawn at Level 7 spawn point Y.");
+                Assert.AreEqual(2.95f, player.transform.position.y, 0.05f, "Player should spawn at Level 7 spawn point Y.");
                 Assert.AreEqual(42.0f, cam.orthographicSize, 0.01f);
             }
             finally
@@ -1213,7 +1213,7 @@ namespace Game.Tests.EditMode
                 Assert.AreEqual(8, manager.CurrentLevelNumber);
                 Assert.AreEqual(Game.Gameplay.Player.LocomotionMode.Manual, player.CurrentLocomotionMode);
                 Assert.AreEqual(662.50f, player.transform.position.x, 0.05f, "Player should spawn at Level 8 spawn point X.");
-                Assert.AreEqual(-2.80f, player.transform.position.y, 0.05f, "Player should spawn at Level 8 spawn point Y.");
+                Assert.AreEqual(2.95f, player.transform.position.y, 0.05f, "Player should spawn at Level 8 spawn point Y.");
                 Assert.AreEqual(42.0f, cam.orthographicSize, 0.01f);
             }
             finally

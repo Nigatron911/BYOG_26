@@ -167,7 +167,21 @@ namespace Game.Core.Bootstrap
                 levelManager.Initialize(gameEvents, playerController, mainCamera, placementSystem, toolSelectionBar, screenFader, toolsContainer);
             }
 
-            // 4. Hook Lifecycle Transitions
+            // 4. Wire Camera Systems & Parallax
+            if (mainCamera != null)
+            {
+                var cameraFollow = mainCamera.GetComponent<Game.Presentation.CameraSystems.GameplayCameraFollow>()
+                    ?? mainCamera.gameObject.AddComponent<Game.Presentation.CameraSystems.GameplayCameraFollow>();
+                cameraFollow.Initialize(gameEvents, playerController != null ? playerController.transform : null);
+
+                var parallaxLayers = FindObjectsByType<Game.Presentation.CameraSystems.ParallaxLayer>(FindObjectsSortMode.None);
+                foreach (var layer in parallaxLayers)
+                {
+                    layer.BindCamera(mainCamera);
+                }
+            }
+
+            // 5. Hook Lifecycle Transitions
             gameEvents.LevelResetRequested += OnLevelResetRequested;
         }
 

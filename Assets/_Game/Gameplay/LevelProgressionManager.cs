@@ -238,7 +238,7 @@ namespace Game.Gameplay
                 }
                 else if (levels.Count == 7)
                 {
-                    Vector2 lvl8SpawnPoint = new Vector2(662.50f, -2.80f);
+                    Vector2 lvl8SpawnPoint = new Vector2(662.50f, 2.95f);
                     var lvl8Obj = GameObject.Find("Level 8 spawn point") ?? GameObject.Find("level 8 spawn ");
                     if (lvl8Obj != null) lvl8SpawnPoint = lvl8Obj.transform.position;
 
@@ -284,7 +284,7 @@ namespace Game.Gameplay
 
             if (levels.Count == 5)
             {
-                Vector2 lvl6SpawnPoint = new Vector2(400.60f, 0.30f);
+                Vector2 lvl6SpawnPoint = new Vector2(400.60f, 3.75f);
                 var lvl6Obj = GameObject.Find("Level 6 spawn");
                 if (lvl6Obj != null) lvl6SpawnPoint = lvl6Obj.transform.position;
 
@@ -306,7 +306,7 @@ namespace Game.Gameplay
 
             if (levels.Count == 6)
             {
-                Vector2 lvl7SpawnPoint = new Vector2(543.30f, -0.90f);
+                Vector2 lvl7SpawnPoint = new Vector2(543.30f, 2.95f);
                 var lvl7Obj = GameObject.Find("Level 7 spawn ") ?? GameObject.Find("Level 7 spawn");
                 if (lvl7Obj != null) lvl7SpawnPoint = lvl7Obj.transform.position;
 
@@ -328,7 +328,7 @@ namespace Game.Gameplay
 
             if (levels.Count == 7)
             {
-                Vector2 lvl8SpawnPoint = new Vector2(662.50f, -2.80f);
+                Vector2 lvl8SpawnPoint = new Vector2(662.50f, 2.95f);
                 var lvl8Obj = GameObject.Find("Level 8 spawn point") ?? GameObject.Find("level 8 spawn ");
                 if (lvl8Obj != null) lvl8SpawnPoint = lvl8Obj.transform.position;
 
@@ -460,7 +460,7 @@ namespace Game.Gameplay
             });
 
             // Level 6: Aerial Material Traverse (Paper, Stone, Rubber)
-            Vector2 lvl6Spawn = new Vector2(400.60f, 0.30f);
+            Vector2 lvl6Spawn = new Vector2(400.60f, 3.75f);
             var lvl6GO = GameObject.Find("Level 6 spawn");
             if (lvl6GO != null)
             {
@@ -483,7 +483,7 @@ namespace Game.Gameplay
             });
 
             // Level 7: Inversion & Obscurity (Transmutation & Darkness Orbit)
-            Vector2 lvl7Spawn = new Vector2(543.30f, -0.90f);
+            Vector2 lvl7Spawn = new Vector2(543.30f, 2.95f);
             var lvl7GO = GameObject.Find("Level 7 spawn ") ?? GameObject.Find("Level 7 spawn");
             if (lvl7GO != null)
             {
@@ -506,7 +506,7 @@ namespace Game.Gameplay
             });
 
             // Level 8: Transmutation Trials
-            Vector2 lvl8Spawn = new Vector2(662.50f, -2.80f);
+            Vector2 lvl8Spawn = new Vector2(662.50f, 2.95f);
             var lvl8GO = GameObject.Find("Level 8 spawn point") ?? GameObject.Find("level 8 spawn ");
             if (lvl8GO != null)
             {
