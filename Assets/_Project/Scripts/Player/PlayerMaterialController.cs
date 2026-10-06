@@ -41,7 +41,7 @@ namespace Project.Player
         [SerializeField] private LayerMask groundLayer = ~0;
 
         // Current physics tuning values
-        [SerializeField] private float moveSpeed = 7.5f;
+        [SerializeField] private float moveSpeed = 7.0f;
         [SerializeField] private float firstJumpVelocity = 11.0f;
         private float secondJumpVelocity = 15.5f;
 
@@ -424,7 +424,7 @@ namespace Project.Player
             {
                 case MaterialType.Paper:
                     // Paper: White origami, light & floaty, full wind sensitivity
-                    moveSpeed = 7.2f;
+                    moveSpeed = 7.0f;
                     firstJumpVelocity = 9.5f;
                     gravityScale = 2.2f;
                     airControl = 1.0f;

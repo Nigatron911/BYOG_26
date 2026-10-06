@@ -939,6 +939,7 @@ namespace Game.Gameplay
         /// </summary>
         private Vector2 GroundSpawn(Vector2 raw)
         {
+            if (!Application.isPlaying) return raw;
             var hits = Physics2D.RaycastAll(raw + Vector2.up * 0.5f, Vector2.down, 20f);
             for (int i = 0; i < hits.Length; i++)
             {

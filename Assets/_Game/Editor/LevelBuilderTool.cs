@@ -440,7 +440,7 @@ namespace Game.Editor
             rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 
             var controller = playerGO.AddComponent<AutonomousPlayerController>();
-            SetPrivateField(controller, "walkSpeed", 6.7f);
+            SetPrivateField(controller, "walkSpeed", 7.0f);
             SetPrivateField(controller, "climbSpeed", 6.5f);
             SetPrivateField(controller, "stuckTimeoutSeconds", 5.0f);
             SetPrivateField(controller, "maxStepHeight", 0.45f);
