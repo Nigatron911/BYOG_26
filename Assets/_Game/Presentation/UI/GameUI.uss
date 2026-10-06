@@ -1,6 +1,11 @@
-/* GameUI.uss - Styles for Game UI Toolkit */
+/* GameUI.uss - Paper & ink theme for the UI Toolkit game UI
+   Palette
+     paper       #F3EEE2   ink        #2B2522   ink-soft  #5E554D
+     red         #B5432F   green      #3E7A4A   blue      #2F5E8C   gold #C8962E
+*/
 
 .screen-container {
+    -unity-font-definition: url("/Assets/_Game/Art/Fonts/PatrickHand SDF.asset");
     position: absolute;
     left: 0;
     top: 0;
@@ -8,33 +13,41 @@
     bottom: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none;
 }
 
-/* TOP HUD CONTAINER */
+/* ---------- Shared paper surfaces ---------- */
+.paper-card {
+    background-image: url("/Assets/_Game/Art/Paper/UI_Paper.png");
+    -unity-background-scale-mode: scale-and-crop;
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    background-color: rgb(243, 238, 226);
+    border-width: 3px;
+    border-color: rgb(43, 37, 34);
+    border-radius: 6px;
+}
+
+/* ---------- TOP HUD ---------- */
 .hud-top-container {
     position: absolute;
-    top: 24px;
+    top: 20px;
     align-self: center;
     align-items: center;
-    pointer-events: none;
 }
 
 .stuck-warning-card {
-    background-color: rgba(180, 30, 30, 0.92);
-    border-radius: 8px;
-    border-width: 2px;
-    border-color: rgba(255, 100, 100, 0.9);
+    background-color: rgb(243, 230, 220);
+    border-radius: 6px;
+    border-width: 3px;
+    border-color: rgb(181, 67, 47);
     padding: 10px 24px;
     align-items: center;
     justify-content: center;
     min-width: 320px;
     display: none;
-    pointer-events: auto;
 }
 
 .stuck-timer-label {
-    color: #ffffff;
+    color: rgb(181, 67, 47);
     font-size: 18px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
@@ -43,45 +56,46 @@
 
 .stuck-progress-track {
     width: 260px;
-    height: 6px;
-    background-color: rgba(0, 0, 0, 0.4);
-    border-radius: 3px;
+    height: 8px;
+    background-color: rgba(43, 37, 34, 0.15);
+    border-width: 1px;
+    border-color: rgb(43, 37, 34);
+    border-radius: 4px;
     overflow: hidden;
 }
 
 .stuck-progress-fill {
     width: 0%;
     height: 100%;
-    background-color: #ffd32a;
-    border-radius: 3px;
+    background-color: rgb(181, 67, 47);
 }
 
 .gravity-status-card {
-    background-color: rgba(15, 23, 42, 0.92);
-    border-radius: 10px;
-    border-width: 2px;
-    border-color: rgba(56, 189, 248, 0.85);
+    background-image: url("/Assets/_Game/Art/Paper/UI_Paper.png");
+    -unity-background-scale-mode: scale-and-crop;
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    background-color: rgb(243, 238, 226);
+    border-radius: 6px;
+    border-width: 3px;
+    border-color: rgb(47, 94, 140);
     padding: 8px 22px;
     margin-top: 8px;
     align-items: center;
     justify-content: center;
     min-width: 380px;
     display: none;
-    pointer-events: auto;
 }
 
 .gravity-status-card-earth {
-    border-color: rgba(34, 197, 94, 0.9);
-    background-color: rgba(10, 35, 20, 0.94);
+    border-color: rgb(62, 122, 74);
 }
 
 .gravity-status-card-roof {
-    border-color: rgba(244, 63, 94, 0.9);
-    background-color: rgba(40, 10, 20, 0.94);
+    border-color: rgb(181, 67, 47);
 }
 
 .gravity-mode-label {
-    color: #38bdf8;
+    color: rgb(47, 94, 140);
     font-size: 16px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
@@ -89,51 +103,50 @@
 }
 
 .gravity-mode-label-earth {
-    color: #4ade80;
+    color: rgb(62, 122, 74);
 }
 
 .gravity-mode-label-roof {
-    color: #f43f5e;
+    color: rgb(181, 67, 47);
 }
 
 .gravity-timer-label {
-    color: #cbd5e1;
+    color: rgb(94, 85, 77);
     font-size: 13px;
-    -unity-font-style: normal;
     -unity-text-align: middle-center;
 }
 
-/* BOTTOM TOOLBAR CONTAINER */
+/* ---------- BOTTOM TOOLBAR ---------- */
 .toolbar-bottom-container {
     position: absolute;
-    bottom: 24px;
+    bottom: 22px;
     align-self: center;
     align-items: center;
-    pointer-events: none;
 }
 
 .toolbar-dock {
     flex-direction: row;
-    background-color: rgba(14, 18, 26, 0.94);
-    border-radius: 14px;
-    border-width: 1px;
-    border-color: rgba(255, 255, 255, 0.18);
+    background-image: url("/Assets/_Game/Art/Paper/UI_Paper.png");
+    -unity-background-scale-mode: scale-and-crop;
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    background-color: rgb(243, 238, 226);
+    border-radius: 6px;
+    border-width: 3px;
+    border-color: rgb(43, 37, 34);
     padding: 10px 16px;
     align-items: center;
     justify-content: center;
-    pointer-events: auto;
 }
 
-/* TOOL CARDS */
 .tool-card {
     width: 100px;
     height: 80px;
     margin-left: 6px;
     margin-right: 6px;
-    border-radius: 10px;
+    border-radius: 4px;
     border-width: 2px;
-    border-color: #d4a742;
-    background-color: rgba(45, 34, 22, 0.92);
+    border-color: rgb(43, 37, 34);
+    background-color: rgba(255, 255, 255, 0.55);
     align-items: center;
     justify-content: center;
     padding: 4px;
@@ -141,8 +154,8 @@
 }
 
 .tool-card:hover {
-    background-color: rgba(65, 50, 30, 0.98);
-    border-color: #ffd700;
+    background-color: rgba(200, 150, 46, 0.25);
+    border-color: rgb(200, 150, 46);
     scale: 1.05 1.05;
 }
 
@@ -151,45 +164,45 @@
 }
 
 .tool-card-disabled {
-    opacity: 0.4;
+    opacity: 0.35;
 }
 
 .tool-card-keybadge {
-    background-color: rgba(0, 0, 0, 0.45);
-    border-radius: 4px;
-    padding: 1px 6px;
-    margin-bottom: 4px;
+    background-color: rgba(0, 0, 0, 0);
+    padding: 0 6px;
+    margin-bottom: 2px;
 }
 
 .tool-card-keybadge-text {
-    color: #e5b95c;
+    color: rgb(94, 85, 77);
     font-size: 11px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
 }
 
 .tool-card-title {
-    color: #ffffff;
+    color: rgb(43, 37, 34);
     font-size: 15px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
 }
 
 .tool-card-count {
-    color: #ffd32a;
+    color: rgb(181, 67, 47);
     font-size: 13px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
     margin-top: 1px;
 }
 
-/* ACTION BUTTONS */
+/* ---------- ACTION BUTTONS ---------- */
 .action-button {
     height: 60px;
     margin-left: 8px;
     margin-right: 8px;
-    border-radius: 30px;
-    border-width: 0;
+    border-radius: 6px;
+    border-width: 3px;
+    border-color: rgb(43, 37, 34);
     padding-left: 20px;
     padding-right: 20px;
     align-items: center;
@@ -206,7 +219,7 @@
 }
 
 .action-button-label {
-    color: #ffffff;
+    color: rgb(250, 246, 236);
     font-size: 16px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
@@ -214,44 +227,44 @@
 
 .btn-rotate {
     min-width: 125px;
-    background-color: #c9881a;
+    background-color: rgb(200, 150, 46);
 }
 .btn-rotate:hover {
-    background-color: #e09b24;
+    background-color: rgb(218, 168, 62);
 }
 
 .btn-simulate {
     min-width: 160px;
-    background-color: #27ae60;
+    background-color: rgb(62, 122, 74);
 }
 .btn-simulate:hover {
-    background-color: #2ecc71;
+    background-color: rgb(76, 140, 88);
 }
 
 .btn-simulate-active {
-    background-color: #d63031;
+    background-color: rgb(181, 67, 47);
 }
 .btn-simulate-active:hover {
-    background-color: #e74c3c;
+    background-color: rgb(200, 82, 60);
 }
 
 .btn-reset {
     min-width: 115px;
-    background-color: #2980b9;
+    background-color: rgb(47, 94, 140);
 }
 .btn-reset:hover {
-    background-color: #3498db;
+    background-color: rgb(60, 110, 158);
 }
 
 .btn-next {
     min-width: 125px;
-    background-color: #8e44ad;
+    background-color: rgb(94, 85, 77);
 }
 .btn-next:hover {
-    background-color: #9b59b6;
+    background-color: rgb(110, 100, 92);
 }
 
-/* TOP RIGHT CONTAINER */
+/* ---------- TOP RIGHT ---------- */
 .top-right-container {
     position: absolute;
     top: 20px;
@@ -264,47 +277,43 @@
     min-width: 145px;
     height: 44px;
     padding: 8px 16px;
-    border-radius: 8px;
-    border-width: 2px;
-    border-color: rgba(255, 255, 255, 0.45);
-    background-color: #8e44ad;
-}
-.btn-next-top:hover {
-    background-color: #9b59b6;
-    border-color: rgba(255, 255, 255, 0.8);
-    scale: 1.04 1.04;
-}
-.btn-next-top:active {
-    background-color: #7d3c98;
-    scale: 0.96 0.96;
 }
 
-/* GAME OVER OVERLAY */
+.pause-button {
+    min-width: 150px;
+    height: 44px;
+    margin: 0;
+}
+
+/* ---------- GAME OVER ---------- */
 .gameover-overlay {
     position: absolute;
     left: 0;
     top: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(10, 12, 18, 0.90);
+    background-color: rgba(43, 37, 34, 0.55);
     align-items: center;
     justify-content: center;
     display: none;
-    pointer-events: auto;
 }
 
 .gameover-modal {
     width: 480px;
-    background-color: rgba(22, 26, 36, 0.98);
-    border-radius: 16px;
-    border-width: 2px;
-    border-color: rgba(235, 60, 60, 0.7);
+    background-image: url("/Assets/_Game/Art/Paper/UI_Paper.png");
+    -unity-background-scale-mode: scale-and-crop;
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    background-color: rgb(243, 238, 226);
+    border-radius: 6px;
+    border-width: 4px;
+    border-color: rgb(181, 67, 47);
     padding: 36px 30px;
     align-items: center;
+    rotate: -1deg;
 }
 
 .gameover-title {
-    color: #ff4757;
+    color: rgb(181, 67, 47);
     font-size: 40px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
@@ -312,18 +321,20 @@
 }
 
 .gameover-cause {
-    color: #dfe4ea;
+    color: rgb(43, 37, 34);
     font-size: 18px;
     -unity-text-align: middle-center;
     margin-bottom: 30px;
+    white-space: normal;
 }
 
 .btn-retry {
     min-width: 260px;
     height: 56px;
-    background-color: #2ed573;
-    border-radius: 28px;
-    border-width: 0;
+    background-color: rgb(62, 122, 74);
+    border-radius: 6px;
+    border-width: 3px;
+    border-color: rgb(43, 37, 34);
     align-items: center;
     justify-content: center;
     padding-left: 24px;
@@ -333,7 +344,7 @@
 
 .btn-retry:hover {
     scale: 1.05 1.05;
-    background-color: #26af5f;
+    background-color: rgb(76, 140, 88);
 }
 
 .btn-retry:active {
@@ -341,30 +352,32 @@
 }
 
 .btn-retry-label {
-    color: #ffffff;
+    color: rgb(250, 246, 236);
     font-size: 18px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
 }
 
-/* SCREEN FADER OVERLAY */
+/* ---------- SCREEN FADER ---------- */
 .screen-fader {
     position: absolute;
     left: 0;
     top: 0;
     right: 0;
     bottom: 0;
-    background-color: #000000;
+    background-color: rgb(20, 17, 15);
     opacity: 0;
-    pointer-events: none;
 }
 
-/* MATERIAL STATUS PANEL (LEVEL 5) */
+/* ---------- MATERIAL STATUS (LEVELS 5-6) ---------- */
 .material-status-card {
-    background-color: rgba(14, 18, 28, 0.94);
-    border-width: 2px;
-    border-color: #38bdf8;
-    border-radius: 8px;
+    background-image: url("/Assets/_Game/Art/Paper/UI_Paper.png");
+    -unity-background-scale-mode: scale-and-crop;
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    background-color: rgb(243, 238, 226);
+    border-width: 3px;
+    border-color: rgb(43, 37, 34);
+    border-radius: 6px;
     padding: 8px 16px;
     align-items: center;
     justify-content: center;
@@ -373,7 +386,7 @@
 }
 
 .material-mode-label {
-    color: #38bdf8;
+    color: rgb(43, 37, 34);
     font-size: 15px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
@@ -392,8 +405,8 @@
     padding: 3px 8px;
     margin-left: 3px;
     margin-right: 3px;
-    border-radius: 5px;
-    border-width: 1px;
+    border-radius: 4px;
+    border-width: 2px;
     transition: scale 0.1s;
 }
 
@@ -406,34 +419,636 @@
 }
 
 .mat-badge-paper {
-    background-color: rgba(255, 255, 255, 0.15);
-    border-color: #ffffff;
+    background-color: rgb(255, 255, 255);
+    border-color: rgb(94, 85, 77);
 }
 
 .mat-badge-stone {
-    background-color: rgba(100, 116, 139, 0.35);
-    border-color: #94a3b8;
+    background-color: rgb(196, 192, 186);
+    border-color: rgb(94, 85, 77);
 }
 
 .mat-badge-rubber {
-    background-color: rgba(16, 185, 129, 0.25);
-    border-color: #10b981;
+    background-color: rgb(196, 224, 196);
+    border-color: rgb(62, 122, 74);
 }
 
 .mat-badge-active {
-    border-width: 2px;
-    border-color: #facc15;
+    border-width: 3px;
+    border-color: rgb(181, 67, 47);
 }
 
 .mat-badge-label {
-    color: #f8fafc;
+    color: rgb(43, 37, 34);
     font-size: 12px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
 }
 
 .material-switches-label {
-    color: #94a3b8;
+    color: rgb(94, 85, 77);
     font-size: 12px;
     -unity-text-align: middle-center;
+}
+
+
+
+
+/* ---------- MENUS ---------- */
+.menu-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(30, 26, 23, 0.6);
+    align-items: center;
+    justify-content: center;
+    display: none;
+}
+
+
+.victory-overlay {
+    background-color: rgba(20, 17, 15, 0.2);
+}
+
+.paper-panel {
+    background-image: url("/Assets/_Game/Art/Paper/UI_Paper.png");
+    -unity-background-scale-mode: scale-and-crop;
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    background-color: rgb(243, 238, 226);
+    border-width: 4px;
+    border-color: rgb(43, 37, 34);
+    border-radius: 6px;
+    padding: 30px 44px;
+    min-width: 440px;
+    align-items: center;
+    rotate: -0.8deg;
+}
+
+
+
+
+.panel-title {
+    color: rgb(43, 37, 34);
+    font-size: 40px;
+    -unity-font-style: bold;
+    letter-spacing: 3px;
+    -unity-text-align: middle-center;
+}
+
+.victory-title {
+    font-size: 56px;
+    color: rgb(181, 67, 47);
+}
+
+.panel-subtitle {
+    color: rgb(94, 85, 77);
+    font-size: 17px;
+    -unity-text-align: middle-center;
+    margin-bottom: 20px;
+    white-space: normal;
+    max-width: 460px;
+}
+
+
+.paper-button {
+    min-width: 300px;
+    height: 52px;
+    margin: 6px 0;
+    background-color: rgba(255, 255, 255, 0.6);
+    border-width: 3px;
+    border-color: rgb(43, 37, 34);
+    border-radius: 5px;
+    align-items: center;
+    justify-content: center;
+    transition: scale 0.1s, background-color 0.12s, rotate 0.12s;
+}
+
+.paper-button:hover {
+    background-color: rgba(200, 150, 46, 0.3);
+    scale: 1.04 1.04;
+    rotate: 1deg;
+}
+
+.paper-button:active {
+    scale: 0.97 0.97;
+}
+
+.paper-button:disabled {
+    opacity: 0.35;
+}
+
+.paper-button-label {
+    color: rgb(43, 37, 34);
+    font-size: 19px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+    -unity-text-align: middle-center;
+}
+
+.paper-button-primary {
+    background-color: rgb(43, 37, 34);
+}
+
+.paper-button-primary .paper-button-label {
+    color: rgb(243, 238, 226);
+}
+
+.paper-button-primary:hover {
+    background-color: rgb(181, 67, 47);
+}
+
+.paper-button-quiet {
+    border-width: 2px;
+    background-color: rgba(255, 255, 255, 0);
+}
+
+.volume-row {
+    flex-direction: row;
+    align-items: center;
+    min-width: 300px;
+    margin: 4px 0;
+}
+
+.volume-label {
+    color: rgb(43, 37, 34);
+    font-size: 15px;
+    -unity-font-style: bold;
+    width: 80px;
+}
+
+.volume-slider {
+    flex-grow: 1;
+    margin: 0;
+}
+
+.volume-slider #unity-tracker {
+    background-color: rgba(43, 37, 34, 0.2);
+    border-color: rgb(43, 37, 34);
+}
+
+.volume-slider #unity-dragger {
+    background-color: rgb(181, 67, 47);
+    border-color: rgb(43, 37, 34);
+}
+
+
+
+
+
+
+
+
+
+/* =====================================================================
+   TOTAL FLUX - title, level select and credits (Figma direction:
+   charcoal crumpled paper, heavy vignette, chalk-white type)
+   ===================================================================== */
+.title-screen,
+.level-select-screen,
+.credits-screen {
+    background-color: rgb(24, 22, 20);
+    background-image: url("/Assets/_Game/Art/Paper/UI_Paper.png");
+    -unity-background-scale-mode: scale-and-crop;
+    -unity-background-image-tint-color: rgb(118, 114, 108);
+}
+
+.screen-vignette {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("/Assets/_Game/Art/Paper/FX_Vignette.png");
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
+
+
+.title-button-column {
+    position: absolute;
+    left: 7%;
+    bottom: 10%;
+    width: 300px;
+}
+
+.chalk-button {
+    height: 54px;
+    margin: 7px 0;
+    padding: 0 22px;
+    background-color: rgb(22, 20, 18);
+    border-width: 2px;
+    border-color: rgb(214, 208, 196);
+    border-radius: 3px;
+    align-items: flex-start;
+    justify-content: center;
+    transition: translate 0.12s, background-color 0.12s, border-color 0.12s;
+}
+
+.chalk-button:hover {
+    background-color: rgb(46, 42, 38);
+    border-color: rgb(250, 246, 236);
+    translate: 8px 0;
+}
+
+.chalk-button:active {
+    translate: 4px 2px;
+}
+
+.chalk-button:focus {
+    border-color: rgb(250, 246, 236);
+}
+
+.chalk-button-label {
+    color: rgb(236, 230, 218);
+    font-size: 21px;
+    -unity-font-style: bold;
+    letter-spacing: 4px;
+}
+
+.chalk-button-primary {
+    background-color: rgb(236, 230, 218);
+}
+
+.chalk-button-primary .chalk-button-label {
+    color: rgb(22, 20, 18);
+}
+
+.chalk-button-primary:hover {
+    background-color: rgb(255, 252, 244);
+}
+
+.chalk-button-danger {
+    border-color: rgb(186, 60, 52);
+}
+
+.chalk-button-danger:hover {
+    background-color: rgb(150, 42, 36);
+    border-color: rgb(220, 90, 80);
+}
+
+.chalk-button-small {
+    width: 150px;
+    height: 46px;
+    margin: 0;
+    align-items: center;
+}
+
+.title-hint {
+    position: absolute;
+    right: 4%;
+    bottom: 5%;
+    color: rgb(150, 144, 134);
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+
+/* ---------- Level select ---------- */
+.level-select-screen {
+    align-items: center;
+    justify-content: center;
+}
+
+.level-select-sheet {
+    width: 1140px;
+    max-width: 92%;
+    padding: 34px 44px 40px 44px;
+    background-image: url("/Assets/_Game/Art/Paper/UI_Paper.png");
+    -unity-background-scale-mode: scale-and-crop;
+    -unity-background-image-tint-color: rgb(196, 192, 184);
+    background-color: rgb(170, 166, 158);
+    border-width: 3px;
+    border-color: rgb(30, 27, 25);
+    border-radius: 4px;
+    rotate: -0.6deg;
+}
+
+.level-select-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 26px;
+}
+
+.level-select-title {
+    color: rgb(30, 27, 25);
+    font-size: 40px;
+    -unity-font-style: bold-and-italic;
+    letter-spacing: 2px;
+}
+
+.level-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.level-card {
+    width: 23.5%;
+    height: 170px;
+    margin-bottom: 22px;
+    padding: 10px 14px;
+    background-image: url("/Assets/_Game/Art/Paper/UI_Paper.png");
+    -unity-background-scale-mode: scale-and-crop;
+    background-color: rgb(232, 226, 214);
+    border-width: 5px;
+    border-radius: 6px;
+    align-items: stretch;
+    justify-content: space-between;
+    transition: scale 0.12s, rotate 0.12s;
+}
+
+.level-card:hover {
+    scale: 1.05 1.05;
+    rotate: -1.5deg;
+}
+
+.level-card:disabled {
+    opacity: 0.35;
+}
+
+.level-card-world-1 { border-color: rgb(76, 175, 80); }
+.level-card-world-2 { border-color: rgb(192, 202, 51); }
+.level-card-world-3 { border-color: rgb(249, 168, 37); }
+.level-card-world-4 { border-color: rgb(232, 96, 58); }
+
+.level-card-name {
+    color: rgb(60, 54, 50);
+    font-size: 14px;
+    -unity-font-style: bold;
+    white-space: normal;
+    -unity-text-align: upper-left;
+}
+
+.level-card-number {
+    color: rgb(30, 27, 25);
+    font-size: 54px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.level-card-lock {
+    color: rgb(120, 112, 104);
+    font-size: 12px;
+    -unity-text-align: lower-right;
+}
+
+/* ---------- Credits ---------- */
+.credits-screen {
+    align-items: center;
+    justify-content: center;
+}
+
+.credits-sheet {
+    width: 760px;
+    max-width: 92%;
+    height: 82%;
+    padding: 30px 40px;
+    background-image: url("/Assets/_Game/Art/Paper/UI_Paper.png");
+    -unity-background-scale-mode: scale-and-crop;
+    -unity-background-image-tint-color: rgb(196, 192, 184);
+    background-color: rgb(170, 166, 158);
+    border-width: 3px;
+    border-color: rgb(30, 27, 25);
+    border-radius: 4px;
+    align-items: center;
+    rotate: 0.5deg;
+}
+
+.credits-title {
+    color: rgb(30, 27, 25);
+    font-size: 46px;
+    -unity-font-style: bold;
+    letter-spacing: 8px;
+    margin-bottom: 10px;
+}
+
+.credits-scroll {
+    flex-grow: 1;
+    width: 100%;
+    margin-bottom: 18px;
+}
+
+.credits-scroll #unity-content-container {
+    align-items: center;
+}
+
+.credits-game {
+    color: rgb(30, 27, 25);
+    font-size: 30px;
+    -unity-font-style: bold;
+    letter-spacing: 6px;
+    margin-top: 10px;
+}
+
+.credits-line {
+    color: rgb(70, 64, 58);
+    font-size: 16px;
+    -unity-font-style: italic;
+    margin-bottom: 18px;
+}
+
+.credits-role {
+    color: rgb(150, 42, 36);
+    font-size: 15px;
+    -unity-font-style: bold;
+    letter-spacing: 3px;
+    margin-top: 16px;
+}
+
+.credits-name {
+    color: rgb(30, 27, 25);
+    font-size: 22px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.credits-thanks {
+    color: rgb(30, 27, 25);
+    font-size: 20px;
+    -unity-font-style: italic;
+    margin-top: 34px;
+    margin-bottom: 20px;
+}
+
+.credits-person {
+    color: rgb(30, 27, 25);
+    font-size: 26px;
+    -unity-font-style: bold;
+    margin-top: 14px;
+    -unity-text-align: middle-center;
+}
+
+.credits-person-role {
+    color: rgb(90, 82, 76);
+    font-size: 15px;
+    -unity-font-style: italic;
+    letter-spacing: 1px;
+    -unity-text-align: middle-center;
+}
+
+/* =====================================================================
+   Cover art backdrop (title / levels / credits) - gently animated by MainMenuUI
+   ===================================================================== */
+.title-screen,
+.level-select-screen,
+.credits-screen {
+    background-color: rgb(10, 9, 8);
+    background-image: none;
+    overflow: hidden;
+}
+
+.title-cover {
+    position: absolute;
+    left: -3%;
+    top: -3%;
+    right: -3%;
+    bottom: -3%;
+    background-image: url("/Assets/assets/Background/cover.png");
+    -unity-background-scale-mode: scale-and-crop;
+}
+
+.title-cover-dim {
+    -unity-background-image-tint-color: rgb(120, 116, 110);
+}
+
+.title-button-column {
+    bottom: 3.5%;
+    left: 5%;
+    width: 270px;
+}
+
+.title-button-column .chalk-button {
+    height: 46px;
+    margin: 5px 0;
+}
+
+.chalk-button-label {
+    font-size: 26px;
+    letter-spacing: 3px;
+}
+
+.title-hint {
+    color: rgb(200, 194, 184);
+    font-size: 18px;
+}
+
+/* =====================================================================
+   Level how-to-play card (torn paper on the black transition screen)
+   ===================================================================== */
+.briefing-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgb(8, 7, 6);
+    align-items: center;
+    justify-content: center;
+    display: none;
+}
+
+.briefing-card {
+    width: 640px;
+    max-width: 92%;
+    max-height: 94%;
+    padding: 64px 70px 52px 70px;
+    background-image: url("/Assets/_Game/Art/Paper/UI_TornPaper.png");
+    -unity-background-scale-mode: stretch-to-fill;
+    align-items: stretch;
+    opacity: 0;
+    translate: 0 -60px;
+    rotate: -5deg;
+    scale: 0.96 0.96;
+    transition-property: opacity, translate, rotate, scale;
+    transition-duration: 0.45s, 0.55s, 0.55s, 0.45s;
+    transition-timing-function: ease-out, ease-out-back, ease-out-back, ease-out;
+}
+
+.briefing-card--in {
+    opacity: 1;
+    translate: 0 0;
+    rotate: -1.2deg;
+    scale: 1 1;
+}
+
+.briefing-card--out {
+    opacity: 0;
+    translate: 0 50px;
+    rotate: 3deg;
+    transition-duration: 0.35s;
+    transition-timing-function: ease-in;
+}
+
+.briefing-code {
+    color: rgb(120, 40, 32);
+    font-size: 20px;
+    letter-spacing: 4px;
+    -unity-text-align: middle-center;
+}
+
+.briefing-title {
+    color: rgb(22, 19, 17);
+    font-size: 58px;
+    letter-spacing: 4px;
+    -unity-text-align: middle-center;
+    margin-top: -4px;
+}
+
+.briefing-rule {
+    height: 3px;
+    margin: 2px 60px 18px 60px;
+    background-color: rgb(30, 26, 23);
+    rotate: -0.6deg;
+}
+
+.briefing-block {
+    margin-bottom: 14px;
+}
+
+.briefing-heading {
+    color: rgb(22, 19, 17);
+    font-size: 26px;
+    margin-bottom: 0;
+}
+
+.briefing-heading-catch {
+    color: rgb(140, 36, 28);
+}
+
+.briefing-text {
+    color: rgb(40, 35, 31);
+    font-size: 23px;
+    white-space: normal;
+}
+
+.briefing-begin {
+    align-self: center;
+    margin-top: 10px;
+    padding: 6px 34px;
+    background-color: rgb(22, 19, 17);
+    border-width: 2px;
+    border-color: rgb(22, 19, 17);
+    border-radius: 3px;
+    rotate: 0.8deg;
+    transition: scale 0.12s, background-color 0.12s;
+}
+
+.briefing-begin:hover {
+    scale: 1.06 1.06;
+    background-color: rgb(140, 36, 28);
+}
+
+.briefing-begin-label {
+    color: rgb(240, 234, 222);
+    font-size: 28px;
+    letter-spacing: 3px;
+}
+
+.briefing-hint {
+    color: rgb(90, 82, 76);
+    font-size: 16px;
+    -unity-text-align: middle-center;
+    margin-top: 6px;
 }

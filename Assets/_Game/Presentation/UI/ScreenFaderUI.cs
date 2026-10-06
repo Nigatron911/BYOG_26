@@ -54,7 +54,10 @@ namespace Game.Presentation.UI
         public void FadeOut(float duration = -1f, Action onComplete = null)
         {
             float d = duration > 0f ? duration : defaultFadeDuration;
-            StartFade(0f, 1f, d, onComplete);
+            // Start from the current opacity so fading out an already-black screen does not flash the scene.
+            if (faderOverlay == null) BindUI();
+            float from = faderOverlay != null ? faderOverlay.resolvedStyle.opacity : 0f;
+            StartFade(from, 1f, d, onComplete);
         }
 
         private void StartFade(float fromAlpha, float toAlpha, float duration, Action onComplete)

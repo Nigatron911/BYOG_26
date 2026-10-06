@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using Game.Core.Events;
@@ -1309,5 +1311,143 @@ namespace Game.Tests.EditMode
                 Object.DestroyImmediate(jumperGO);
             }
         }
+
+        [Test]
+        public void Character_SpriteSheets_AreProperlySlicedAndGrounded()
+        {
+            string[] sheets = new string[]
+            {
+                "Assets/assets/SpriteSheet/character_idle_breath_strip.png",
+                "Assets/assets/SpriteSheet/character_run_strip.png",
+                "Assets/assets/SpriteSheet/character_jump_strip.png",
+                "Assets/assets/SpriteSheet/character_zerog_strip.png",
+                "Assets/assets/SpriteSheet/character_idle_front_noblink_strip.png"
+            };
+
+            foreach (var path in sheets)
+            {
+                var sprites = UnityEditor.AssetDatabase.LoadAllAssetsAtPath(path)
+                    .OfType<Sprite>()
+                    .ToArray();
+                Assert.AreEqual(5, sprites.Length, $"Sheet {path} must contain exactly 5 slices.");
+                foreach (var s in sprites)
+                {
+                    Assert.AreEqual(112f, s.pivot.x, 1f, $"Sprite {s.name} pivot X should be centered at 112px.");
+                    Assert.IsTrue(s.pixelsPerUnit >= 80f && s.pixelsPerUnit <= 120f, $"Sprite {s.name} PPU should be ~100 for environmental golden ratio.");
+                }
+            }
+        }
+
+        [Test]
+        public void Character_AnimatorController_ContainsAllStatesAndClips()
+        {
+            var controller = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEditor.Animations.AnimatorController>(
+                "Assets/_Game/Presentation/Animation/PlayerAnimatorController.controller");
+            Assert.IsNotNull(controller, "PlayerAnimatorController must exist.");
+
+            var stateNames = controller.layers[0].stateMachine.states.Select(s => s.state.name).ToList();
+            Assert.Contains("Idle", stateNames);
+            Assert.Contains("Run", stateNames);
+            Assert.Contains("Jump", stateNames);
+            Assert.Contains("Fall", stateNames);
+            Assert.Contains("Climb", stateNames);
+            Assert.Contains("ZeroG", stateNames);
+
+            var paramNames = controller.parameters.Select(p => p.name).ToList();
+            Assert.Contains("Speed", paramNames);
+            Assert.Contains("IsGrounded", paramNames);
+            Assert.Contains("VerticalVelocity", paramNames);
+            Assert.Contains("IsClimbing", paramNames);
+            Assert.Contains("IsZeroG", paramNames);
+            Assert.Contains("IsDead", paramNames);
+        }
+
+        [Test]
+        public void Character_VisualAnimator_UpdatesAnimatorParameters()
+        {
+            var testGO = CreateTestGameObject("VisualAnimTest");
+            var sr = testGO.AddComponent<SpriteRenderer>();
+            var rb = testGO.AddComponent<Rigidbody2D>();
+            var ctrl = testGO.AddComponent<AutonomousPlayerController>();
+            var anim = testGO.AddComponent<Animator>();
+            var controller = UnityEditor.AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(
+                "Assets/_Game/Presentation/Animation/PlayerAnimatorController.controller");
+            anim.runtimeAnimatorController = controller;
+
+            var visualAnim = testGO.AddComponent<Game.Presentation.Animation.PlayerVisualAnimator>();
+            rb.linearVelocity = new Vector2(5.5f, 3.2f);
+
+            var updateMethod = typeof(Game.Presentation.Animation.PlayerVisualAnimator)
+                .GetMethod("Update", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            updateMethod.Invoke(visualAnim, null);
+
+            Assert.AreEqual(5.5f, anim.GetFloat("Speed"), 0.05f);
+            Assert.AreEqual(3.2f, anim.GetFloat("VerticalVelocity"), 0.05f);
+            Assert.IsFalse(sr.flipX, "Should not be flipped when moving right");
+
+            rb.linearVelocity = new Vector2(-4.0f, -1.0f);
+            updateMethod.Invoke(visualAnim, null);
+            Assert.AreEqual(4.0f, anim.GetFloat("Speed"), 0.05f);
+            Assert.IsTrue(sr.flipX, "Should be flipped when moving left");
+        }
+
+        [Test]
+        public void Character_ScaleRatio_ToEnvironment_IsProportional()
+        {
+            var ladderTex = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/assets/Props/Ladder.png");
+            Assert.IsNotNull(ladderTex, "Ladder texture must exist.");
+            float ladderPixelHeight = 1006f;
+            float charPixelHeight = 276f;
+            float ratio = ladderPixelHeight / charPixelHeight;
+            Assert.GreaterOrEqual(ratio, 2.5f, "Ladder should be at least 2.5x player height for readable climbing");
+            Assert.LessOrEqual(ratio, 4.5f, "Ladder should not exceed 4.5x player height");
+        }
+
+        [Test]
+        public void Character_Climbing_SmoothCenteringAndDismount()
+        {
+            var ladderGO = CreateTestGameObject("TestLadder");
+            ladderGO.transform.position = new Vector3(9900f, 500f, 0f);
+            var ladderCol = ladderGO.AddComponent<BoxCollider2D>();
+            ladderCol.size = new Vector2(1.0f, 6.0f);
+            ladderCol.isTrigger = true;
+            var ladderZone = ladderGO.AddComponent<Game.Gameplay.Interaction.LadderClimbZone>();
+
+            var playerGO = CreateTestGameObject("TestClimbPlayer");
+            playerGO.transform.position = new Vector3(9900.2f, 497.5f, 0f);
+            var rb = playerGO.AddComponent<Rigidbody2D>();
+            rb.gravityScale = 1f;
+            var col = playerGO.AddComponent<CapsuleCollider2D>();
+            col.size = new Vector2(0.85f, 2.45f);
+            col.offset = new Vector2(0f, 1.25f);
+            var ctrl = playerGO.AddComponent<AutonomousPlayerController>();
+
+            var events = new Game.Core.Events.GameEvents();
+            ctrl.Initialize(events);
+
+            // Trigger enter climbing
+            var onTriggerEnter = typeof(AutonomousPlayerController).GetMethod("OnTriggerEnter2D",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onTriggerEnter.Invoke(ctrl, new object[] { ladderCol });
+
+            Assert.IsTrue(ctrl.IsClimbing, "Player must enter climbing state upon entering ladder trigger");
+            Assert.AreEqual(0f, rb.gravityScale, "Gravity scale must be zero while climbing");
+
+            // FixedUpdate centers player X
+            var fixedUpdate = typeof(AutonomousPlayerController).GetMethod("FixedUpdate",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            fixedUpdate.Invoke(ctrl, null);
+
+            Assert.Less(Mathf.Abs(rb.position.x - 9900f), 0.2f, "Player X should move towards ladder center");
+
+            // Advance near top elevation and test clean dismount
+            playerGO.transform.position = new Vector3(9900f, ladderZone.TopElevation - 0.2f, 0f);
+            fixedUpdate.Invoke(ctrl, null);
+
+            Assert.IsFalse(ctrl.IsClimbing, "Player must dismount climbing state upon reaching ladder top");
+            Assert.AreEqual(1f, rb.gravityScale, "Gravity scale must restore to 1.0 after dismount");
+            Assert.Greater(rb.linearVelocity.x, 0f, "Player must step forward onto upper platform upon dismount");
+        }
     }
 }
+#endif

@@ -35,8 +35,8 @@
 
         <!-- TOP RIGHT CONTROLS (ALWAYS VISIBLE ACROSS ALL LEVELS) -->
         <ui:VisualElement name="TopRightContainer" class="top-right-container" picking-mode="Ignore">
-            <ui:Button name="Btn_NextLevel" class="action-button btn-next btn-next-top">
-                <ui:Label name="Label_NextLevel" class="action-button-label" text="⏭ NEXT LEVEL [N]" />
+            <ui:Button name="Btn_Pause" class="paper-button pause-button">
+                <ui:Label class="paper-button-label" text="II  PAUSE [Esc]" />
             </ui:Button>
         </ui:VisualElement>
 
@@ -83,9 +83,6 @@
                     <ui:Label name="Label_Simulate" class="action-button-label" text="▶ SIMULATE" />
                 </ui:Button>
 
-                <ui:Button name="Btn_NextLevel" class="action-button btn-next">
-                    <ui:Label name="Label_NextLevel" class="action-button-label" text="⏭ NEXT [N]" />
-                </ui:Button>
             </ui:VisualElement>
         </ui:VisualElement>
 
@@ -100,7 +97,118 @@
             </ui:VisualElement>
         </ui:VisualElement>
 
-        <!-- SCREEN FADER (TOPMOST) -->
+        <!-- SCREEN FADER -->
         <ui:VisualElement name="ScreenFaderOverlay" class="screen-fader" picking-mode="Ignore" />
+
+        <!-- LEVEL HOW-TO-PLAY CARD (on the black transition screen) -->
+        <ui:VisualElement name="BriefingOverlay" class="briefing-overlay">
+            <ui:VisualElement name="BriefingCard" class="briefing-card">
+                <ui:Label name="BriefingCode" text="LEVEL 1.A" class="briefing-code" />
+                <ui:Label name="BriefingTitle" text="FADING INK" class="briefing-title" />
+                <ui:VisualElement class="briefing-rule" />
+                <ui:VisualElement class="briefing-block">
+                    <ui:Label text="GOAL:" class="briefing-heading" />
+                    <ui:Label name="BriefingGoal" text="Help your character reach the exit door." class="briefing-text" />
+                </ui:VisualElement>
+                <ui:VisualElement name="BriefingHowToBlock" class="briefing-block">
+                    <ui:Label text="How to play:" class="briefing-heading" />
+                    <ui:Label name="BriefingHowTo" text="" class="briefing-text" />
+                </ui:VisualElement>
+                <ui:VisualElement name="BriefingCatchBlock" class="briefing-block">
+                    <ui:Label text="The Catch:" class="briefing-heading briefing-heading-catch" />
+                    <ui:Label name="BriefingCatch" text="" class="briefing-text" />
+                </ui:VisualElement>
+                <ui:Button name="Btn_BriefingBegin" class="briefing-begin"><ui:Label text="I'M READY" class="briefing-begin-label" /></ui:Button>
+                <ui:Label text="click, or press Enter" class="briefing-hint" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- PAUSE MENU -->
+        <ui:VisualElement name="PauseOverlay" class="menu-overlay">
+            <ui:VisualElement class="paper-panel">
+                <ui:Label text="PAUSED" class="panel-title" />
+                <ui:Label name="PauseLevelLabel" text="Level 1 - The Ascent" class="panel-subtitle" />
+                <ui:Button name="Btn_Resume" class="paper-button paper-button-primary"><ui:Label text="RESUME" class="paper-button-label" /></ui:Button>
+                <ui:Button name="Btn_RestartLevel" class="paper-button"><ui:Label text="RESTART LEVEL" class="paper-button-label" /></ui:Button>
+                <ui:Button name="Btn_SkipLevel" class="paper-button"><ui:Label text="SKIP LEVEL" class="paper-button-label" /></ui:Button>
+                <ui:VisualElement class="volume-row">
+                    <ui:Label text="MUSIC" class="volume-label" />
+                    <ui:Slider name="Slider_Music" low-value="0" high-value="1" value="0.7" class="volume-slider" />
+                </ui:VisualElement>
+                <ui:VisualElement class="volume-row">
+                    <ui:Label text="SOUND" class="volume-label" />
+                    <ui:Slider name="Slider_Sfx" low-value="0" high-value="1" value="0.9" class="volume-slider" />
+                </ui:VisualElement>
+                <ui:Button name="Btn_PauseMainMenu" class="paper-button paper-button-quiet"><ui:Label text="MAIN MENU" class="paper-button-label" /></ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- MAIN MENU (Figma: "TOTAL FLUX" title screen) -->
+        <ui:VisualElement name="MainMenuOverlay" class="menu-overlay title-screen">
+            <ui:VisualElement class="title-cover" picking-mode="Ignore" />
+            <ui:VisualElement class="screen-vignette" picking-mode="Ignore" />
+            <ui:VisualElement name="MainMenuButtons" class="title-button-column">
+                <ui:Button name="Btn_Play" class="chalk-button chalk-button-primary"><ui:Label name="Label_Play" text="PLAY" class="chalk-button-label" /></ui:Button>
+                <ui:Button name="Btn_NewGame" class="chalk-button"><ui:Label text="NEW GAME" class="chalk-button-label" /></ui:Button>
+                <ui:Button name="Btn_LevelSelect" class="chalk-button"><ui:Label text="LEVELS" class="chalk-button-label" /></ui:Button>
+                <ui:Button name="Btn_Credits" class="chalk-button"><ui:Label text="CREDITS" class="chalk-button-label" /></ui:Button>
+                <ui:Button name="Btn_Quit" class="chalk-button chalk-button-danger"><ui:Label text="QUIT" class="chalk-button-label" /></ui:Button>
+            </ui:VisualElement>
+            <ui:Label text="A/D: move  •  W/Space: jump  •  Esc: pause" class="title-hint" picking-mode="Ignore" />
+        </ui:VisualElement>
+
+        <!-- LEVEL SELECT (Figma: 2 x 4 coloured level cards) -->
+        <ui:VisualElement name="LevelSelectOverlay" class="menu-overlay level-select-screen">
+            <ui:VisualElement class="title-cover title-cover-dim" picking-mode="Ignore" />
+            <ui:VisualElement class="screen-vignette" picking-mode="Ignore" />
+            <ui:VisualElement class="level-select-sheet">
+                <ui:VisualElement class="level-select-header">
+                    <ui:Label text="Select a Level" class="level-select-title" />
+                    <ui:Button name="Btn_LevelSelectBack" class="chalk-button chalk-button-small"><ui:Label text="BACK" class="chalk-button-label" /></ui:Button>
+                </ui:VisualElement>
+                <ui:VisualElement name="LevelGrid" class="level-grid" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- CREDITS -->
+        <ui:VisualElement name="CreditsOverlay" class="menu-overlay credits-screen">
+            <ui:VisualElement class="title-cover title-cover-dim" picking-mode="Ignore" />
+            <ui:VisualElement class="screen-vignette" picking-mode="Ignore" />
+            <ui:VisualElement class="credits-sheet">
+                <ui:Label text="CREDITS" class="credits-title" />
+                <ui:ScrollView name="CreditsScroll" class="credits-scroll" vertical-scroller-visibility="Hidden" horizontal-scroller-visibility="Hidden">
+                    <ui:Label text="TOTAL FLUX" class="credits-game" />
+                    <ui:Label text="Made for BYOG 2026" class="credits-line" />
+                    <ui:Label text="THE TEAM" class="credits-role" />
+                    <ui:Label text="Aditya Rishu" class="credits-person" />
+                    <ui:Label text="Game Designer &amp; Artist" class="credits-person-role" />
+                    <ui:Label text="Vinay Sankar" class="credits-person" />
+                    <ui:Label text="Game Developer &amp; Technical Artist" class="credits-person-role" />
+                    <ui:Label text="Gopika Krishnan" class="credits-person" />
+                    <ui:Label text="Game Developer" class="credits-person-role" />
+                    <ui:Label text="G Bharat" class="credits-person" />
+                    <ui:Label text="UI Designer" class="credits-person-role" />
+                    <ui:Label text="Navaneetha Arun" class="credits-person" />
+                    <ui:Label text="Concept Artist" class="credits-person-role" />
+                    <ui:Label text="FONT" class="credits-role" />
+                    <ui:Label text="Patrick Hand by Patrick Wagesreiter (SIL Open Font License)" class="credits-name" />
+                    <ui:Label text="BUILT WITH" class="credits-role" />
+                    <ui:Label text="Unity 6  •  URP 2D  •  UI Toolkit  •  Input System" class="credits-name" />
+                    <ui:Label text="Thank you for playing!" class="credits-thanks" />
+                </ui:ScrollView>
+                <ui:Button name="Btn_CreditsBack" class="chalk-button chalk-button-small"><ui:Label text="BACK" class="chalk-button-label" /></ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- VICTORY -->
+        <ui:VisualElement name="VictoryOverlay" class="menu-overlay victory-overlay">
+            <ui:VisualElement class="paper-panel">
+                <ui:Label text="THE END" class="panel-title victory-title" />
+                <ui:Label text="You climbed through every page of the sketchbook." class="panel-subtitle" />
+                <ui:Button name="Btn_PlayAgain" class="paper-button paper-button-primary"><ui:Label text="PLAY AGAIN" class="paper-button-label" /></ui:Button>
+                <ui:Button name="Btn_VictoryCredits" class="paper-button"><ui:Label text="CREDITS" class="paper-button-label" /></ui:Button>
+                <ui:Button name="Btn_VictoryMainMenu" class="paper-button paper-button-quiet"><ui:Label text="MAIN MENU" class="paper-button-label" /></ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

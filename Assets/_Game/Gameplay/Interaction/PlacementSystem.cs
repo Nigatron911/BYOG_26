@@ -58,6 +58,10 @@ namespace Game.Gameplay.Interaction
             customToolLimits[type] = count;
         }
 
+        /// <summary>True when the current level gives the player tools to build with (the planning levels).</summary>
+        public bool IsBuildLevel =>
+            GetMaxAllowed(ToolType.Plank) + GetMaxAllowed(ToolType.Ladder) + GetMaxAllowed(ToolType.Platform) + GetMaxAllowed(ToolType.Chain) > 0;
+
         public int GetMaxAllowed(ToolType type)
         {
             if (customToolLimits.TryGetValue(type, out int limit)) return limit;
@@ -89,11 +93,13 @@ namespace Game.Gameplay.Interaction
                 }
             }
 
+#if UNITY_EDITOR
             if (!definitionsLookup.ContainsKey(ToolType.Chain))
             {
                 var chainDef = UnityEditor.AssetDatabase.LoadAssetAtPath<ToolDefinition>("Assets/_Game/Data/Items/Tool_Chain.asset");
                 if (chainDef != null) definitionsLookup[ToolType.Chain] = chainDef;
             }
+#endif
 
             if (events != null)
             {
@@ -212,6 +218,10 @@ namespace Game.Gameplay.Interaction
         {
             if (worldCamera == null) worldCamera = Camera.main;
 
+            // Build-mode hotkeys only exist on levels with tools. On the direct-control levels Space is jump
+            // (and digits/E select materials), so these keys must not toggle the simulation there.
+            if (!IsBuildLevel || Time.timeScale <= 0f) return;
+
             // Keyboard hotkeys for simulation toggle
             if (UnityEngine.InputSystem.Keyboard.current != null)
             {
@@ -226,8 +236,8 @@ namespace Game.Gameplay.Interaction
                     return;
                 }
 
-                // Testing hotkey: N to skip level
-                if (kb.nKey.wasPressedThisFrame)
+                // Testing hotkey: N to skip level (development builds only)
+                if (Debug.isDebugBuild && kb.nKey.wasPressedThisFrame)
                 {
                     events?.PublishSkipLevelRequested();
                     return;
@@ -556,10 +566,12 @@ namespace Game.Gameplay.Interaction
                     var ct = def.Prefab.GetComponent<ChainTool>();
                     if (ct != null) anchorSprite = ct.AnchorSprite;
                 }
+#if UNITY_EDITOR
                 if (anchorSprite == null)
                 {
                     anchorSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/_Game/Data/Sprites/Prototype_AnchorPin.png");
                 }
+#endif
 
                 anchorPreviewA = new GameObject("AnchorA");
                 anchorPreviewA.transform.SetParent(chainPreviewGO.transform);
@@ -667,10 +679,12 @@ namespace Game.Gameplay.Interaction
             {
                 prefab = def.Prefab;
             }
+#if UNITY_EDITOR
             if (prefab == null)
             {
                 prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Game/Data/Prefabs/ChainPrefab.prefab");
             }
+#endif
 
             if (prefab == null)
             {
@@ -712,7 +726,7 @@ namespace Game.Gameplay.Interaction
         {
             if (activeTool == null) return;
 
-            // Apply level-specific lifetime and release with dynamic 2D physics
+            // Apply level-specific lifetime and lock the tool where it was placed
             activeTool.SetLifetime(toolLifetimeSeconds);
             activeTool.DropWithPhysics();
 

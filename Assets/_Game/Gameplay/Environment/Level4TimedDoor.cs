@@ -42,6 +42,7 @@ namespace Game.Gameplay.Environment
         public float RemainingOpenTime => remainingOpenTime;
 
         public event Action LevelCompleted;
+        public event Action Opened;
 
         public void RecordInitialTransform()
         {
@@ -110,6 +111,7 @@ namespace Game.Gameplay.Environment
         private IEnumerator DoorLifecycleRoutine()
         {
             isOpen = true;
+            Opened?.Invoke();
             if (doorCollider != null)
             {
                 doorCollider.isTrigger = true; // Allow passage while open

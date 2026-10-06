@@ -30,6 +30,20 @@ namespace Game.Gameplay
             public int chainCount = 0;
             public float toolLifetimeSeconds = 6.5f;
             public GameObject goalShrine;
+            [Tooltip("World-space area of this level. The camera never shows anything outside it. Zero size = legacy fixed camera.")]
+            public Rect cameraBounds;
+            [Tooltip("Follow the player inside cameraBounds (action levels). Off = static whole-level view (planning levels).")]
+            public bool followCamera;
+
+            [Header("Material levels")]
+            [Tooltip("Seconds a Stone/Rubber form lasts before reverting to Paper. 0 = controller default.")]
+            public float materialFormSeconds;
+
+            [Header("How-to-play card (shown on a black screen when the level starts)")]
+            public string briefingTitle;
+            [TextArea(2, 4)] public string briefingGoal;
+            [TextArea(2, 6)] public string briefingHowToPlay;
+            [TextArea(2, 6)] public string briefingCatch;
         }
 
         [Header("Levels Configuration")]
@@ -94,6 +108,9 @@ namespace Game.Gameplay
 
                 events.SkipLevelRequested -= OnSkipLevelRequested;
                 events.SkipLevelRequested += OnSkipLevelRequested;
+
+                events.StartLevelRequested -= OnStartLevelRequested;
+                events.StartLevelRequested += OnStartLevelRequested;
             }
 
             ApplyLevelConfig(0, immediate: true);
@@ -537,6 +554,7 @@ namespace Game.Gameplay
             {
                 Debug.Log("[LevelProgressionManager] All levels completed! Final victory!");
                 // Final level victory handling: restart or loop
+                isTransitioning = true;
                 StartCoroutine(FinalVictoryRoutine());
             }
         }
@@ -560,6 +578,10 @@ namespace Game.Gameplay
 
             ApplyLevelConfig(targetIndex, immediate: false);
 
+            // Hold on black, then show the level's how-to-play card. The flow controller freezes time while
+            // the card is open, so the scaled wait below only finishes once the player begins the level.
+            yield return new WaitForSecondsRealtime(0.35f);
+            events?.PublishLevelBriefingRequested(CurrentLevelNumber);
             yield return new WaitForSeconds(0.15f);
 
             if (screenFader != null)
@@ -595,6 +617,15 @@ namespace Game.Gameplay
             SkipToNextLevel();
         }
 
+        private void OnStartLevelRequested(int levelIndex)
+        {
+            if (levels.Count == 0) return;
+            int target = Mathf.Clamp(levelIndex, 0, levels.Count - 1);
+            StopAllCoroutines();
+            isTransitioning = false;
+            StartCoroutine(TransitionToNextLevelRoutine(target, initialDelay: 0f));
+        }
+
         private IEnumerator FinalVictoryRoutine()
         {
             if (screenFader != null)
@@ -605,6 +636,8 @@ namespace Game.Gameplay
             }
 
             Debug.Log("[LevelProgressionManager] All levels completed! Final Level Complete on black screen.");
+            isTransitioning = false;
+            events?.PublishGameCompleted();
         }
 
         public void ApplyLevelConfig(int index, bool immediate)
@@ -686,12 +719,21 @@ namespace Game.Gameplay
                 worldCamera.transform.position = config.cameraPosition;
                 worldCamera.orthographicSize = config.cameraOrthoSize;
             }
+            if (config.cameraBounds.width > 0f && config.cameraBounds.height > 0f)
+            {
+                events?.PublishLevelFramingChanged(new LevelFraming
+                {
+                    LevelNumber = config.levelNumber,
+                    Bounds = config.cameraBounds,
+                    FollowPlayer = config.followCamera
+                });
+            }
 
             // 3. Move and configure player
             if ((player as UnityEngine.Object) == null) player = FindFirstObjectByType<AutonomousPlayerController>();
             if ((player as UnityEngine.Object) != null)
             {
-                player.SetSpawnPosition(config.spawnPosition);
+                player.SetSpawnPosition(GroundSpawn(config.spawnPosition));
 
                 var gravCtrl = player.GetComponent<PlayerGravityController>();
                 var matCtrl = player.GetComponent<Project.Player.PlayerMaterialController>();
@@ -738,6 +780,7 @@ namespace Game.Gameplay
                     }
                     matCtrl.enabled = true;
                     matCtrl.ResetToDefault(Project.Player.MaterialType.Paper, switches: 5);
+                    if (CurrentLevel != null && CurrentLevel.materialFormSeconds > 0f) matCtrl.FormDurationSeconds = CurrentLevel.materialFormSeconds;
                     ConfigureLevel7Components(false);
                 }
                 else if (index == 6 || index == 7) // Level 7 & Level 8: Transmutation & Darkness Orbit
@@ -890,6 +933,24 @@ namespace Game.Gameplay
             }
         }
 
+        /// <summary>
+        /// Places a spawn point on the solid ground directly beneath it, so the player starts standing
+        /// instead of dropping in. Falls back to the raw point if no ground is found.
+        /// </summary>
+        private Vector2 GroundSpawn(Vector2 raw)
+        {
+            var hits = Physics2D.RaycastAll(raw + Vector2.up * 0.5f, Vector2.down, 20f);
+            for (int i = 0; i < hits.Length; i++)
+            {
+                var c = hits[i].collider;
+                if (c == null || c.isTrigger) continue;
+                if (player != null && c.transform.IsChildOf(player.transform)) continue;
+                if (c.attachedRigidbody != null && c.attachedRigidbody.bodyType == RigidbodyType2D.Dynamic) continue;
+                return new Vector2(raw.x, hits[i].point.y + 0.05f);
+            }
+            return raw;
+        }
+
         private void OnSimulationStopped()
         {
             // Reset player to current level's spawn position
@@ -931,7 +992,7 @@ namespace Game.Gameplay
                     var lvl8GO = GameObject.Find("Level 8 spawn point") ?? GameObject.Find("level 8 spawn ");
                     if (lvl8GO != null) spawnPos = lvl8GO.transform.position;
                 }
-                player.ResetState(spawnPos);
+                player.ResetState(GroundSpawn(spawnPos));
 
                 var gravCtrl = player.GetComponent<PlayerGravityController>();
                 var matCtrl = player.GetComponent<Project.Player.PlayerMaterialController>();
@@ -963,6 +1024,7 @@ namespace Game.Gameplay
                     if (matCtrl == null) matCtrl = player.gameObject.AddComponent<Project.Player.PlayerMaterialController>();
                     matCtrl.enabled = true;
                     matCtrl.ResetToDefault(Project.Player.MaterialType.Paper, switches: 5);
+                    if (CurrentLevel != null && CurrentLevel.materialFormSeconds > 0f) matCtrl.FormDurationSeconds = CurrentLevel.materialFormSeconds;
                     ConfigureLevel7Components(false);
                     if (Application.isPlaying)
                     {
@@ -1243,19 +1305,23 @@ namespace Game.Gameplay
 
         private void Update()
         {
-            // Allow testing shortcut 'N' to skip level at any time, or 1-8 to jump directly
+            // Developer shortcuts only (editor / development builds):
+            // N skips the level, F1-F8 jump directly to a level.
+            // Digit keys are reserved for gameplay (tool and material selection).
+            if (!Debug.isDebugBuild) return;
             var kb = UnityEngine.InputSystem.Keyboard.current;
-            if (kb != null)
+            if (kb == null || Time.timeScale <= 0f) return;
+
+            if (kb.nKey.wasPressedThisFrame) { SkipToNextLevel(); return; }
+
+            var jumpKeys = new[] { kb.f1Key, kb.f2Key, kb.f3Key, kb.f4Key, kb.f5Key, kb.f6Key, kb.f7Key, kb.f8Key };
+            for (int i = 0; i < jumpKeys.Length && i < levels.Count; i++)
             {
-                if (kb.nKey.wasPressedThisFrame) SkipToNextLevel();
-                else if (kb.digit1Key.wasPressedThisFrame) ApplyLevelConfig(0, immediate: true);
-                else if (kb.digit2Key.wasPressedThisFrame) ApplyLevelConfig(1, immediate: true);
-                else if (kb.digit3Key.wasPressedThisFrame) ApplyLevelConfig(2, immediate: true);
-                else if (kb.digit4Key.wasPressedThisFrame) ApplyLevelConfig(3, immediate: true);
-                else if (kb.digit5Key.wasPressedThisFrame) ApplyLevelConfig(4, immediate: true);
-                else if (kb.digit6Key.wasPressedThisFrame) ApplyLevelConfig(5, immediate: true);
-                else if (kb.digit7Key.wasPressedThisFrame) ApplyLevelConfig(6, immediate: true);
-                else if (kb.digit8Key.wasPressedThisFrame) ApplyLevelConfig(7, immediate: true);
+                if (jumpKeys[i].wasPressedThisFrame)
+                {
+                    ApplyLevelConfig(i, immediate: true);
+                    return;
+                }
             }
         }
 
@@ -1274,6 +1340,7 @@ namespace Game.Gameplay
                 events.SimulationStopped -= OnSimulationStopped;
                 events.LevelResetRequested -= OnLevelResetRequested;
                 events.SkipLevelRequested -= OnSkipLevelRequested;
+                events.StartLevelRequested -= OnStartLevelRequested;
             }
         }
 

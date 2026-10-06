@@ -39,6 +39,11 @@ namespace Game.Gameplay.Player
         private float groundCoyoteTimer = 0f;
         private float roofCoyoteTimer = 0f;
 
+        // Test input override for automated testing & validation
+        private bool overrideTestInput = false;
+        private float testInputX = 0f;
+        private bool testJumpPressed = false;
+
         [Header("Locomotion Settings")]
         [SerializeField] private float walkSpeed = 7.0f;
         [SerializeField] private float climbSpeed = 6.5f;
@@ -73,6 +78,8 @@ namespace Game.Gameplay.Player
         public static System.Collections.Generic.List<string> TrajectoryLog = new System.Collections.Generic.List<string>();
 
         public bool IsDead => isDead;
+        public bool HasReachedGoal => hasReachedGoal;
+        public bool IsClimbing => isClimbing;
         public bool IsSimulating => isSimulating;
         public float WalkSpeed => walkSpeed;
         public float StuckTimer => stuckTimer;
@@ -90,15 +97,21 @@ namespace Game.Gameplay.Player
             }
         }
 
+        [Header("Scale Configuration")]
+        [Tooltip("Base visual and gameplay scale multiplier. Set this in the Inspector to scale the character freely!")]
+        [SerializeField] private Vector3 baseTransformScale = Vector3.one;
+
+        public Vector3 BaseTransformScale => baseTransformScale;
+
         public void ResetVisuals()
         {
             if (spriteRenderer != null)
             {
                 spriteRenderer.color = defaultSpriteColor;
                 if (defaultSprite != null) spriteRenderer.sprite = defaultSprite;
-                spriteRenderer.transform.localScale = Vector3.one;
+                spriteRenderer.transform.localScale = baseTransformScale;
             }
-            transform.localScale = Vector3.one;
+            transform.localScale = baseTransformScale;
             if (rb != null)
             {
                 rb.mass = 1.0f;
@@ -230,30 +243,30 @@ namespace Game.Gameplay.Player
                 defaultSprite = spriteRenderer.sprite;
             }
             if (gravityController == null) gravityController = GetComponent<PlayerGravityController>();
+            if (baseTransformScale == Vector3.one && transform.localScale != Vector3.one && transform.localScale != Vector3.zero)
+            {
+                baseTransformScale = transform.localScale;
+            }
             initialSpawnPosition = transform.position;
             lastProgressX = transform.position.x;
         }
 
         private void FixedUpdate()
         {
+            // Once the exit is reached the player stops at the door (all locomotion modes).
+            if (hasReachedGoal)
+            {
+                if (rb != null) rb.linearVelocity = new Vector2(0f, Mathf.Min(0f, rb.linearVelocity.y));
+                return;
+            }
+
             if (locomotionMode == LocomotionMode.Material)
             {
                 // Material mode locomotion and jumping is fully owned by PlayerMaterialController
                 return;
             }
 
-            bool canControl = (locomotionMode == LocomotionMode.Manual)
-                ? (!isDead && !isPaused)
-                : (isSimulating && !isDead && !isPaused);
-
-            if (!canControl)
-            {
-                if (!isSimulating && rb != null && !isDead)
-                {
-                    rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
-                }
-                return;
-            }
+            if (isDead || isPaused) return;
 
             if (Time.frameCount % 5 == 0)
             {
@@ -261,29 +274,38 @@ namespace Game.Gameplay.Player
                 if (TrajectoryLog.Count > 100) TrajectoryLog.RemoveAt(0);
             }
 
+            bool hasManualInput = Mathf.Abs(cachedInputX) > 0.05f || jumpBufferTimer > 0f;
+
             if (isClimbing && activeClimbable != null)
             {
                 HandleClimbing();
             }
-            else if (locomotionMode == LocomotionMode.Manual)
+            else if (locomotionMode == LocomotionMode.Manual || (hasManualInput && !isSimulating))
             {
                 HandleManualMovement();
             }
-            else
+            else if (isSimulating)
             {
                 HandleWalking();
             }
+            else
+            {
+                if (rb != null)
+                {
+                    rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+                }
+            }
 
-            // Only monitor stuck condition while in autonomous mode, not after reaching the goal
-            if (!hasReachedGoal && locomotionMode == LocomotionMode.Autonomous)
+            // Only monitor stuck condition while in autonomous mode simulating, not after reaching the goal
+            if (!hasReachedGoal && locomotionMode == LocomotionMode.Autonomous && isSimulating)
             {
                 CheckStuckCondition();
             }
         }
 
         [Header("Step & Slope Settings")]
-        [SerializeField] private float maxStepHeight = 0.45f;
-        [SerializeField] private float stepSearchDistance = 0.50f;
+        [SerializeField] private float maxStepHeight = 0.55f;
+        [SerializeField] private float stepSearchDistance = 0.55f;
 
         private void Update()
         {
@@ -299,8 +321,8 @@ namespace Game.Gameplay.Player
             if (groundCoyoteTimer > 0f) groundCoyoteTimer -= Time.deltaTime;
             if (roofCoyoteTimer > 0f) roofCoyoteTimer -= Time.deltaTime;
 
-            // In Manual mode, capture frame-accurate keyboard inputs
-            if (locomotionMode == LocomotionMode.Manual && !isPaused)
+            // Capture frame-accurate keyboard inputs for manual testing and manual mode
+            if (locomotionMode != LocomotionMode.Material && !isPaused)
             {
                 ReadManualInputs();
             }
@@ -343,14 +365,39 @@ namespace Game.Gameplay.Player
             }
         }
 
+        public void SetTestInputOverride(float inputX, bool jump = false)
+        {
+            overrideTestInput = true;
+            testInputX = inputX;
+            if (jump) testJumpPressed = true;
+        }
+
+        public void ClearTestInputOverride()
+        {
+            overrideTestInput = false;
+            testInputX = 0f;
+            testJumpPressed = false;
+        }
+
         private void ReadManualInputs()
         {
+            if (overrideTestInput)
+            {
+                cachedInputX = testInputX;
+                if (testJumpPressed)
+                {
+                    jumpBufferTimer = jumpBufferDuration;
+                    testJumpPressed = false;
+                }
+                return;
+            }
+
             bool aHeld = false;
             bool dHeld = false;
             bool wDown = false;
             bool sDown = false;
 
-            // Read New Input System
+            // Read New Input System Keyboard
             var kb = UnityEngine.InputSystem.Keyboard.current;
             if (kb != null)
             {
@@ -360,12 +407,22 @@ namespace Game.Gameplay.Player
                 sDown = kb.sKey.wasPressedThisFrame || kb.downArrowKey.wasPressedThisFrame;
             }
 
-            // 3. Cache horizontal movement
+            // Read Gamepad
+            var pad = UnityEngine.InputSystem.Gamepad.current;
+            if (pad != null)
+            {
+                if (pad.dpad.left.isPressed || pad.leftStick.left.isPressed) aHeld = true;
+                if (pad.dpad.right.isPressed || pad.leftStick.right.isPressed) dHeld = true;
+                if (pad.buttonSouth.wasPressedThisFrame || pad.dpad.up.wasPressedThisFrame) wDown = true;
+                if (pad.dpad.down.wasPressedThisFrame) sDown = true;
+            }
+
+            // Cache horizontal movement
             cachedInputX = 0f;
             if (aHeld) cachedInputX -= 1f;
             if (dHeld) cachedInputX += 1f;
 
-            // 4. Buffer jump presses
+            // Buffer jump presses
             if (wDown)
             {
                 jumpBufferTimer = jumpBufferDuration;
@@ -497,12 +554,12 @@ namespace Game.Gameplay.Player
         public bool CheckSurfaceGrounded(Vector2 direction)
         {
             if (bodyCollider == null) bodyCollider = GetComponent<Collider2D>();
-            float halfHeight = bodyCollider != null ? bodyCollider.bounds.extents.y : 2.67f;
-            float halfWidth = bodyCollider != null ? bodyCollider.bounds.extents.x : 1.39f;
-            Vector2 boxSize = new Vector2(halfWidth * 1.3f, 0.25f);
+            float halfHeight = bodyCollider != null ? bodyCollider.bounds.extents.y : 1.25f;
+            float halfWidth = bodyCollider != null ? bodyCollider.bounds.extents.x : 0.42f;
+            Vector2 boxSize = new Vector2(halfWidth * 1.4f, 0.15f);
             Vector2 center = bodyCollider != null ? (Vector2)bodyCollider.bounds.center : (Vector2)transform.position;
-            Vector2 origin = center + direction * (halfHeight - 0.15f);
-            RaycastHit2D[] hits = Physics2D.BoxCastAll(origin, boxSize, 0f, direction, 0.50f, groundLayerMask);
+            Vector2 origin = center + direction * (halfHeight - 0.08f);
+            RaycastHit2D[] hits = Physics2D.BoxCastAll(origin, boxSize, 0f, direction, 0.20f, groundLayerMask);
             for (int i = 0; i < hits.Length; i++)
             {
                 var h = hits[i];
@@ -516,9 +573,9 @@ namespace Game.Gameplay.Player
 
         private void HandleWalking()
         {
-            // Ground & slope detection using CircleCast
-            Vector2 castOrigin = (Vector2)transform.position + Vector2.down * 0.3f;
-            RaycastHit2D hit = Physics2D.CircleCast(castOrigin, 0.25f, Vector2.down, slopeCheckDistance, groundLayerMask);
+            // Ground & slope detection using CircleCast from feet
+            Vector2 castOrigin = (Vector2)transform.position + Vector2.up * 0.2f;
+            RaycastHit2D hit = Physics2D.CircleCast(castOrigin, 0.2f, Vector2.down, slopeCheckDistance + 0.1f, groundLayerMask);
 
             Vector2 moveVelocity = new Vector2(walkSpeed, rb.linearVelocity.y);
 
@@ -531,11 +588,11 @@ namespace Game.Gameplay.Player
             }
 
             // Step assist: effortlessly step over small platform bumps and box lips
-            Vector2 footPos = (Vector2)transform.position + Vector2.down * 0.6f;
-            RaycastHit2D lowHit = Physics2D.Raycast(footPos + Vector2.up * 0.05f, Vector2.right, stepSearchDistance, groundLayerMask);
+            Vector2 footPos = (Vector2)transform.position;
+            RaycastHit2D lowHit = Physics2D.Raycast(footPos + Vector2.up * 0.08f, Vector2.right, stepSearchDistance, groundLayerMask);
             if (lowHit.collider != null && !lowHit.collider.isTrigger)
             {
-                RaycastHit2D highHit = Physics2D.Raycast(footPos + Vector2.up * (maxStepHeight + 0.1f), Vector2.right, stepSearchDistance, groundLayerMask);
+                RaycastHit2D highHit = Physics2D.Raycast(footPos + Vector2.up * (maxStepHeight + 0.05f), Vector2.right, stepSearchDistance, groundLayerMask);
                 if (highHit.collider == null)
                 {
                     // Clear above step - smoothly pop up onto it!
@@ -551,18 +608,20 @@ namespace Game.Gameplay.Player
         {
             if (activeClimbable == null || (activeClimbable as Object) == null)
             {
-                isClimbing = false;
-                rb.gravityScale = 1f;
+                DismountLadder(true);
                 return;
             }
 
-            // Check if player reached near top elevation of ladder OR reached platform level on the right
+            Bounds b = activeClimbable.GetBounds();
+            float ladderCenterX = b.center.x;
+
+            // Check if player reached near top elevation of ladder OR reached platform level near the top
             bool reachedTop = transform.position.y >= activeClimbable.TopElevation - 0.25f;
-            if (!reachedTop)
+            if (!reachedTop && transform.position.y >= b.max.y - 0.8f)
             {
-                Vector2 rightCheck = (Vector2)transform.position + new Vector2(0.4f, -0.2f);
+                Vector2 rightCheck = (Vector2)transform.position + new Vector2(0.5f, -0.1f);
                 RaycastHit2D ledgeHit = Physics2D.Raycast(rightCheck, Vector2.down, 0.4f, groundLayerMask);
-                if (ledgeHit.collider != null && !ledgeHit.collider.isTrigger && ledgeHit.normal.y > 0.7f && transform.position.y >= ledgeHit.point.y - 0.1f)
+                if (ledgeHit.collider != null && !ledgeHit.collider.isTrigger && ledgeHit.normal.y > 0.7f && transform.position.y >= ledgeHit.point.y - 0.15f)
                 {
                     reachedTop = true;
                 }
@@ -570,17 +629,73 @@ namespace Game.Gameplay.Player
 
             if (reachedTop)
             {
-                isClimbing = false;
-                activeClimbable = null;
-                rb.gravityScale = 1f;
-                rb.linearVelocity = new Vector2(walkSpeed * 1.5f, 2.0f);
+                CompleteLadderDismount(b);
                 return;
             }
 
-            // Climb up ladder vertically with forward bias to hug ladder rungs
-            rb.gravityScale = 0f;
+            // Check jump input to dismount early
+            if (jumpBufferTimer > 0f)
+            {
+                jumpBufferTimer = 0f;
+                float jumpDir = cachedInputX != 0f ? Mathf.Sign(cachedInputX) : 1f;
+                DismountLadder(true);
+                rb.linearVelocity = new Vector2(jumpDir * walkSpeed, jumpVelocity * 0.9f);
+                return;
+            }
+
+            // Smoothly center player X towards ladder center to prevent drifting sideways
+            float currentX = rb.position.x;
+            float targetX = Mathf.MoveTowards(currentX, ladderCenterX, 6.0f * Time.fixedDeltaTime);
+            rb.position = new Vector2(targetX, rb.position.y);
+
+            // Determine vertical climb speed
             float climbRate = climbSpeed * activeClimbable.ClimbSpeedMultiplier;
-            rb.linearVelocity = new Vector2(0.35f, climbRate);
+            float verticalVel = climbRate; // Default for Autonomous mode: auto climb up
+
+            if (locomotionMode == LocomotionMode.Manual)
+            {
+                bool upHeld = false;
+                bool downHeld = false;
+                var kb = UnityEngine.InputSystem.Keyboard.current;
+                if (kb != null)
+                {
+                    upHeld = kb.wKey.isPressed || kb.upArrowKey.isPressed;
+                    downHeld = kb.sKey.isPressed || kb.downArrowKey.isPressed;
+                }
+                var pad = UnityEngine.InputSystem.Gamepad.current;
+                if (pad != null)
+                {
+                    if (pad.dpad.up.isPressed || pad.leftStick.up.isPressed) upHeld = true;
+                    if (pad.dpad.down.isPressed || pad.leftStick.down.isPressed) downHeld = true;
+                }
+
+                if (upHeld) verticalVel = climbRate;
+                else if (downHeld) verticalVel = -climbRate;
+                else verticalVel = 0f;
+            }
+
+            rb.gravityScale = 0f;
+            rb.linearVelocity = new Vector2(0f, verticalVel);
+        }
+
+        private void CompleteLadderDismount(Bounds b)
+        {
+            isClimbing = false;
+            activeClimbable = null;
+            rb.gravityScale = 1f;
+            // Pop smoothly forward onto the upper platform
+            rb.position = new Vector2(b.center.x + 0.45f, rb.position.y + 0.1f);
+            rb.linearVelocity = new Vector2(walkSpeed * 1.2f, 1.2f);
+        }
+
+        private void DismountLadder(bool restoreGravity = true)
+        {
+            isClimbing = false;
+            activeClimbable = null;
+            if (restoreGravity && rb != null)
+            {
+                rb.gravityScale = 1f;
+            }
         }
 
         private void CheckStuckCondition()
@@ -672,7 +787,8 @@ namespace Game.Gameplay.Player
 
             LastEventLog = $"REACHED_GOAL at {transform.position}";
             hasReachedGoal = true;
-            Debug.Log("[AutonomousPlayerController] Goal reached! Player is walking outside the level...");
+            if (rb != null) rb.linearVelocity = new Vector2(0f, Mathf.Min(0f, rb.linearVelocity.y));
+            Debug.Log("[AutonomousPlayerController] Goal reached! Player stops at the exit door.");
 
             if (events != null)
             {
@@ -709,6 +825,7 @@ namespace Game.Gameplay.Player
                 isClimbing = true;
                 activeClimbable = climbable;
                 rb.gravityScale = 0f;
+                IgnoreLadderSolidColliders(climbable, true);
             }
         }
 
@@ -739,13 +856,10 @@ namespace Game.Gameplay.Player
                 ?? collision.gameObject.GetComponentInChildren<IClimbable>();
             if (climbable != null)
             {
-                if (bodyCollider != null && collision.collider != null)
-                {
-                    Physics2D.IgnoreCollision(bodyCollider, collision.collider, true);
-                }
                 isClimbing = true;
                 activeClimbable = climbable;
                 rb.gravityScale = 0f;
+                IgnoreLadderSolidColliders(climbable, true);
             }
         }
 
@@ -776,13 +890,10 @@ namespace Game.Gameplay.Player
                 ?? collision.gameObject.GetComponentInChildren<IClimbable>();
             if (climbable != null)
             {
-                if (bodyCollider != null && collision.collider != null)
-                {
-                    Physics2D.IgnoreCollision(bodyCollider, collision.collider, true);
-                }
                 isClimbing = true;
                 activeClimbable = climbable;
                 rb.gravityScale = 0f;
+                IgnoreLadderSolidColliders(climbable, true);
             }
         }
 
@@ -798,6 +909,7 @@ namespace Game.Gameplay.Player
                 isClimbing = true;
                 activeClimbable = climbable;
                 rb.gravityScale = 0f;
+                IgnoreLadderSolidColliders(climbable, true);
             }
         }
 
@@ -808,9 +920,42 @@ namespace Game.Gameplay.Player
                 ?? other.GetComponentInChildren<IClimbable>();
             if (climbable != null && climbable == activeClimbable)
             {
-                isClimbing = false;
-                activeClimbable = null;
-                rb.gravityScale = 1f;
+                Bounds b = climbable.GetBounds();
+                if (transform.position.y >= b.max.y - 0.35f)
+                {
+                    CompleteLadderDismount(b);
+                }
+                else
+                {
+                    DismountLadder(true);
+                }
+            }
+        }
+
+        private void IgnoreLadderSolidColliders(IClimbable climbable, bool ignore)
+        {
+            if (bodyCollider == null) bodyCollider = GetComponent<Collider2D>();
+            if (bodyCollider == null || climbable == null) return;
+
+            var mb = climbable as MonoBehaviour;
+            if (mb != null)
+            {
+                var cols = mb.GetComponentsInParent<Collider2D>();
+                for (int i = 0; i < cols.Length; i++)
+                {
+                    if (!cols[i].isTrigger && cols[i] != bodyCollider)
+                    {
+                        Physics2D.IgnoreCollision(bodyCollider, cols[i], ignore);
+                    }
+                }
+                var childCols = mb.GetComponentsInChildren<Collider2D>();
+                for (int i = 0; i < childCols.Length; i++)
+                {
+                    if (!childCols[i].isTrigger && childCols[i] != bodyCollider)
+                    {
+                        Physics2D.IgnoreCollision(bodyCollider, childCols[i], ignore);
+                    }
+                }
             }
         }
     }

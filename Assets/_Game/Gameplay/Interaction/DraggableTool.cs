@@ -42,6 +42,29 @@ namespace Game.Gameplay.Interaction
 
         private bool[] originalTriggerStates;
 
+        [Tooltip("When enabled, a tool is locked in place the moment it is placed (no gravity, no pushing).")]
+        [SerializeField] private bool fixedWhenPlaced = true;
+
+        /// <summary>Locks the body in place, or releases it to dynamic physics, depending on configuration.</summary>
+        private void ApplyPlacedBody(Vector2 initialVelocity)
+        {
+            if (rb == null) return;
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+            if (fixedWhenPlaced)
+            {
+                rb.bodyType = RigidbodyType2D.Kinematic;
+                rb.gravityScale = 0f;
+            }
+            else
+            {
+                rb.bodyType = RigidbodyType2D.Dynamic;
+                rb.gravityScale = 1.8f;
+                rb.linearVelocity = initialVelocity;
+                rb.WakeUp();
+            }
+        }
+
         private void Awake()
         {
             EnsureInitialized();
@@ -138,12 +161,7 @@ namespace Game.Gameplay.Interaction
                     }
                 }
 
-                if (rb != null)
-                {
-                    rb.bodyType = RigidbodyType2D.Dynamic;
-                    rb.gravityScale = 1.8f;
-                    rb.WakeUp();
-                }
+                ApplyPlacedBody(Vector2.zero);
 
                 SetVisualAlpha(1.0f);
                 IgnoreCollisionWithPlayerIfLadder();
@@ -152,7 +170,8 @@ namespace Game.Gameplay.Interaction
         }
 
         /// <summary>
-        /// Drops the tool from the top spawner with dynamic 2D physics.
+        /// Releases the tool at its current position. By default it is locked in place (kinematic);
+        /// with fixedWhenPlaced disabled it falls with dynamic 2D physics.
         /// </summary>
         public void DropWithPhysics(Vector2 initialVelocity = default)
         {
@@ -172,13 +191,7 @@ namespace Game.Gameplay.Interaction
                 }
             }
 
-            if (rb != null)
-            {
-                rb.bodyType = RigidbodyType2D.Dynamic;
-                rb.gravityScale = 1.8f;
-                rb.linearVelocity = initialVelocity;
-                rb.WakeUp();
-            }
+            ApplyPlacedBody(initialVelocity);
 
             SetVisualAlpha(1.0f);
             IgnoreCollisionWithPlayerIfLadder();
@@ -198,12 +211,10 @@ namespace Game.Gameplay.Interaction
 
             if (rb != null)
             {
-                rb.linearVelocity = Vector2.zero;
-                rb.angularVelocity = 0f;
-                rb.bodyType = RigidbodyType2D.Dynamic;
-                rb.gravityScale = 1.8f;
-                rb.WakeUp();
+                rb.position = placedPosition;
+                rb.rotation = placedRotation.eulerAngles.z;
             }
+            ApplyPlacedBody(Vector2.zero);
 
             StartLifetime();
             SetVisualAlpha(1.0f);
@@ -280,7 +291,11 @@ namespace Game.Gameplay.Interaction
 
         public void SetSimulating(bool simulating)
         {
+            bool started = simulating && !isSimulating;
             isSimulating = simulating;
+            // The vanish countdown only runs while the simulation runs; it restarts from full each run.
+            if (started && isPlaced) StartLifetime();
+            if (!simulating) SetVisualAlpha(1.0f);
         }
 
         public void StartLifetime()
@@ -297,7 +312,7 @@ namespace Game.Gameplay.Interaction
 
         private void Update()
         {
-            if (!autoDisappear || lifetimeSeconds <= 0f || !hasStartedLifetime || !isPlaced || isDragging) return;
+            if (!autoDisappear || lifetimeSeconds <= 0f || !hasStartedLifetime || !isPlaced || isDragging || !isSimulating) return;
 
             lifetimeRemaining -= Time.deltaTime;
 

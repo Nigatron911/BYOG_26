@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e548f4325a06e149892783e99a0cf00, type: 3}
+  m_Name: GameAudioLibrary
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Data.Audio.GameAudioLibrary
+  menuMusic: {fileID: 8300000, guid: 849f69920e492f945aee47a50ab83090, type: 3}
+  levelMusic:
+  - fromLevel: 1
+    toLevel: 2
+    clip: {fileID: 8300000, guid: 849f69920e492f945aee47a50ab83090, type: 3}
+    volume: 0.55
+  - fromLevel: 3
+    toLevel: 4
+    clip: {fileID: 8300000, guid: b089a67d0ada96444a353b8be30a1c71, type: 3}
+    volume: 0.55
+  - fromLevel: 5
+    toLevel: 6
+    clip: {fileID: 8300000, guid: 166422dfd6cd37f46afdb687cef28540, type: 3}
+    volume: 0.55
+  - fromLevel: 7
+    toLevel: 8
+    clip: {fileID: 8300000, guid: 02ba2bad1c94ad4498fe913d097cb0c6, type: 3}
+    volume: 0.55
+  musicCrossfadeSeconds: 1.2
+  jump: {fileID: 8300000, guid: 294ed49b7dc472047b3f9b35a04f5356, type: 3}
+  land: {fileID: 8300000, guid: 36dbb7f084846434fbdf2572de412ac5, type: 3}
+  runningLoop: {fileID: 8300000, guid: 235d4370565dc7a45be4877b7ea40b17, type: 3}
+  hurt: {fileID: 8300000, guid: 83d0ac630c1e1f3409e94fa2b2c06772, type: 3}
+  door: {fileID: 8300000, guid: 82bea123e3156974e8e893a0ec9c7693, type: 3}
+  gravityShift: {fileID: 8300000, guid: 3eb30676cc773964199f98de8dfc6de4, type: 3}
+  gravityStabilize: {fileID: 8300000, guid: fa203edd2351bd5459f9e09f64abb710, type: 3}
+  bounce: {fileID: 8300000, guid: 54bf6ab3541415c48bb70636749e003e, type: 3}
+  stoneImpact: {fileID: 8300000, guid: ce7514f9d7586544c8652c7fc40e4dc3, type: 3}
+  rewriteShot: {fileID: 8300000, guid: a550047a4aac83e4a85a1b1a927b478c, type: 3}
+  rewriteExpire: {fileID: 8300000, guid: 0f2e4d9587be3d143a86c91e82a175b5, type: 3}
+  runningLoopVolume: 0.35
+  footstepPitchVariance: 0.08

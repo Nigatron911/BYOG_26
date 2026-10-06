@@ -93,6 +93,7 @@ namespace Project.Player
         public void SetSpeedAndJump(float speed, float jump) { moveSpeed = speed; firstJumpVelocity = jump; }
 
         // Visual squash & stretch
+        private Vector3 userBaseScale = Vector3.one;
         private Vector3 baseScale = Vector3.one;
         private Vector3 currentVisualScale = Vector3.one;
 
@@ -195,15 +196,25 @@ namespace Project.Player
 
         private void OnDisable()
         {
-            currentVisualScale = Vector3.one;
+            currentVisualScale = userBaseScale;
             if (spriteRenderer != null)
             {
-                spriteRenderer.transform.localScale = Vector3.one;
+                spriteRenderer.transform.localScale = userBaseScale;
             }
         }
 
         private void Awake()
         {
+            // The player's authored size lives on the controller; fall back to the transform.
+            var owner = GetComponent<Game.Gameplay.Player.AutonomousPlayerController>();
+            if (owner != null && owner.BaseTransformScale != Vector3.zero)
+            {
+                userBaseScale = owner.BaseTransformScale;
+            }
+            else if (transform.localScale != Vector3.zero)
+            {
+                userBaseScale = transform.localScale;
+            }
             if (rb == null) rb = GetComponent<Rigidbody2D>();
             if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>() ?? GetComponentInChildren<SpriteRenderer>();
 
@@ -272,8 +283,13 @@ namespace Project.Player
             }
         }
 
+        private Game.Gameplay.Player.AutonomousPlayerController playerController;
+
         private void FixedUpdate()
         {
+            if (playerController == null) playerController = GetComponent<Game.Gameplay.Player.AutonomousPlayerController>();
+            if (playerController != null && playerController.HasReachedGoal) return;   // stopped at the exit door
+
             CheckGround();
             HandleMovement();
             HandleJump();
@@ -414,7 +430,7 @@ namespace Project.Player
                     airControl = 1.0f;
                     windMultiplier = 1.0f;
                     canDoubleJump = false;
-                    baseScale = new Vector3(0.9f, 1.15f, 1f);
+                    baseScale = userBaseScale; // every material keeps the player's size; only brief squash/stretch pops change it
                     rb.mass = 0.5f;
 
                     if (spriteRenderer != null)
@@ -432,7 +448,7 @@ namespace Project.Player
                     airControl = 0.35f;
                     windMultiplier = 0.0f;    // Wind does NOT move stone!
                     canDoubleJump = false;
-                    baseScale = new Vector3(1.2f, 1.0f, 1f);
+                    baseScale = userBaseScale; // every material keeps the player's size; only brief squash/stretch pops change it
                     rb.mass = 3.5f;
 
                     if (spriteRenderer != null)
@@ -451,7 +467,7 @@ namespace Project.Player
                     airControl = 1.0f;
                     windMultiplier = rubberWindMultiplier; // Minor wind lift (editable)
                     canDoubleJump = false; // NO MID-AIR DOUBLE JUMP: Bounces only when touching ground!
-                    baseScale = new Vector3(1.05f, 1.05f, 1f);
+                    baseScale = userBaseScale; // every material keeps the player's size; only brief squash/stretch pops change it
                     rb.mass = 1.0f;
 
                     if (spriteRenderer != null)
@@ -530,7 +546,7 @@ namespace Project.Player
                 bounceGroundedTimer = 0f;
 
                 // Squash on landing
-                currentVisualScale = new Vector3(1.35f, 0.7f, 1f);
+                currentVisualScale = Vector3.Scale(new Vector3(1.35f, 0.7f, 1f), userBaseScale);
                 if (bounceParticles != null) bounceParticles.Play();
                 ProceduralAudio.Instance?.PlayRubberBounce();
 
@@ -550,13 +566,13 @@ namespace Project.Player
             else if (currentMaterial == MaterialType.Stone)
             {
                 // Heavy stone thud
-                currentVisualScale = new Vector3(1.3f, 0.8f, 1f);
+                currentVisualScale = Vector3.Scale(new Vector3(1.3f, 0.8f, 1f), userBaseScale);
                 if (bounceParticles != null) bounceParticles.Play();
             }
             else
             {
                 // Gentle paper landing
-                currentVisualScale = new Vector3(1.1f, 0.9f, 1f);
+                currentVisualScale = Vector3.Scale(new Vector3(1.1f, 0.9f, 1f), userBaseScale);
             }
         }
 
@@ -583,7 +599,7 @@ namespace Project.Player
                 case 0:
                     // 1st bounce: bounces a little
                     jumpVel = rubberBounce1Velocity;
-                    currentVisualScale = new Vector3(0.85f, 1.25f, 1f);
+                    currentVisualScale = Vector3.Scale(new Vector3(0.85f, 1.25f, 1f), userBaseScale);
                     ProceduralAudio.Instance?.PlayJump();
                     OnPlayerNotice?.Invoke("RUBBER BOUNCE 1!");
                     bounceComboTier = 1;
@@ -592,7 +608,7 @@ namespace Project.Player
                 case 1:
                     // 2nd bounce: bounces a little higher
                     jumpVel = rubberBounce2Velocity;
-                    currentVisualScale = new Vector3(0.75f, 1.4f, 1f);
+                    currentVisualScale = Vector3.Scale(new Vector3(0.75f, 1.4f, 1f), userBaseScale);
                     if (bounceParticles != null) bounceParticles.Play();
                     ProceduralAudio.Instance?.PlayDoubleJump();
                     OnPlayerNotice?.Invoke("RUBBER BOUNCE 2!");
@@ -603,7 +619,7 @@ namespace Project.Player
                 default:
                     // 3rd bounce: a little more higher (super bounce)
                     jumpVel = rubberBounce3Velocity;
-                    currentVisualScale = new Vector3(0.6f, 1.65f, 1f);
+                    currentVisualScale = Vector3.Scale(new Vector3(0.6f, 1.65f, 1f), userBaseScale);
                     if (doubleJumpParticles != null) doubleJumpParticles.Play();
                     ProceduralAudio.Instance?.PlayDoubleJump();
                     OnPlayerNotice?.Invoke("RUBBER SUPER BOUNCE 3!");
@@ -647,14 +663,14 @@ namespace Project.Player
             {
                 // First Jump (Paper / Stone)
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, firstJumpVelocity);
-                currentVisualScale = new Vector3(0.75f, 1.35f, 1f); // Stretch
+                currentVisualScale = Vector3.Scale(new Vector3(0.75f, 1.35f, 1f), userBaseScale); // Stretch
                 ProceduralAudio.Instance?.PlayJump();
             }
             else if (canDoubleJump && !hasDoubleJumped)
             {
                 hasDoubleJumped = true;
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, secondJumpVelocity);
-                currentVisualScale = new Vector3(0.65f, 1.5f, 1f); // Super Stretch
+                currentVisualScale = Vector3.Scale(new Vector3(0.65f, 1.5f, 1f), userBaseScale); // Super Stretch
                 if (doubleJumpParticles != null) doubleJumpParticles.Play();
                 ProceduralAudio.Instance?.PlayDoubleJump();
             }

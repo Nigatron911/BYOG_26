@@ -33,6 +33,8 @@ namespace Game.Gameplay.Transmutation
         private Camera targetCamera;
 
         public event Action<ITransmutable> OnObjectTransmuted;
+        /// <summary>Raised every time the player uses the transmute ability (any click), hit or miss.</summary>
+        public event Action AbilityUsed;
 
         public void SetDarknessOrbit(Level7DarknessOrbit orbit) => darknessOrbit = orbit;
 
@@ -80,6 +82,7 @@ namespace Game.Gameplay.Transmutation
             // Left click detection
             if (IsLeftClickDown())
             {
+                AbilityUsed?.Invoke();
                 var target = currentHovered ?? QueryTransmutableAt(mouseWorld2D);
                 if (target != null)
                 {

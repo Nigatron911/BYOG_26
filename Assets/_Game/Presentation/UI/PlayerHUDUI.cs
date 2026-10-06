@@ -13,6 +13,8 @@ namespace Game.Presentation.UI
     {
         [Header("UI Document")]
         [SerializeField] private UIDocument uiDocument;
+        [Tooltip("Show the gravity mode / countdown bar in the gravity levels. Off by design: gravity shifts are felt, not announced.")]
+        [SerializeField] private bool showGravityStatus = false;
 
         private AutonomousPlayerController player;
         private VisualElement stuckWarningCard;
@@ -164,7 +166,7 @@ namespace Game.Presentation.UI
             if (gravityStatusCard == null) return;
 
             var gravCtrl = player != null ? player.GravityController : null;
-            if (gravCtrl == null || !gravCtrl.enabled)
+            if (!showGravityStatus || gravCtrl == null || !gravCtrl.enabled)
             {
                 if (gravityStatusCard.style.display != DisplayStyle.None)
                 {
@@ -304,12 +306,12 @@ namespace Game.Presentation.UI
                 if (matCtrl.RemainingTransformations > 0)
                 {
                     materialSwitchesLabel.text = $"Switches Left: {matCtrl.RemainingTransformations} / {matCtrl.MaxTransformations}{timerTag}{bounceTag}  •  [1: Paper | 2: Stone | 3: Rubber | Q/E: Cycle]";
-                    materialSwitchesLabel.style.color = new StyleColor(new Color(0.58f, 0.64f, 0.72f));
+                    materialSwitchesLabel.style.color = new StyleColor(new Color(0.37f, 0.33f, 0.30f));
                 }
                 else
                 {
                     materialSwitchesLabel.text = $"⚠️ NO SWITCHES REMAINING! (0 / 5){timerTag}{bounceTag}";
-                    materialSwitchesLabel.style.color = new StyleColor(new Color(0.96f, 0.44f, 0.44f));
+                    materialSwitchesLabel.style.color = new StyleColor(new Color(0.71f, 0.26f, 0.18f));
                 }
             }
         }

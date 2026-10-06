@@ -12,6 +12,11 @@ namespace Game.Gameplay.Combat
     {
         private bool hasTriggered = false;
 
+        /// <summary>Raised when the player arrives at this goal.</summary>
+        public event System.Action Reached;
+        /// <summary>Raised when the goal is re-armed for a new attempt.</summary>
+        public event System.Action Rearmed;
+
         private void Awake()
         {
             Collider2D col = GetComponent<Collider2D>();
@@ -29,6 +34,7 @@ namespace Game.Gameplay.Combat
             if (player != null && !player.IsDead)
             {
                 hasTriggered = true;
+                Reached?.Invoke();
                 player.ReachGoal();
             }
         }
@@ -36,6 +42,7 @@ namespace Game.Gameplay.Combat
         public void ResetGoal()
         {
             hasTriggered = false;
+            Rearmed?.Invoke();
         }
     }
 }

@@ -16,6 +16,8 @@ namespace Game.Gameplay.Transmutation
         [SerializeField] private float bounceVelocity = 19.5f;
         [SerializeField] private float defaultDuration = 3.0f;
         [SerializeField] private Color trampolineColor = new Color(0.25f, 1.0f, 0.55f, 1.0f);
+        [Tooltip("Optional sprite shown while transmuted into a trampoline.")]
+        [SerializeField] private Sprite trampolineSprite;
 
         [Header("References")]
         [SerializeField] private Spike spikeScript;
@@ -24,6 +26,7 @@ namespace Game.Gameplay.Transmutation
         [SerializeField] private SpriteRenderer spriteRenderer;
 
         private Color originalColor = Color.white;
+        private Sprite originalSprite;
         private Vector3 originalScale = Vector3.one;
         private bool isInverted = false;
         private float remainingTimer = 0f;
@@ -50,6 +53,7 @@ namespace Game.Gameplay.Transmutation
             if (spriteRenderer != null)
             {
                 originalColor = spriteRenderer.color;
+                originalSprite = spriteRenderer.sprite;
             }
         }
 
@@ -82,6 +86,7 @@ namespace Game.Gameplay.Transmutation
                 if (spriteRenderer != null)
                 {
                     spriteRenderer.color = trampolineColor;
+                    if (trampolineSprite != null) spriteRenderer.sprite = trampolineSprite;
                 }
 
                 OnStateChanged?.Invoke(true);
@@ -116,6 +121,7 @@ namespace Game.Gameplay.Transmutation
             if (spriteRenderer != null)
             {
                 spriteRenderer.color = originalColor;
+                if (originalSprite != null) spriteRenderer.sprite = originalSprite;
             }
 
             OnStateChanged?.Invoke(false);

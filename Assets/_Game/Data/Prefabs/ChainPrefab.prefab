@@ -120,6 +120,8 @@ MonoBehaviour:
   toolType: 4
   lifetimeSeconds: 6.5
   autoDisappear: 1
+  isSimulating: 0
+  fixedWhenPlaced: 1
 --- !u!114 &3267079859981986833
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -135,5 +137,5 @@ MonoBehaviour:
   linkSpacing: 0.35
   maxSag: 0.15
   edgeRadius: 0.1
-  linkSprite: {fileID: 8265709568917298549, guid: fe406a3b44976d243acff7da35ef1ec4, type: 3}
+  linkSprite: {fileID: 21300000, guid: e089b013b61bee844b0a91c3a045910c, type: 3}
   anchorSprite: {fileID: -7898994332629244238, guid: 10c80e8642f62784282e566dd6346be4, type: 3}
