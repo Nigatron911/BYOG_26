@@ -135,7 +135,7 @@ namespace Game.Core.Bootstrap
 
             if (playerHUD != null && playerController != null)
             {
-                playerHUD.BindPlayer(playerController);
+                playerHUD.BindPlayer(playerController, null, gameEvents);
             }
 
             // Camera listens before the level manager publishes the first level's framing.

@@ -13,13 +13,21 @@ namespace Game.Presentation.UI
     {
         [Header("UI Document")]
         [SerializeField] private UIDocument uiDocument;
-        [Tooltip("Show the gravity mode / countdown bar in the gravity levels. Off by design: gravity shifts are felt, not announced.")]
-        [SerializeField] private bool showGravityStatus = false;
+
+        [Header("Gravity Mode Icon (Levels 3 & 4)")]
+        [SerializeField] private Sprite earthIconSprite;
+        [SerializeField] private Sprite moonIconSprite;
+        [SerializeField] private Sprite invertedIconSprite;
 
         private AutonomousPlayerController player;
         private VisualElement stuckWarningCard;
         private Label stuckTimerLabel;
         private VisualElement stuckProgressFill;
+
+        private VisualElement gravityIconBox;
+        private VisualElement gravityIconImage;
+        private int currentLevelNumber = 0;
+        private Game.Core.Events.GameEvents events;
 
         private VisualElement gravityStatusCard;
         private Label gravityModeLabel;
@@ -38,19 +46,51 @@ namespace Game.Presentation.UI
             {
                 uiDocument = GetComponent<UIDocument>() ?? GetComponentInParent<UIDocument>();
             }
+            EnsureSpritesLoaded();
             BindUI();
         }
 
         private void OnEnable()
         {
+            EnsureSpritesLoaded();
             BindUI();
         }
 
-        public void BindPlayer(AutonomousPlayerController targetPlayer, UIDocument doc = null)
+        private void OnDestroy()
+        {
+            if (events != null)
+            {
+                events.LevelLoaded -= OnLevelLoaded;
+            }
+        }
+
+        private void EnsureSpritesLoaded()
+        {
+#if UNITY_EDITOR
+            if (earthIconSprite == null) earthIconSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/_Game/Art/Paper/Icon_Gravity_Earth.png");
+            if (moonIconSprite == null) moonIconSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/_Game/Art/Paper/Icon_Gravity_Moon.png");
+            if (invertedIconSprite == null) invertedIconSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/_Game/Art/Paper/Icon_Gravity_Inverted.png");
+#endif
+        }
+
+        public void BindPlayer(AutonomousPlayerController targetPlayer, UIDocument doc = null, Game.Core.Events.GameEvents gameEvents = null)
         {
             if (doc != null) uiDocument = doc;
             player = targetPlayer;
+            if (gameEvents != null)
+            {
+                if (events != null) events.LevelLoaded -= OnLevelLoaded;
+                events = gameEvents;
+                events.LevelLoaded += OnLevelLoaded;
+            }
+            EnsureSpritesLoaded();
             BindUI();
+        }
+
+        private void OnLevelLoaded(int level)
+        {
+            currentLevelNumber = level;
+            UpdateGravityIndicator();
         }
 
         private void BindUI()
@@ -62,6 +102,9 @@ namespace Game.Presentation.UI
             stuckTimerLabel = root.Q<Label>("StuckTimerText");
             stuckProgressFill = root.Q<VisualElement>("StuckProgressFill");
 
+            gravityIconBox = root.Q<VisualElement>("GravityIconBox");
+            gravityIconImage = root.Q<VisualElement>("GravityIconImage");
+
             gravityStatusCard = root.Q<VisualElement>("GravityStatusPanel");
             gravityModeLabel = root.Q<Label>("GravityModeLabel");
             gravityTimerLabel = root.Q<Label>("GravityTimerLabel");
@@ -72,6 +115,11 @@ namespace Game.Presentation.UI
             btnMatPaper = root.Q<Button>("Btn_MatPaper");
             btnMatStone = root.Q<Button>("Btn_MatStone");
             btnMatRubber = root.Q<Button>("Btn_MatRubber");
+
+            if (gravityIconBox != null)
+            {
+                gravityIconBox.style.display = DisplayStyle.None;
+            }
 
             if (btnMatPaper != null)
             {
@@ -163,70 +211,72 @@ namespace Game.Presentation.UI
 
         private void UpdateGravityIndicator()
         {
-            if (gravityStatusCard == null) return;
+            if (gravityStatusCard != null)
+            {
+                gravityStatusCard.style.display = DisplayStyle.None;
+            }
+
+            if (gravityIconBox == null) return;
+
+            if (currentLevelNumber <= 0)
+            {
+                var lm = FindFirstObjectByType<Game.Gameplay.LevelProgressionManager>();
+                if (lm != null) currentLevelNumber = lm.CurrentLevelNumber;
+            }
 
             var gravCtrl = player != null ? player.GravityController : null;
-            if (!showGravityStatus || gravCtrl == null || !gravCtrl.enabled)
+            bool isGravityLevel = (currentLevelNumber == 3 || currentLevelNumber == 4) && gravCtrl != null && gravCtrl.enabled;
+
+            if (!isGravityLevel)
             {
-                if (gravityStatusCard.style.display != DisplayStyle.None)
+                if (gravityIconBox.style.display != DisplayStyle.None)
                 {
-                    gravityStatusCard.style.display = DisplayStyle.None;
+                    gravityIconBox.style.display = DisplayStyle.None;
                 }
                 return;
             }
 
-            // Always display gravity status when in Level 3 with PlayerGravityController enabled
-            if (gravityStatusCard.style.display != DisplayStyle.Flex)
+            if (gravityIconBox.style.display != DisplayStyle.Flex)
             {
-                gravityStatusCard.style.display = DisplayStyle.Flex;
+                gravityIconBox.style.display = DisplayStyle.Flex;
             }
 
-            gravityStatusCard.RemoveFromClassList("gravity-status-card-earth");
-            gravityStatusCard.RemoveFromClassList("gravity-status-card-roof");
-            gravityModeLabel?.RemoveFromClassList("gravity-mode-label-earth");
-            gravityModeLabel?.RemoveFromClassList("gravity-mode-label-roof");
+            gravityIconBox.RemoveFromClassList("gravity-icon-box--earth");
+            gravityIconBox.RemoveFromClassList("gravity-icon-box--moon");
+            gravityIconBox.RemoveFromClassList("gravity-icon-box--inverted");
+
+            gravityIconImage?.RemoveFromClassList("gravity-icon-image--earth");
+            gravityIconImage?.RemoveFromClassList("gravity-icon-image--moon");
+            gravityIconImage?.RemoveFromClassList("gravity-icon-image--inverted");
 
             switch (gravCtrl.CurrentMode)
             {
                 case GravityMode.Earth:
-                    gravityStatusCard.AddToClassList("gravity-status-card-earth");
-                    if (gravityModeLabel != null)
+                    gravityIconBox.AddToClassList("gravity-icon-box--earth");
+                    gravityIconImage?.AddToClassList("gravity-icon-image--earth");
+                    if (earthIconSprite != null && gravityIconImage != null)
                     {
-                        string prefix = gravCtrl.IsRandomCycleEnabled ? "🎲 RANDOM: 🌍 EARTH GRAVITY" : "🌍 EARTH GRAVITY";
-                        gravityModeLabel.text = $"{prefix} [W: Jump | A: Left | D: Right]";
-                        gravityModeLabel.AddToClassList("gravity-mode-label-earth");
+                        gravityIconImage.style.backgroundImage = new StyleBackground(earthIconSprite);
                     }
                     break;
 
                 case GravityMode.Moon:
-                    if (gravityModeLabel != null)
+                    gravityIconBox.AddToClassList("gravity-icon-box--moon");
+                    gravityIconImage?.AddToClassList("gravity-icon-image--moon");
+                    if (moonIconSprite != null && gravityIconImage != null)
                     {
-                        string prefix = gravCtrl.IsRandomCycleEnabled ? "🎲 RANDOM: 🌙 MOON GRAVITY" : "🌙 MOON GRAVITY";
-                        gravityModeLabel.text = $"{prefix} (FLOATING) [W: Float Up | A: Left | D: Right]";
+                        gravityIconImage.style.backgroundImage = new StyleBackground(moonIconSprite);
                     }
                     break;
 
                 case GravityMode.InvertedRoof:
-                    gravityStatusCard.AddToClassList("gravity-status-card-roof");
-                    if (gravityModeLabel != null)
+                    gravityIconBox.AddToClassList("gravity-icon-box--inverted");
+                    gravityIconImage?.AddToClassList("gravity-icon-image--inverted");
+                    if (invertedIconSprite != null && gravityIconImage != null)
                     {
-                        string prefix = gravCtrl.IsRandomCycleEnabled ? "🎲 RANDOM: 🔄 ROOF GRAVITY" : "🔄 ROOF GRAVITY";
-                        gravityModeLabel.text = $"{prefix} [S: Jump Down | A: Right | D: Left]";
-                        gravityModeLabel.AddToClassList("gravity-mode-label-roof");
+                        gravityIconImage.style.backgroundImage = new StyleBackground(invertedIconSprite);
                     }
                     break;
-            }
-
-            if (gravityTimerLabel != null)
-            {
-                if (player.IsSimulating)
-                {
-                    gravityTimerLabel.text = $"Switching in {gravCtrl.TimeRemainingInMode:F1}s  •  [G] Toggle";
-                }
-                else
-                {
-                    gravityTimerLabel.text = "Simulate to begin gravity cycle  •  [G] Toggle";
-                }
             }
         }
 

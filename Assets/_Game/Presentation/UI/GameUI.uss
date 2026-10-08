@@ -70,6 +70,53 @@
     background-color: rgb(181, 67, 47);
 }
 
+/* ---------- Small Gravity Icon Box (Levels 3 & 4 only) ---------- */
+.gravity-icon-box {
+    width: 62px;
+    height: 62px;
+    background-image: url("/Assets/_Game/Art/Paper/UI_Paper.png");
+    -unity-background-scale-mode: scale-and-crop;
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    background-color: rgb(243, 238, 226);
+    border-radius: 8px;
+    border-width: 3px;
+    border-color: rgb(43, 37, 34);
+    align-items: center;
+    justify-content: center;
+    display: none;
+    margin-top: 6px;
+}
+
+.gravity-icon-box--earth {
+    border-color: rgb(62, 122, 74);
+}
+
+.gravity-icon-box--moon {
+    border-color: rgb(120, 90, 160);
+}
+
+.gravity-icon-box--inverted {
+    border-color: rgb(181, 67, 47);
+}
+
+.gravity-icon-image {
+    width: 48px;
+    height: 48px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.gravity-icon-image--earth {
+    background-image: url("/Assets/_Game/Art/Paper/Icon_Gravity_Earth.png");
+}
+
+.gravity-icon-image--moon {
+    background-image: url("/Assets/_Game/Art/Paper/Icon_Gravity_Moon.png");
+}
+
+.gravity-icon-image--inverted {
+    background-image: url("/Assets/_Game/Art/Paper/Icon_Gravity_Inverted.png");
+}
+
 .gravity-status-card {
     background-image: url("/Assets/_Game/Art/Paper/UI_Paper.png");
     -unity-background-scale-mode: scale-and-crop;

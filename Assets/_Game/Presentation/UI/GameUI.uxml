@@ -11,6 +11,11 @@
                 </ui:VisualElement>
             </ui:VisualElement>
 
+            <!-- Gravity Mode Icon (Levels 3 & 4 only) -->
+            <ui:VisualElement name="GravityIconBox" class="gravity-icon-box" picking-mode="Ignore">
+                <ui:VisualElement name="GravityIconImage" class="gravity-icon-image" picking-mode="Ignore" />
+            </ui:VisualElement>
+
             <ui:VisualElement name="GravityStatusPanel" class="gravity-status-card">
                 <ui:Label name="GravityModeLabel" class="gravity-mode-label" text="🌙 MOON GRAVITY [W: Jump | A: Left | D: Right]" />
                 <ui:Label name="GravityTimerLabel" class="gravity-timer-label" text="Switching in 5.0s  •  [G] Toggle" />

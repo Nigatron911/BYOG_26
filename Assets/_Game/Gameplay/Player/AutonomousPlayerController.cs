@@ -182,7 +182,37 @@ namespace Game.Gameplay.Player
             {
                 spriteRenderer.color = defaultSpriteColor;
             }
+            CheckOverlappingClimbable();
             Debug.Log("[AutonomousPlayerController] Simulation started! Player is walking.");
+        }
+
+        private void CheckOverlappingClimbable()
+        {
+            if (bodyCollider == null) bodyCollider = GetComponent<Collider2D>();
+            if (bodyCollider == null) return;
+
+            Collider2D[] overlaps = new Collider2D[10];
+            ContactFilter2D filter = new ContactFilter2D();
+            filter.useTriggers = true;
+            filter.SetLayerMask(~0);
+            int count = bodyCollider.Overlap(filter, overlaps);
+            for (int i = 0; i < count; i++)
+            {
+                var col = overlaps[i];
+                if (col == null || col == bodyCollider) continue;
+
+                IClimbable climbable = col.GetComponent<IClimbable>() 
+                    ?? col.GetComponentInParent<IClimbable>() 
+                    ?? col.GetComponentInChildren<IClimbable>();
+                if (climbable != null)
+                {
+                    isClimbing = true;
+                    activeClimbable = climbable;
+                    if (rb != null) rb.gravityScale = 0f;
+                    IgnoreLadderSolidColliders(climbable, true);
+                    break;
+                }
+            }
         }
 
         private void OnSimulationStopped()
@@ -274,13 +304,18 @@ namespace Game.Gameplay.Player
                 if (TrajectoryLog.Count > 100) TrajectoryLog.RemoveAt(0);
             }
 
-            bool hasManualInput = Mathf.Abs(cachedInputX) > 0.05f || jumpBufferTimer > 0f;
-
             if (isClimbing && activeClimbable != null)
             {
-                HandleClimbing();
+                if (!isSimulating && locomotionMode == LocomotionMode.Autonomous)
+                {
+                    DismountLadder(true);
+                }
+                else
+                {
+                    HandleClimbing();
+                }
             }
-            else if (locomotionMode == LocomotionMode.Manual || (hasManualInput && !isSimulating))
+            else if (locomotionMode == LocomotionMode.Manual)
             {
                 HandleManualMovement();
             }
@@ -321,10 +356,17 @@ namespace Game.Gameplay.Player
             if (groundCoyoteTimer > 0f) groundCoyoteTimer -= Time.deltaTime;
             if (roofCoyoteTimer > 0f) roofCoyoteTimer -= Time.deltaTime;
 
-            // Capture frame-accurate keyboard inputs for manual testing and manual mode
-            if (locomotionMode != LocomotionMode.Material && !isPaused)
+            // Capture frame-accurate keyboard inputs for manual mode only (Levels 3, 4, 7, 8)
+            // In Autonomous mode (Levels 1 & 2), all manual W/A/D player inputs are strictly disabled
+            if (locomotionMode == LocomotionMode.Manual && !isPaused)
             {
                 ReadManualInputs();
+            }
+            else if (locomotionMode == LocomotionMode.Autonomous)
+            {
+                cachedInputX = 0f;
+                jumpBufferTimer = 0f;
+                roofJumpBufferTimer = 0f;
             }
 
             // In Manual mode with GravityController, maintain exact gravity mode orientation
@@ -799,6 +841,7 @@ namespace Game.Gameplay.Player
         private void OnTriggerEnter2D(Collider2D other)
         {
             if (isDead) return;
+            if (!isSimulating && locomotionMode == LocomotionMode.Autonomous) return;
 
             var trans = other.GetComponent<Game.Gameplay.Transmutation.ITransmutable>() 
                 ?? other.GetComponentInParent<Game.Gameplay.Transmutation.ITransmutable>();
@@ -832,6 +875,7 @@ namespace Game.Gameplay.Player
         private void OnCollisionEnter2D(Collision2D collision)
         {
             if (isDead) return;
+            if (!isSimulating && locomotionMode == LocomotionMode.Autonomous) return;
 
             var trans = collision.gameObject.GetComponent<Game.Gameplay.Transmutation.ITransmutable>() 
                 ?? collision.gameObject.GetComponentInParent<Game.Gameplay.Transmutation.ITransmutable>();
@@ -866,6 +910,7 @@ namespace Game.Gameplay.Player
         private void OnCollisionStay2D(Collision2D collision)
         {
             if (isDead || isClimbing) return;
+            if (!isSimulating && locomotionMode == LocomotionMode.Autonomous) return;
 
             var trans = collision.gameObject.GetComponent<Game.Gameplay.Transmutation.ITransmutable>() 
                 ?? collision.gameObject.GetComponentInParent<Game.Gameplay.Transmutation.ITransmutable>();
@@ -900,6 +945,7 @@ namespace Game.Gameplay.Player
         private void OnTriggerStay2D(Collider2D other)
         {
             if (isDead || isClimbing) return;
+            if (!isSimulating && locomotionMode == LocomotionMode.Autonomous) return;
 
             IClimbable climbable = other.GetComponent<IClimbable>() 
                 ?? other.GetComponentInParent<IClimbable>() 

@@ -1448,6 +1448,226 @@ namespace Game.Tests.EditMode
             Assert.AreEqual(1f, rb.gravityScale, "Gravity scale must restore to 1.0 after dismount");
             Assert.Greater(rb.linearVelocity.x, 0f, "Player must step forward onto upper platform upon dismount");
         }
+
+        [Test]
+        public void PlacementSystem_Level1_FIFO_ToolsDisappearInPlacementOrder()
+        {
+            var psGO = CreateTestGameObject("TestPS_L1");
+            var ps = psGO.AddComponent<PlacementSystem>();
+            ps.SetToolLifetime(6.5f); // Level 1 lifetime
+
+            var tool1GO = CreateTestGameObject("Tool1_Plank");
+            tool1GO.AddComponent<Rigidbody2D>();
+            var tool1 = tool1GO.AddComponent<DraggableTool>();
+            tool1.SetType(ToolType.Plank);
+            tool1.SetPreviewMode(false);
+
+            var tool2GO = CreateTestGameObject("Tool2_Ladder");
+            tool2GO.AddComponent<Rigidbody2D>();
+            var tool2 = tool2GO.AddComponent<DraggableTool>();
+            tool2.SetType(ToolType.Ladder);
+            tool2.SetPreviewMode(false);
+
+            var tool3GO = CreateTestGameObject("Tool3_Platform");
+            tool3GO.AddComponent<Rigidbody2D>();
+            var tool3 = tool3GO.AddComponent<DraggableTool>();
+            tool3.SetType(ToolType.Platform);
+            tool3.SetPreviewMode(false);
+
+            // Register in chronological placement order
+            ps.RegisterPlacedTool(tool1);
+            ps.RegisterPlacedTool(tool2);
+            ps.RegisterPlacedTool(tool3);
+
+            ps.ApplySequentialLifetimes();
+
+            // First placed disappears first, followed in order
+            Assert.Less(tool1.LifetimeSeconds, tool2.LifetimeSeconds, "Tool 1 (placed 1st) must disappear before Tool 2 (placed 2nd).");
+            Assert.Less(tool2.LifetimeSeconds, tool3.LifetimeSeconds, "Tool 2 (placed 2nd) must disappear before Tool 3 (placed 3rd).");
+
+            Assert.AreEqual(4.5f, tool1.LifetimeSeconds, 0.01f, "Tool 1 should have 4.5s lifetime.");
+            Assert.AreEqual(6.5f, tool2.LifetimeSeconds, 0.01f, "Tool 2 should have 6.5s lifetime.");
+            Assert.AreEqual(8.5f, tool3.LifetimeSeconds, 0.01f, "Tool 3 should have 8.5s lifetime.");
+
+            Object.DestroyImmediate(tool1GO);
+            Object.DestroyImmediate(tool2GO);
+            Object.DestroyImmediate(tool3GO);
+            Object.DestroyImmediate(psGO);
+        }
+
+        [Test]
+        public void PlacementSystem_Level2_FIFO_ToolsDisappearInPlacementOrder()
+        {
+            var psGO = CreateTestGameObject("TestPS_L2");
+            var ps = psGO.AddComponent<PlacementSystem>();
+            ps.SetToolLifetime(8.0f); // Level 2 lifetime
+
+            var t1GO = CreateTestGameObject("L2_Tool1");
+            t1GO.AddComponent<Rigidbody2D>();
+            var t1 = t1GO.AddComponent<DraggableTool>();
+            t1.SetPreviewMode(false);
+
+            var t2GO = CreateTestGameObject("L2_Tool2");
+            t2GO.AddComponent<Rigidbody2D>();
+            var t2 = t2GO.AddComponent<DraggableTool>();
+            t2.SetPreviewMode(false);
+
+            var t3GO = CreateTestGameObject("L2_Tool3");
+            t3GO.AddComponent<Rigidbody2D>();
+            var t3 = t3GO.AddComponent<DraggableTool>();
+            t3.SetPreviewMode(false);
+
+            var t4GO = CreateTestGameObject("L2_Tool4");
+            t4GO.AddComponent<Rigidbody2D>();
+            var t4 = t4GO.AddComponent<DraggableTool>();
+            t4.SetPreviewMode(false);
+
+            ps.RegisterPlacedTool(t1);
+            ps.RegisterPlacedTool(t2);
+            ps.RegisterPlacedTool(t3);
+            ps.RegisterPlacedTool(t4);
+
+            ps.ApplySequentialLifetimes();
+
+            Assert.Less(t1.LifetimeSeconds, t2.LifetimeSeconds);
+            Assert.Less(t2.LifetimeSeconds, t3.LifetimeSeconds);
+            Assert.Less(t3.LifetimeSeconds, t4.LifetimeSeconds);
+
+            Assert.AreEqual(5.0f, t1.LifetimeSeconds, 0.01f);
+            Assert.AreEqual(7.0f, t2.LifetimeSeconds, 0.01f);
+            Assert.AreEqual(9.0f, t3.LifetimeSeconds, 0.01f);
+            Assert.AreEqual(11.0f, t4.LifetimeSeconds, 0.01f);
+
+            Object.DestroyImmediate(t1GO);
+            Object.DestroyImmediate(t2GO);
+            Object.DestroyImmediate(t3GO);
+            Object.DestroyImmediate(t4GO);
+            Object.DestroyImmediate(psGO);
+        }
+
+        [Test]
+        public void PlacementSystem_RepositionedTool_MovesToEndOfDisappearingOrder()
+        {
+            var psGO = CreateTestGameObject("TestPS_Repo");
+            var ps = psGO.AddComponent<PlacementSystem>();
+            ps.SetToolLifetime(6.5f);
+
+            var t1GO = CreateTestGameObject("Repo_Tool1");
+            t1GO.AddComponent<Rigidbody2D>();
+            var t1 = t1GO.AddComponent<DraggableTool>();
+            t1.SetPreviewMode(false);
+
+            var t2GO = CreateTestGameObject("Repo_Tool2");
+            t2GO.AddComponent<Rigidbody2D>();
+            var t2 = t2GO.AddComponent<DraggableTool>();
+            t2.SetPreviewMode(false);
+
+            // Initially Tool 1 placed first, then Tool 2
+            ps.RegisterPlacedTool(t1);
+            ps.RegisterPlacedTool(t2);
+
+            // Tool 1 is repositioned (re-registered after Tool 2)
+            ps.RegisterPlacedTool(t1);
+
+            ps.ApplySequentialLifetimes();
+
+            // Tool 2 was placed earlier than repositioned Tool 1, so Tool 2 disappears FIRST!
+            Assert.Less(t2.LifetimeSeconds, t1.LifetimeSeconds, "Tool 2 must now disappear before the repositioned Tool 1.");
+
+            Object.DestroyImmediate(t1GO);
+            Object.DestroyImmediate(t2GO);
+            Object.DestroyImmediate(psGO);
+        }
+
+        [Test]
+        public void AutonomousPlayerController_AutonomousMode_IgnoresManualInput()
+        {
+            // Level 1 & Level 2 use LocomotionMode.Autonomous
+            player.SetLocomotionMode(LocomotionMode.Autonomous);
+            Assert.AreEqual(LocomotionMode.Autonomous, player.CurrentLocomotionMode);
+
+            // Attempt manual input override (W/A/D)
+            player.SetTestInputOverride(1.0f, jump: true);
+
+            var updateMethod = typeof(AutonomousPlayerController).GetMethod("Update",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            updateMethod.Invoke(player, null);
+
+            var fixedUpdateMethod = typeof(AutonomousPlayerController).GetMethod("FixedUpdate",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            fixedUpdateMethod.Invoke(player, null);
+
+            var rb = player.GetComponent<Rigidbody2D>();
+            // Player should NOT have moved horizontally from manual input before simulation starts
+            Assert.AreEqual(0f, rb.linearVelocity.x, 0.01f, "Autonomous mode must ignore manual A/D horizontal inputs.");
+            Assert.AreNotEqual(8.5f, rb.linearVelocity.y, "Autonomous mode must ignore manual W jump inputs.");
+
+            player.ClearTestInputOverride();
+        }
+
+        [Test]
+        public void ChainTool_LengthClampedToMax7Point5()
+        {
+            var chainGO = CreateTestGameObject("TestChain_Long");
+            chainGO.AddComponent<Rigidbody2D>();
+            chainGO.AddComponent<EdgeCollider2D>();
+            var drag = chainGO.AddComponent<DraggableTool>();
+            var chain = chainGO.AddComponent<ChainTool>();
+
+            // Attempt to initialize with a span of 15.0 units (much greater than 7.5)
+            chain.Initialize(new Vector2(0f, 0f), new Vector2(15f, 0f), 6.5f);
+
+            Assert.AreEqual(7.5f, chain.Length, 0.01f, "Chain length must be clamped to 7.5 units maximum.");
+            Assert.AreEqual(7.5f, chain.PointB.x, 0.01f, "Chain point B must be adjusted to 7.5 distance from start.");
+
+            Object.DestroyImmediate(chainGO);
+        }
+
+        [Test]
+        public void Ladder_DoesNotInteractWithPlayer_BeforeSimulationStarts()
+        {
+            // Player is in Autonomous mode, not simulating
+            Assert.IsFalse(player.IsSimulating);
+            Assert.IsFalse(player.IsClimbing);
+
+            var ladderGO = CreateTestGameObject("TestLadder");
+            var ladderCol = ladderGO.AddComponent<BoxCollider2D>();
+            ladderCol.isTrigger = true;
+            var climbZone = ladderGO.AddComponent<LadderClimbZone>();
+
+            // Simulate trigger enter before simulation button is pressed
+            var onTriggerEnterMethod = typeof(AutonomousPlayerController).GetMethod("OnTriggerEnter2D",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onTriggerEnterMethod.Invoke(player, new object[] { ladderCol });
+
+            // Player MUST NOT interact with the ladder before simulation
+            Assert.IsFalse(player.IsClimbing, "Player must not climb ladder before simulation starts at any cost.");
+
+            Object.DestroyImmediate(ladderGO);
+        }
+
+        [Test]
+        public void Ladder_InteractsWithPlayer_AfterSimulationStarts()
+        {
+            var ladderGO = CreateTestGameObject("TestLadder");
+            ladderGO.transform.position = player.transform.position;
+            var ladderCol = ladderGO.AddComponent<BoxCollider2D>();
+            ladderCol.isTrigger = true;
+            var climbZone = ladderGO.AddComponent<LadderClimbZone>();
+
+            // Start simulation
+            events.PublishSimulationStarted();
+            Assert.IsTrue(player.IsSimulating);
+
+            // Now trigger interaction
+            var onTriggerEnterMethod = typeof(AutonomousPlayerController).GetMethod("OnTriggerEnter2D",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            onTriggerEnterMethod.Invoke(player, new object[] { ladderCol });
+
+            Assert.IsTrue(player.IsClimbing, "Player must interact and climb ladder after simulation starts.");
+
+            Object.DestroyImmediate(ladderGO);
+        }
     }
 }
 #endif

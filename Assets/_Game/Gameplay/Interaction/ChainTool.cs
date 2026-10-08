@@ -25,6 +25,8 @@ namespace Game.Gameplay.Interaction
         private DraggableTool draggableTool;
         private readonly List<GameObject> spawnedChildren = new List<GameObject>();
 
+        public const float MaxChainLength = 7.5f;
+
         public Vector2 PointA => pointA;
         public Vector2 PointB => pointB;
         public float Length => Vector2.Distance(pointA, pointB);
@@ -45,6 +47,12 @@ namespace Game.Gameplay.Interaction
         {
             if (customLink != null) linkSprite = customLink;
             if (customAnchor != null) anchorSprite = customAnchor;
+
+            float initDist = Vector2.Distance(start, end);
+            if (initDist > MaxChainLength && initDist > 0.001f)
+            {
+                end = start + (end - start).normalized * MaxChainLength;
+            }
 
             pointA = start;
             pointB = end;
@@ -68,6 +76,13 @@ namespace Game.Gameplay.Interaction
 
         public void BuildChain(Vector2 start, Vector2 end)
         {
+            float span = Vector2.Distance(start, end);
+            if (span > MaxChainLength && span > 0.001f)
+            {
+                end = start + (end - start).normalized * MaxChainLength;
+                span = MaxChainLength;
+            }
+
             pointA = start;
             pointB = end;
 
@@ -89,7 +104,6 @@ namespace Game.Gameplay.Interaction
             Vector2 localA = start - mid;
             Vector2 localB = end - mid;
 
-            float span = Vector2.Distance(start, end);
             if (span < 0.2f) span = 0.2f;
 
             // Dynamic sag proportional to span length

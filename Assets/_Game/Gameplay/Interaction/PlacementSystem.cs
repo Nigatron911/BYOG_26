@@ -43,14 +43,31 @@ namespace Game.Gameplay.Interaction
         [Header("Lifetime Settings")]
         [SerializeField] private float toolLifetimeSeconds = 0f;
 
+        // Tracks chronological placement order (FIFO disappearance in Levels 1 & 2)
+        private readonly List<DraggableTool> placedToolsOrder = new List<DraggableTool>();
+
         public bool IsDraggingTool => activeTool != null || isPlacingChain;
         public bool IsSimulating => isSimulating;
         public DraggableTool ActiveTool => activeTool;
         public float ToolLifetimeSeconds => toolLifetimeSeconds;
+        public IReadOnlyList<DraggableTool> PlacedToolsOrder => placedToolsOrder;
 
         public void SetToolLifetime(float seconds)
         {
             toolLifetimeSeconds = seconds;
+            placedToolsOrder.RemoveAll(t => t == null);
+        }
+
+        public void RegisterPlacedTool(DraggableTool tool)
+        {
+            if (tool == null) return;
+            placedToolsOrder.Remove(tool);
+            placedToolsOrder.Add(tool);
+        }
+
+        public void ClearPlacedToolsOrder()
+        {
+            placedToolsOrder.Clear();
         }
 
         public void SetToolLimit(ToolType type, int count)
@@ -165,6 +182,7 @@ namespace Game.Gameplay.Interaction
             isSimulating = false;
             SetAllToolsSimulating(false);
             CancelChainPlacement();
+            placedToolsOrder.Clear();
         }
 
         private void OnLevelResetRequested()
@@ -183,20 +201,99 @@ namespace Game.Gameplay.Interaction
                 var go = GameObject.Find("Placed_Tools");
                 if (go != null) toolsContainer = go.transform;
             }
-            if (toolsContainer == null) return;
 
-            var tools = toolsContainer.GetComponentsInChildren<DraggableTool>(true);
-            foreach (var tool in tools)
+            // Prune destroyed or null references
+            placedToolsOrder.RemoveAll(t => t == null);
+
+            // Synchronize with toolsContainer to capture any tools placed outside this system
+            if (toolsContainer != null)
             {
-                if (tool != null)
+                var tools = toolsContainer.GetComponentsInChildren<DraggableTool>(true);
+                foreach (var tool in tools)
                 {
-                    tool.SetSimulating(simulating);
+                    if (tool != null && tool.IsPlaced && !placedToolsOrder.Contains(tool))
+                    {
+                        placedToolsOrder.Add(tool);
+                    }
+                }
+            }
+
+            if (simulating)
+            {
+                ApplySequentialLifetimes();
+
+                foreach (var tool in placedToolsOrder)
+                {
+                    if (tool != null)
+                    {
+                        tool.SetSimulating(true);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var tool in placedToolsOrder)
+                {
+                    if (tool != null)
+                    {
+                        tool.SetSimulating(false);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Applies sequential (FIFO) lifetimes to placed tools in Levels 1 & 2.
+        /// The tool placed first will disappear first, followed in order by subsequent placed tools.
+        /// </summary>
+        public void ApplySequentialLifetimes()
+        {
+            placedToolsOrder.RemoveAll(t => t == null);
+
+            if (placedToolsOrder.Count == 0) return;
+
+            // If lifetime is disabled (0), disable auto-disappear
+            if (toolLifetimeSeconds <= 0f)
+            {
+                for (int i = 0; i < placedToolsOrder.Count; i++)
+                {
+                    if (placedToolsOrder[i] != null) placedToolsOrder[i].SetLifetime(0f);
+                }
+                return;
+            }
+
+            int count = placedToolsOrder.Count;
+            if (count == 1)
+            {
+                if (placedToolsOrder[0] != null)
+                {
+                    placedToolsOrder[0].SetLifetime(toolLifetimeSeconds);
+                }
+                return;
+            }
+
+            // Sequential FIFO Disappearance:
+            // First tool placed (index 0) disappears first.
+            // Subsequent tools placed disappear in chronological order.
+            float stagger = 2.0f;
+            float firstToolLifetime = Mathf.Max(3.5f, toolLifetimeSeconds - (count - 1) * 1.0f);
+
+            for (int i = 0; i < count; i++)
+            {
+                if (placedToolsOrder[i] != null)
+                {
+                    float lifetime = firstToolLifetime + (i * stagger);
+                    placedToolsOrder[i].SetLifetime(lifetime);
                 }
             }
         }
 
         public void ResetAllPlacedTools()
         {
+            placedToolsOrder.RemoveAll(t => t == null);
+
+            ApplySequentialLifetimes();
+
             if (toolsContainer != null)
             {
                 var tools = toolsContainer.GetComponentsInChildren<DraggableTool>(true);
@@ -204,10 +301,6 @@ namespace Game.Gameplay.Interaction
                 {
                     if (tool != null)
                     {
-                        if (toolLifetimeSeconds > 0f)
-                        {
-                            tool.SetLifetime(toolLifetimeSeconds);
-                        }
                         tool.ResetToPlacedTransform();
                     }
                 }
@@ -442,6 +535,9 @@ namespace Game.Gameplay.Interaction
             isSpawningNewTool = false;
             framesSincePickup = 0;
             isHoldingDrag = isDragHold;
+
+            // Remove while being repositioned; will be appended to the end of placement order on ConfirmPlacement
+            placedToolsOrder.Remove(tool);
         }
 
         public void RotateCurrentOrHoveredTool(float deltaAngle)
@@ -628,6 +724,11 @@ namespace Game.Gameplay.Interaction
             {
                 Vector2 start = chainFirstPoint.Value;
                 Vector2 end = cursorWorld;
+                Vector2 toEnd = end - start;
+                if (toEnd.magnitude > ChainTool.MaxChainLength && toEnd.magnitude > 0.001f)
+                {
+                    end = start + toEnd.normalized * ChainTool.MaxChainLength;
+                }
 
                 if (anchorPreviewB != null)
                 {
@@ -667,6 +768,12 @@ namespace Game.Gameplay.Interaction
 
         private void SpawnAndPlaceChain(Vector2 start, Vector2 end)
         {
+            Vector2 toEnd = end - start;
+            if (toEnd.magnitude > ChainTool.MaxChainLength && toEnd.magnitude > 0.001f)
+            {
+                end = start + toEnd.normalized * ChainTool.MaxChainLength;
+            }
+
             if (start.x > end.x)
             {
                 var tmp = start;
@@ -706,6 +813,8 @@ namespace Game.Gameplay.Interaction
             if (drag != null)
             {
                 lastManipulatedTool = drag;
+                placedToolsOrder.Remove(drag);
+                placedToolsOrder.Add(drag);
             }
 
             events?.PublishToolPlaced(ToolType.Chain, end);
@@ -735,6 +844,10 @@ namespace Game.Gameplay.Interaction
                 events.PublishToolPlaced(activeTool.Type, activeTool.transform.position);
             }
 
+            // Track chronological placement order (FIFO): remove if already present, then append
+            placedToolsOrder.Remove(activeTool);
+            placedToolsOrder.Add(activeTool);
+
             lastManipulatedTool = activeTool;
             activeTool = null;
             isSpawningNewTool = false;
@@ -750,11 +863,16 @@ namespace Game.Gameplay.Interaction
 
             if (isSpawningNewTool)
             {
+                placedToolsOrder.Remove(activeTool);
                 Destroy(activeTool.gameObject);
             }
             else
             {
                 activeTool.DropWithPhysics();
+                if (!placedToolsOrder.Contains(activeTool))
+                {
+                    placedToolsOrder.Add(activeTool);
+                }
             }
 
             activeTool = null;
@@ -767,6 +885,7 @@ namespace Game.Gameplay.Interaction
         {
             if (activeTool != null)
             {
+                placedToolsOrder.Remove(activeTool);
                 Destroy(activeTool.gameObject);
                 activeTool = null;
                 isSpawningNewTool = false;
@@ -779,6 +898,7 @@ namespace Game.Gameplay.Interaction
                 DraggableTool hovered = GetToolUnderCursor(cursor);
                 if (hovered != null)
                 {
+                    placedToolsOrder.Remove(hovered);
                     Destroy(hovered.gameObject);
                 }
             }
